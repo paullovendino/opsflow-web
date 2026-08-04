@@ -2,9 +2,9 @@ import { createRouter, createWebHistory } from 'vue-router'
 import GuestLayout from '@/layouts/GuestLayout.vue'
 import AuthLayout from '@/layouts/AuthLayout.vue'
 import LoginView from '@/views/auth/LoginView.vue'
-import AppHomeView from '@/views/AppHomeView.vue'
 import ForbiddenView from '@/views/errors/ForbiddenView.vue'
 import NotFoundView from '@/views/errors/NotFoundView.vue'
+import DashboardView from '@/modules/dashboard/views/DashboardView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -28,14 +28,21 @@ const router = createRouter({
     {
       path: '/',
       component: AuthLayout,
+      meta: {
+        requiresAuth: true,
+      },
       children: [
         {
           path: '',
-          name: 'home',
-          component: AppHomeView,
+          redirect: { name: 'dashboard' },
+        },
+        {
+          path: 'dashboard',
+          name: 'dashboard',
+          component: DashboardView,
           meta: {
             requiresAuth: true,
-            title: 'Home',
+            title: 'Dashboard',
           },
         },
       ],

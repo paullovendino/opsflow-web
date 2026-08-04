@@ -28,7 +28,8 @@ Default API URL: `http://localhost:8000` (`VITE_API_BASE_URL`)
 - `npm run build` — type-check + production build
 - `npm run preview` — preview production build
 
-## Milestone 8
+## Status
 
-Frontend Foundation: auth shell, login/logout/`/me`, Guest/Auth layouts.  
-Feature pages (Dashboard, Users, Projects, Tasks, Reports) are out of scope.
+- ✅ Milestone 8 — Frontend Foundation (auth shell, layouts, shared UI)
+- ✅ Phase 9.1 — Dashboard UI (`/dashboard`, `GET /api/v1/dashboard`)
+- 📋 Next — Phase 9.2 User Management (awaiting approval)

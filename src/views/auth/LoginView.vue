@@ -64,8 +64,8 @@ async function onSubmit(): Promise<void> {
       password: form.password,
     })
 
-    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : '/'
-    await router.replace(redirect || '/')
+    const redirect = typeof route.query.redirect === 'string' ? route.query.redirect : null
+    await router.replace(redirect || { name: 'dashboard' })
   } catch (error) {
     const apiError = toApiClientError(error)
 
@@ -83,7 +83,7 @@ async function onSubmit(): Promise<void> {
 
     if (apiError.status === 403 && apiError.message === 'Already authenticated.') {
       await refreshUser()
-      await router.replace({ name: 'home' })
+      await router.replace({ name: 'dashboard' })
       return
     }
 

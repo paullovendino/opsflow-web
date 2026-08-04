@@ -17,7 +17,7 @@ export function setupRouterGuards(router: Router): void {
     }
 
     if (to.meta.guest === true && auth.isAuthenticated) {
-      return { name: 'home' }
+      return { name: 'dashboard' }
     }
 
     return true

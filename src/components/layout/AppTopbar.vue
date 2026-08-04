@@ -12,7 +12,7 @@ const { fullName, email, logout, isLoading } = useAuth()
 
 const title = computed(() => {
   const metaTitle = route.meta.title
-  return typeof metaTitle === 'string' ? metaTitle : 'Home'
+  return typeof metaTitle === 'string' ? metaTitle : 'Dashboard'
 })
 
 async function onLogout(): Promise<void> {
