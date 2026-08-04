@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue'
 import { RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { useAuth } from '@/composables/useAuth'
@@ -9,8 +10,11 @@ const ui = useUiStore()
 const { isSidebarOpen } = storeToRefs(ui)
 const { roleName } = useAuth()
 
+const showUsers = computed(
+  () => roleName.value === 'administrator' || roleName.value === 'project_manager',
+)
+
 const upcoming = [
-  { label: 'Users', roles: ['administrator', 'project_manager'] },
   { label: 'Projects', roles: ['administrator', 'project_manager', 'employee'] },
   { label: 'Tasks', roles: ['administrator', 'project_manager', 'employee'] },
   { label: 'Reports', roles: ['administrator', 'project_manager', 'employee'] },
@@ -23,6 +27,10 @@ function showUpcoming(roles: readonly string[]): boolean {
 
   return roles.includes(roleName.value)
 }
+
+const linkClass =
+  'rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
+const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
 </script>
 
 <template>
@@ -39,11 +47,30 @@ function showUpcoming(roles: readonly string[]): boolean {
     <nav class="flex flex-1 flex-col gap-1 p-3" aria-label="Main">
       <RouterLink
         :to="{ name: 'dashboard' }"
-        class="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100"
-        active-class="bg-slate-900 text-white hover:bg-slate-900"
+        :class="linkClass"
+        :active-class="activeClass"
         @click="ui.closeSidebar()"
       >
         Dashboard
+      </RouterLink>
+
+      <RouterLink
+        v-if="showUsers"
+        :to="{ name: 'users.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Users
+      </RouterLink>
+
+      <RouterLink
+        :to="{ name: 'profile' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Profile
       </RouterLink>
 
       <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Coming later</p>

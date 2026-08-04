@@ -5,6 +5,7 @@ declare module 'vue-router' {
     requiresAuth?: boolean
     guest?: boolean
     title?: string
+    roles?: Array<'administrator' | 'project_manager' | 'employee'>
   }
 }
 

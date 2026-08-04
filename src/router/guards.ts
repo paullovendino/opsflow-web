@@ -20,6 +20,14 @@ export function setupRouterGuards(router: Router): void {
       return { name: 'dashboard' }
     }
 
+    const roles = to.meta.roles
+    if (roles && roles.length > 0 && auth.isAuthenticated) {
+      const role = auth.roleName
+      if (!role || !roles.includes(role as (typeof roles)[number])) {
+        return { name: 'forbidden' }
+      }
+    }
+
     return true
   })
 }

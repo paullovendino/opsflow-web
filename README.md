@@ -31,5 +31,6 @@ Default API URL: `http://localhost:8000` (`VITE_API_BASE_URL`)
 ## Status
 
 - ✅ Milestone 8 — Frontend Foundation (auth shell, layouts, shared UI)
-- ✅ Phase 9.1 — Dashboard UI (`/dashboard`, `GET /api/v1/dashboard`)
-- 📋 Next — Phase 9.2 User Management (awaiting approval)
+- ✅ Phase 9.1 — Dashboard UI (`/dashboard`)
+- ✅ Phase 9.2 — User Management UI (`/users` list + modal Create/Edit/View; `/profile` / `/users/:id` pages)
+- 📋 Next — Phase 9.3 Project Management (awaiting approval)

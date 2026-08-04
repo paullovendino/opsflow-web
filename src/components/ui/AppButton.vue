@@ -24,7 +24,7 @@ const variantClass: Record<string, string> = {
 <template>
   <button
     :type="type"
-    class="inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition disabled:cursor-not-allowed disabled:opacity-60"
+    class="inline-flex items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-60"
     :class="variantClass[variant]"
     :disabled="disabled || loading"
   >
