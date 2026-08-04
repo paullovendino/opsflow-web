@@ -1,42 +1,34 @@
-# .
+# OpsFlow Web
 
-This template should help get you started developing with Vue 3 in Vite.
+Vue 3 SPA for OpsFlow (`opsflow-web`).
 
-## Recommended IDE Setup
+## Stack
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+- Vue 3 + TypeScript
+- Pinia
+- Vue Router
+- Axios (Sanctum SPA cookies)
+- Tailwind CSS (`@tailwindcss/vite`)
 
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
+## Setup
 
 ```sh
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
+cp .env.example .env
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Default Vite URL: `http://localhost:5173`  
+Default API URL: `http://localhost:8000` (`VITE_API_BASE_URL`)
 
-```sh
-npm run build
-```
+## Scripts
+
+- `npm run dev` — development server
+- `npm run type-check` — `vue-tsc`
+- `npm run build` — type-check + production build
+- `npm run preview` — preview production build
+
+## Milestone 8
+
+Frontend Foundation: auth shell, login/logout/`/me`, Guest/Auth layouts.  
+Feature pages (Dashboard, Users, Projects, Tasks, Reports) are out of scope.
