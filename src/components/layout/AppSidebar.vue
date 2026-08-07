@@ -15,7 +15,6 @@ const showUsers = computed(
 )
 
 const upcoming = [
-  { label: 'Projects', roles: ['administrator', 'project_manager', 'employee'] },
   { label: 'Tasks', roles: ['administrator', 'project_manager', 'employee'] },
   { label: 'Reports', roles: ['administrator', 'project_manager', 'employee'] },
 ] as const
@@ -62,6 +61,15 @@ const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
         @click="ui.closeSidebar()"
       >
         Users
+      </RouterLink>
+
+      <RouterLink
+        :to="{ name: 'projects.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Projects
       </RouterLink>
 
       <RouterLink

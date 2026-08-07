@@ -8,6 +8,10 @@ import DashboardView from '@/modules/dashboard/views/DashboardView.vue'
 import UserListView from '@/modules/users/views/UserListView.vue'
 import UserShowView from '@/modules/users/views/UserShowView.vue'
 import ProfileView from '@/modules/users/views/ProfileView.vue'
+import ProjectListView from '@/modules/projects/views/ProjectListView.vue'
+import ProjectCreateView from '@/modules/projects/views/ProjectCreateView.vue'
+import ProjectEditView from '@/modules/projects/views/ProjectEditView.vue'
+import ProjectShowView from '@/modules/projects/views/ProjectShowView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -94,6 +98,44 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'My profile',
+          },
+        },
+        {
+          path: 'projects',
+          name: 'projects.index',
+          component: ProjectListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Projects',
+          },
+        },
+        {
+          path: 'projects/create',
+          name: 'projects.create',
+          component: ProjectCreateView,
+          meta: {
+            requiresAuth: true,
+            title: 'Create project',
+            roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'projects/:id/edit',
+          name: 'projects.edit',
+          component: ProjectEditView,
+          meta: {
+            requiresAuth: true,
+            title: 'Edit project',
+            roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'projects/:id',
+          name: 'projects.show',
+          component: ProjectShowView,
+          meta: {
+            requiresAuth: true,
+            title: 'Project details',
           },
         },
       ],

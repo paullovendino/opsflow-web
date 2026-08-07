@@ -18,6 +18,17 @@ export function formatDateTime(value: string): string {
   }).format(date)
 }
 
+export function formatDate(value: string): string {
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) {
+    return value
+  }
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+  }).format(date)
+}
+
 export function entriesFromRecord(record: Record<string, number>): Array<{ label: string; value: number }> {
   return Object.entries(record).map(([key, value]) => ({
     label: humanizeKey(key),

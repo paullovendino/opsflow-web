@@ -1,0 +1,308 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
+import AppModal from '@/components/ui/AppModal.vue'
+import AppPageHeader from '@/components/ui/AppPageHeader.vue'
+import AppSelect from '@/components/ui/AppSelect.vue'
+import StatusBadge from '@/components/ui/StatusBadge.vue'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
+import ProjectMembersPanel from '@/modules/projects/components/ProjectMembersPanel.vue'
+import * as projectService from '@/services/projectService'
+import type { Project, ProjectStatus } from '@/types/project'
+import { PROJECT_STATUSES } from '@/types/project'
+import { toApiClientError } from '@/utils/errors'
+import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
+
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+const { roleName } = useAuth()
+
+const headingRef = ref<HTMLElement | null>(null)
+const project = ref<Project | null>(null)
+const isLoading = ref(true)
+const loadError = ref<string | null>(null)
+
+const canMutate = computed(
+  () => roleName.value === 'administrator' || roleName.value === 'project_manager',
+)
+
+const statusOptions = PROJECT_STATUSES.map((status) => ({
+  value: status,
+  label: humanizeKey(status),
+}))
+
+const confirmDelete = reactive({
+  open: false,
+  loading: false,
+})
+
+const statusDialog = reactive({
+  open: false,
+  loading: false,
+  status: 'planning' as ProjectStatus,
+})
+
+function projectId(): number {
+  return Number(route.params.id)
+}
+
+async function load(): Promise<void> {
+  isLoading.value = true
+  loadError.value = null
+  try {
+    project.value = await projectService.getProject(projectId())
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    loadError.value = apiError.message || 'Unable to load project.'
+    project.value = null
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function goBack(): void {
+  void router.push({ name: 'projects.index' })
+}
+
+function goEdit(): void {
+  void router.push({ name: 'projects.edit', params: { id: projectId() } })
+}
+
+function openStatus(): void {
+  if (!project.value) return
+  statusDialog.status = (PROJECT_STATUSES.includes(project.value.status as ProjectStatus)
+    ? project.value.status
+    : 'planning') as ProjectStatus
+  statusDialog.open = true
+}
+
+function closeStatus(): void {
+  if (statusDialog.loading) return
+  statusDialog.open = false
+}
+
+async function saveStatus(): Promise<void> {
+  if (!project.value) return
+  statusDialog.loading = true
+  try {
+    project.value = await projectService.updateProjectStatus(project.value.id, {
+      status: statusDialog.status,
+    })
+    toast.success('Project status updated.')
+    statusDialog.open = false
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    toast.error(apiError.message || 'Unable to update status.')
+  } finally {
+    statusDialog.loading = false
+  }
+}
+
+function askDelete(): void {
+  confirmDelete.open = true
+}
+
+function closeDelete(): void {
+  if (confirmDelete.loading) return
+  confirmDelete.open = false
+}
+
+async function runDelete(): Promise<void> {
+  if (!project.value) return
+  confirmDelete.loading = true
+  try {
+    await projectService.deleteProject(project.value.id)
+    toast.success('Project deleted.')
+    confirmDelete.open = false
+    await router.push({ name: 'projects.index' })
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    toast.error(apiError.message || 'Unable to delete project.')
+  } finally {
+    confirmDelete.loading = false
+  }
+}
+
+watch(
+  () => route.params.id,
+  () => {
+    void load()
+  },
+)
+
+onMounted(async () => {
+  await load()
+  await nextTick()
+  headingRef.value?.focus()
+})
+</script>
+
+<template>
+  <div class="flex flex-col gap-6">
+    <div ref="headingRef" tabindex="-1" class="outline-none">
+      <AppPageHeader
+        :title="project?.name || 'Project'"
+        description="Project workspace — details, members, and room for future modules."
+      >
+        <template #actions>
+          <div class="flex flex-wrap gap-2">
+            <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
+            <template v-if="project && canMutate">
+              <AppButton type="button" variant="secondary" @click="openStatus">Change status</AppButton>
+              <AppButton type="button" variant="secondary" @click="goEdit">Edit</AppButton>
+              <AppButton type="button" variant="danger" @click="askDelete">Delete</AppButton>
+            </template>
+          </div>
+        </template>
+      </AppPageHeader>
+    </div>
+
+    <div
+      v-if="isLoading"
+      class="animate-pulse space-y-4"
+      aria-busy="true"
+      aria-label="Loading project"
+    >
+      <div class="h-40 rounded-xl border border-slate-200 bg-slate-100" />
+      <div class="h-48 rounded-xl border border-slate-200 bg-slate-100" />
+      <div class="grid gap-4 lg:grid-cols-2">
+        <div class="h-32 rounded-xl border border-slate-200 bg-slate-100" />
+        <div class="h-32 rounded-xl border border-slate-200 bg-slate-100" />
+      </div>
+    </div>
+
+    <div
+      v-else-if="loadError"
+      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      role="alert"
+    >
+      <h2 class="text-base font-semibold text-red-900">Couldn't load project</h2>
+      <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <AppButton type="button" variant="secondary" :loading="isLoading" @click="load">
+          Try again
+        </AppButton>
+        <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
+      </div>
+    </div>
+
+    <template v-else-if="project">
+      <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+        <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div>
+            <h2 class="text-base font-semibold text-slate-900">Project information</h2>
+            <p class="mt-1 text-sm text-slate-600">Core details from the project API.</p>
+          </div>
+          <StatusBadge :status="String(project.status)" kind="project" />
+        </header>
+
+        <dl class="mt-5 grid gap-4 sm:grid-cols-2">
+          <div class="sm:col-span-2">
+            <dt class="text-sm text-slate-500">Description</dt>
+            <dd class="mt-1 whitespace-pre-wrap text-sm text-slate-800">
+              {{ project.description || '—' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Owner</dt>
+            <dd class="mt-1 text-sm text-slate-800">
+              {{ project.owner?.full_name || '—' }}
+              <span v-if="project.owner?.email" class="block text-slate-500">
+                {{ project.owner.email }}
+              </span>
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Status</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ humanizeKey(String(project.status)) }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Start date</dt>
+            <dd class="mt-1 text-sm text-slate-800">
+              {{ project.start_date ? formatDate(project.start_date) : '—' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Due date</dt>
+            <dd class="mt-1 text-sm text-slate-800">
+              {{ project.due_date ? formatDate(project.due_date) : '—' }}
+            </dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Created</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.created_at) }}</dd>
+          </div>
+          <div>
+            <dt class="text-sm text-slate-500">Updated</dt>
+            <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.updated_at) }}</dd>
+          </div>
+        </dl>
+      </section>
+
+      <ProjectMembersPanel :project-id="project.id" :can-manage="canMutate" />
+
+      <div class="grid gap-4 lg:grid-cols-2">
+        <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
+          <h2 class="text-base font-semibold text-slate-900">Tasks</h2>
+          <p class="mt-1 text-sm text-slate-600">
+            Task management will appear here in a later phase. No placeholder data.
+          </p>
+        </section>
+        <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
+          <h2 class="text-base font-semibold text-slate-900">Activity</h2>
+          <p class="mt-1 text-sm text-slate-600">
+            Activity history will appear here in a later phase. No placeholder data.
+          </p>
+        </section>
+      </div>
+    </template>
+
+    <AppConfirmDialog
+      :open="confirmDelete.open"
+      title="Delete project"
+      :description="
+        project ? `Soft-delete ${project.name}? This removes it from the directory.` : undefined
+      "
+      confirm-label="Delete"
+      variant="danger"
+      :loading="confirmDelete.loading"
+      @confirm="runDelete"
+      @cancel="closeDelete"
+    />
+
+    <AppModal
+      :open="statusDialog.open"
+      title="Change project status"
+      description="Updates status only via the existing status endpoint."
+      size="md"
+      :busy="statusDialog.loading"
+      @close="closeStatus"
+    >
+      <AppSelect
+        id="project_show_status"
+        :model-value="statusDialog.status"
+        label="Status"
+        :options="statusOptions"
+        @update:model-value="
+          (value) => {
+            if (PROJECT_STATUSES.includes(value as ProjectStatus)) {
+              statusDialog.status = value as ProjectStatus
+            }
+          }
+        "
+      />
+      <template #footer>
+        <div class="flex justify-end gap-2">
+          <AppButton variant="secondary" :disabled="statusDialog.loading" @click="closeStatus">
+            Cancel
+          </AppButton>
+          <AppButton :loading="statusDialog.loading" @click="saveStatus">Save status</AppButton>
+        </div>
+      </template>
+    </AppModal>
+  </div>
+</template>
