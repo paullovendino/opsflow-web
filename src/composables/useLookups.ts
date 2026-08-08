@@ -4,13 +4,63 @@ import type { LookupItem, RoleLookupItem } from '@/types/lookup'
 import { toApiClientError } from '@/utils/errors'
 import { humanizeKey } from '@/utils/format'
 
-export function useLookups() {
-  const roles = ref<RoleLookupItem[]>([])
-  const departments = ref<LookupItem[]>([])
-  const jobTitles = ref<LookupItem[]>([])
-  const isLoading = ref(false)
-  const errorMessage = ref<string | null>(null)
+/**
+ * Module-level shared lookup cache for the SPA session.
+ * Survives component remounts; cleared on full page reload only.
+ */
+const roles = ref<RoleLookupItem[]>([])
+const departments = ref<LookupItem[]>([])
+const jobTitles = ref<LookupItem[]>([])
+const isLoading = ref(false)
+const errorMessage = ref<string | null>(null)
+const hasLoaded = ref(false)
 
+/** Single shared in-flight promise so concurrent callers share one fetch. */
+let inFlight: Promise<void> | null = null
+
+async function fetchLookups(): Promise<void> {
+  isLoading.value = true
+  errorMessage.value = null
+
+  try {
+    const [roleList, departmentList, jobTitleList] = await Promise.all([
+      lookupService.listRoles(),
+      lookupService.listDepartments(),
+      lookupService.listJobTitles(),
+    ])
+
+    roles.value = roleList
+    departments.value = departmentList
+    jobTitles.value = jobTitleList
+    hasLoaded.value = true
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    errorMessage.value = apiError.message || 'Unable to load lookup options.'
+  } finally {
+    isLoading.value = false
+    inFlight = null
+  }
+}
+
+/**
+ * Load lookups once per session. Concurrent callers share the same request.
+ * Pass `{ force: true }` only when intentionally refreshing.
+ */
+export async function ensureLookups(options: { force?: boolean } = {}): Promise<void> {
+  if (!options.force && hasLoaded.value) {
+    return
+  }
+
+  if (inFlight) {
+    await inFlight
+    return
+  }
+
+  inFlight = fetchLookups()
+  await inFlight
+}
+
+export function useLookups() {
   const roleOptions = computed(() =>
     roles.value.map((role) => ({
       value: role.id,
@@ -32,30 +82,8 @@ export function useLookups() {
     })),
   )
 
-  async function load(): Promise<void> {
-    isLoading.value = true
-    errorMessage.value = null
-
-    try {
-      const [roleList, departmentList, jobTitleList] = await Promise.all([
-        lookupService.listRoles(),
-        lookupService.listDepartments(),
-        lookupService.listJobTitles(),
-      ])
-
-      roles.value = roleList
-      departments.value = departmentList
-      jobTitles.value = jobTitleList
-    } catch (error) {
-      const apiError = toApiClientError(error)
-      errorMessage.value = apiError.message || 'Unable to load lookup options.'
-    } finally {
-      isLoading.value = false
-    }
-  }
-
   onMounted(() => {
-    void load()
+    void ensureLookups()
   })
 
   return {
@@ -67,6 +95,8 @@ export function useLookups() {
     jobTitleOptions,
     isLoading,
     errorMessage,
-    load,
+    hasLoaded,
+    load: () => ensureLookups({ force: true }),
+    ensureLookups,
   }
 }

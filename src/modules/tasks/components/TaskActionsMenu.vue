@@ -2,20 +2,21 @@
 import { ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppDropdownMenu from '@/components/ui/AppDropdownMenu.vue'
-import type { Project } from '@/types/project'
+import type { Task } from '@/types/task'
 
 const props = defineProps<{
-  project: Project
+  task: Task
   canEdit: boolean
-  canManageStatus: boolean
   canDelete: boolean
+  canChangeStatus: boolean
 }>()
 
 const emit = defineEmits<{
-  view: [project: Project]
-  edit: [project: Project]
-  changeStatus: [project: Project]
-  remove: [project: Project]
+  view: [task: Task]
+  edit: [task: Task]
+  changeStatus: [task: Task]
+  assign: [task: Task]
+  remove: [task: Task]
 }>()
 
 const open = ref(false)
@@ -37,34 +38,39 @@ function closeMenu(): void {
 
 function onView(): void {
   closeMenu()
-  emit('view', props.project)
+  emit('view', props.task)
 }
 
 function onEdit(): void {
   closeMenu()
-  emit('edit', props.project)
+  emit('edit', props.task)
 }
 
 function onChangeStatus(): void {
   closeMenu()
-  emit('changeStatus', props.project)
+  emit('changeStatus', props.task)
+}
+
+function onAssign(): void {
+  closeMenu()
+  emit('assign', props.task)
 }
 
 function onRemove(): void {
   closeMenu()
-  emit('remove', props.project)
+  emit('remove', props.task)
 }
 </script>
 
 <template>
-  <AppDropdownMenu v-model:open="open" align="end" menu-class="w-48">
+  <AppDropdownMenu v-model:open="open" align="end" menu-class="w-44">
     <template #trigger>
       <button
         type="button"
         class="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
         :aria-expanded="open"
         :aria-haspopup="true"
-        :aria-label="`Actions for ${project.name}`"
+        :aria-label="`Actions for ${task.title}`"
         @click.stop="toggle"
       >
         Actions
@@ -75,22 +81,25 @@ function onRemove(): void {
     <RouterLink
       :class="linkClass"
       role="menuitem"
-      :to="{ name: 'projects.show', params: { id: project.id } }"
+      :to="{ name: 'tasks.show', params: { id: task.id } }"
       @click="closeMenu"
     >
-      Open workspace
+      Open page
     </RouterLink>
     <button v-if="canEdit" type="button" :class="itemClass" role="menuitem" @click="onEdit">
       Edit
     </button>
     <button
-      v-if="canManageStatus"
+      v-if="canChangeStatus"
       type="button"
       :class="itemClass"
       role="menuitem"
       @click="onChangeStatus"
     >
       Change status
+    </button>
+    <button v-if="canEdit" type="button" :class="itemClass" role="menuitem" @click="onAssign">
+      Assign
     </button>
     <button v-if="canDelete" type="button" :class="dangerClass" role="menuitem" @click="onRemove">
       Delete

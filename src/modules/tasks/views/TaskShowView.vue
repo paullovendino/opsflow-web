@@ -1,0 +1,182 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import AppButton from '@/components/ui/AppButton.vue'
+import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
+import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
+import AppPageHeader from '@/components/ui/AppPageHeader.vue'
+import { useAuth } from '@/composables/useAuth'
+import { useToast } from '@/composables/useToast'
+import TaskDetailPanel from '@/modules/tasks/components/TaskDetailPanel.vue'
+import TaskFormDialog from '@/modules/tasks/components/TaskFormDialog.vue'
+import * as taskService from '@/services/taskService'
+import type { Task } from '@/types/task'
+import { toApiClientError } from '@/utils/errors'
+
+const route = useRoute()
+const router = useRouter()
+const toast = useToast()
+const { roleName } = useAuth()
+
+const headingRef = ref<HTMLElement | null>(null)
+const task = ref<Task | null>(null)
+const isLoading = ref(true)
+const loadError = ref<string | null>(null)
+
+const canMutate = computed(
+  () => roleName.value === 'administrator' || roleName.value === 'project_manager',
+)
+
+const formDialog = reactive({
+  open: false,
+})
+
+const confirmDelete = reactive({
+  open: false,
+  loading: false,
+})
+
+function taskId(): number {
+  return Number(route.params.id)
+}
+
+async function load(): Promise<void> {
+  isLoading.value = true
+  loadError.value = null
+  try {
+    task.value = await taskService.getTask(taskId())
+    loadError.value = null
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    loadError.value = apiError.message || 'Unable to load task.'
+    if (!task.value) {
+      task.value = null
+    }
+  } finally {
+    isLoading.value = false
+  }
+}
+
+function goBack(): void {
+  void router.push({ name: 'tasks.index' })
+}
+
+function openEdit(): void {
+  formDialog.open = true
+}
+
+function closeForm(): void {
+  formDialog.open = false
+}
+
+async function onSaved(saved: Task): Promise<void> {
+  formDialog.open = false
+  task.value = saved
+  toast.success('Task updated.')
+}
+
+function askDelete(): void {
+  confirmDelete.open = true
+}
+
+function closeDelete(): void {
+  if (confirmDelete.loading) return
+  confirmDelete.open = false
+}
+
+async function runDelete(): Promise<void> {
+  if (!task.value) return
+  confirmDelete.loading = true
+  try {
+    await taskService.deleteTask(task.value.id)
+    toast.success('Task deleted.')
+    await router.push({ name: 'tasks.index' })
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    toast.error(apiError.message || 'Unable to delete task.')
+  } finally {
+    confirmDelete.loading = false
+  }
+}
+
+watch(
+  () => route.params.id,
+  () => {
+    void load()
+  },
+)
+
+onMounted(async () => {
+  await load()
+  await nextTick()
+  headingRef.value?.focus()
+})
+</script>
+
+<template>
+  <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <div ref="headingRef" tabindex="-1" class="outline-none">
+      <AppPageHeader
+        :title="task?.title || 'Task'"
+        description="Task workspace — details, status, and assignment."
+      >
+        <template #actions>
+          <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
+        </template>
+      </AppPageHeader>
+    </div>
+
+    <AppDetailSkeleton v-if="isLoading && !task" />
+
+    <div
+      v-else-if="loadError && !task"
+      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      role="alert"
+    >
+      <h2 class="text-base font-semibold text-red-900">Couldn't load task</h2>
+      <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
+      <div class="mt-4 flex flex-wrap gap-2">
+        <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
+          Try again
+        </AppButton>
+        <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
+      </div>
+    </div>
+
+    <div
+      v-else-if="task"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity sm:p-6"
+      :class="{ 'pointer-events-none opacity-60': isLoading }"
+      :aria-busy="isLoading"
+    >
+      <TaskDetailPanel
+        :task="task"
+        :can-edit="canMutate"
+        :can-assign="canMutate"
+        :can-delete="canMutate"
+        @edit="openEdit"
+        @remove="askDelete"
+        @updated="(value) => (task = value)"
+      />
+    </div>
+
+    <TaskFormDialog
+      :open="formDialog.open"
+      mode="edit"
+      :task="task"
+      @close="closeForm"
+      @saved="onSaved"
+    />
+
+    <AppConfirmDialog
+      :open="confirmDelete.open"
+      title="Delete task"
+      :description="task ? `Soft-delete ${task.title}?` : undefined"
+      confirm-label="Delete"
+      variant="danger"
+      :loading="confirmDelete.loading"
+      @confirm="runDelete"
+      @cancel="closeDelete"
+    />
+  </div>
+</template>

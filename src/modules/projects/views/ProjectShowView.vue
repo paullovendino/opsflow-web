@@ -3,6 +3,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
+import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
@@ -10,6 +11,8 @@ import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import ProjectMembersPanel from '@/modules/projects/components/ProjectMembersPanel.vue'
+import ProjectFormDialog from '@/modules/projects/components/ProjectFormDialog.vue'
+import ProjectTasksPanel from '@/modules/projects/components/ProjectTasksPanel.vue'
 import * as projectService from '@/services/projectService'
 import type { Project, ProjectStatus } from '@/types/project'
 import { PROJECT_STATUSES } from '@/types/project'
@@ -40,6 +43,10 @@ const confirmDelete = reactive({
   loading: false,
 })
 
+const formDialog = reactive({
+  open: false,
+})
+
 const statusDialog = reactive({
   open: false,
   loading: false,
@@ -55,10 +62,13 @@ async function load(): Promise<void> {
   loadError.value = null
   try {
     project.value = await projectService.getProject(projectId())
+    loadError.value = null
   } catch (error) {
     const apiError = toApiClientError(error)
     loadError.value = apiError.message || 'Unable to load project.'
-    project.value = null
+    if (!project.value) {
+      project.value = null
+    }
   } finally {
     isLoading.value = false
   }
@@ -68,8 +78,17 @@ function goBack(): void {
   void router.push({ name: 'projects.index' })
 }
 
-function goEdit(): void {
-  void router.push({ name: 'projects.edit', params: { id: projectId() } })
+function openEdit(): void {
+  formDialog.open = true
+}
+
+function closeForm(): void {
+  formDialog.open = false
+}
+
+async function onSaved(saved: Project): Promise<void> {
+  formDialog.open = false
+  project.value = saved
 }
 
 function openStatus(): void {
@@ -153,7 +172,7 @@ onMounted(async () => {
             <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
             <template v-if="project && canMutate">
               <AppButton type="button" variant="secondary" @click="openStatus">Change status</AppButton>
-              <AppButton type="button" variant="secondary" @click="goEdit">Edit</AppButton>
+              <AppButton type="button" variant="secondary" @click="openEdit">Edit</AppButton>
               <AppButton type="button" variant="danger" @click="askDelete">Delete</AppButton>
             </template>
           </div>
@@ -161,29 +180,20 @@ onMounted(async () => {
       </AppPageHeader>
     </div>
 
-    <div
-      v-if="isLoading"
-      class="animate-pulse space-y-4"
-      aria-busy="true"
-      aria-label="Loading project"
-    >
-      <div class="h-40 rounded-xl border border-slate-200 bg-slate-100" />
-      <div class="h-48 rounded-xl border border-slate-200 bg-slate-100" />
-      <div class="grid gap-4 lg:grid-cols-2">
-        <div class="h-32 rounded-xl border border-slate-200 bg-slate-100" />
-        <div class="h-32 rounded-xl border border-slate-200 bg-slate-100" />
-      </div>
+    <div v-if="isLoading && !project" class="space-y-4" aria-busy="true" aria-label="Loading project">
+      <AppDetailSkeleton />
+      <AppDetailSkeleton compact />
     </div>
 
     <div
-      v-else-if="loadError"
+      v-else-if="loadError && !project"
       class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
       role="alert"
     >
       <h2 class="text-base font-semibold text-red-900">Couldn't load project</h2>
       <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
       <div class="mt-4 flex flex-wrap gap-2">
-        <AppButton type="button" variant="secondary" :loading="isLoading" @click="load">
+        <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
         </AppButton>
         <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>
@@ -191,6 +201,7 @@ onMounted(async () => {
     </div>
 
     <template v-else-if="project">
+      <div class="flex flex-col gap-6 transition-opacity" :class="{ 'pointer-events-none opacity-60': isLoading }" :aria-busy="isLoading">
       <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
         <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
@@ -245,19 +256,14 @@ onMounted(async () => {
 
       <ProjectMembersPanel :project-id="project.id" :can-manage="canMutate" />
 
-      <div class="grid gap-4 lg:grid-cols-2">
-        <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
-          <h2 class="text-base font-semibold text-slate-900">Tasks</h2>
-          <p class="mt-1 text-sm text-slate-600">
-            Task management will appear here in a later phase. No placeholder data.
-          </p>
-        </section>
-        <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
-          <h2 class="text-base font-semibold text-slate-900">Activity</h2>
-          <p class="mt-1 text-sm text-slate-600">
-            Activity history will appear here in a later phase. No placeholder data.
-          </p>
-        </section>
+      <ProjectTasksPanel :project-id="project.id" />
+
+      <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
+        <h2 class="text-base font-semibold text-slate-900">Activity</h2>
+        <p class="mt-1 text-sm text-slate-600">
+          Activity history will appear here in a later phase. No placeholder data.
+        </p>
+      </section>
       </div>
     </template>
 
@@ -272,6 +278,14 @@ onMounted(async () => {
       :loading="confirmDelete.loading"
       @confirm="runDelete"
       @cancel="closeDelete"
+    />
+
+    <ProjectFormDialog
+      :open="formDialog.open"
+      mode="edit"
+      :project="project"
+      @close="closeForm"
+      @saved="onSaved"
     />
 
     <AppModal

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, onMounted, reactive, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
@@ -16,6 +16,8 @@ import { useAuth } from '@/composables/useAuth'
 import { useProjectList } from '@/composables/useProjectList'
 import { useToast } from '@/composables/useToast'
 import ProjectActionsMenu from '@/modules/projects/components/ProjectActionsMenu.vue'
+import ProjectDetailDialog from '@/modules/projects/components/ProjectDetailDialog.vue'
+import ProjectFormDialog from '@/modules/projects/components/ProjectFormDialog.vue'
 import ProjectListSkeleton from '@/modules/projects/components/ProjectListSkeleton.vue'
 import * as projectService from '@/services/projectService'
 import type { Project, ProjectStatus } from '@/types/project'
@@ -23,6 +25,7 @@ import { PROJECT_STATUSES } from '@/types/project'
 import { toApiClientError } from '@/utils/errors'
 import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
 
+const route = useRoute()
 const router = useRouter()
 const toast = useToast()
 const { roleName } = useAuth()
@@ -42,6 +45,7 @@ const {
   onSearchInput,
   onFilterChange,
   load,
+  syncQuery,
 } = useProjectList()
 
 const headingRef = ref<HTMLElement | null>(null)
@@ -54,6 +58,19 @@ const statusOptions = PROJECT_STATUSES.map((status) => ({
   value: status,
   label: humanizeKey(status),
 }))
+
+const formDialog = reactive({
+  open: false,
+  mode: 'create' as 'create' | 'edit',
+  project: null as Project | null,
+})
+
+const detailDialog = reactive({
+  open: false,
+  project: null as Project | null,
+  loading: false,
+  errorMessage: null as string | null,
+})
 
 const confirmDelete = reactive({
   open: false,
@@ -68,11 +85,75 @@ const statusDialog = reactive({
   status: 'planning' as ProjectStatus,
 })
 
+async function syncRouteToIndex(): Promise<void> {
+  if (route.name === 'projects.create' || route.name === 'projects.edit') {
+    await syncQuery()
+  }
+}
+
 function openCreate(): void {
-void router.push({ name: 'projects.create' })
+  formDialog.mode = 'create'
+  formDialog.project = null
+  formDialog.open = true
+  if (route.name !== 'projects.create') {
+    void router.push({ name: 'projects.create' })
+  }
+}
+
+function openEdit(project: Project): void {
+  detailDialog.open = false
+  formDialog.mode = 'edit'
+  formDialog.project = project
+  formDialog.open = true
+  if (route.name !== 'projects.edit' || Number(route.params.id) !== project.id) {
+    void router.push({ name: 'projects.edit', params: { id: project.id } })
+  }
+}
+
+async function openView(project: Project): Promise<void> {
+  detailDialog.open = true
+  detailDialog.project = project
+  detailDialog.loading = true
+  detailDialog.errorMessage = null
+  try {
+    detailDialog.project = await projectService.getProject(project.id)
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    detailDialog.errorMessage = apiError.message || 'Unable to load project.'
+  } finally {
+    detailDialog.loading = false
+  }
+}
+
+function closeFormDialog(): void {
+  formDialog.open = false
+  formDialog.project = null
+  void syncRouteToIndex().then(() => {
+    if (route.name === 'projects.create' || route.name === 'projects.edit') {
+      void router.replace({ name: 'projects.index', query: route.query })
+    }
+  })
+}
+
+function closeDetailDialog(): void {
+  detailDialog.open = false
+  detailDialog.project = null
+  detailDialog.errorMessage = null
+}
+
+async function onSaved(project: Project): Promise<void> {
+  formDialog.open = false
+  formDialog.project = null
+  await syncRouteToIndex()
+  if (route.name === 'projects.create' || route.name === 'projects.edit') {
+    await router.replace({ name: 'projects.index', query: route.query })
+  }
+  await load()
+  await openView(project)
 }
 
 function askDelete(project: Project): void {
+  detailDialog.open = false
   confirmDelete.project = project
   confirmDelete.open = true
 }
@@ -133,7 +214,40 @@ async function saveStatus(): Promise<void> {
   }
 }
 
+watch(
+  () => route.name,
+  async (name) => {
+    if (name === 'projects.create') {
+      openCreate()
+      return
+    }
+    if (name === 'projects.edit') {
+      const id = Number(route.params.id)
+      if (!Number.isFinite(id)) return
+      try {
+        openEdit(await projectService.getProject(id))
+      } catch (error) {
+        const apiError = toApiClientError(error)
+        toast.error(apiError.message || 'Unable to load project for edit.')
+        await router.replace({ name: 'projects.index' })
+      }
+    }
+  },
+)
+
 onMounted(async () => {
+  if (route.name === 'projects.create') openCreate()
+  if (route.name === 'projects.edit') {
+    const id = Number(route.params.id)
+    if (Number.isFinite(id)) {
+      try {
+        openEdit(await projectService.getProject(id))
+      } catch (error) {
+        const apiError = toApiClientError(error)
+        toast.error(apiError.message || 'Unable to load project for edit.')
+      }
+    }
+  }
   await nextTick()
   headingRef.value?.focus()
 })
@@ -258,6 +372,8 @@ onMounted(async () => {
                   :can-edit="canMutate"
                   :can-manage-status="canMutate"
                   :can-delete="canMutate"
+                  @view="openView"
+                  @edit="openEdit"
                   @change-status="openStatus"
                   @remove="askDelete"
                 />
@@ -310,6 +426,8 @@ onMounted(async () => {
                 :can-edit="canMutate"
                 :can-manage-status="canMutate"
                 :can-delete="canMutate"
+                @view="openView"
+                @edit="openEdit"
                 @change-status="openStatus"
                 @remove="askDelete"
               />
@@ -326,6 +444,25 @@ onMounted(async () => {
         />
       </template>
     </template>
+
+    <ProjectFormDialog
+      :open="formDialog.open"
+      :mode="formDialog.mode"
+      :project="formDialog.project"
+      @close="closeFormDialog"
+      @saved="onSaved"
+    />
+
+    <ProjectDetailDialog
+      :open="detailDialog.open"
+      :project="detailDialog.project"
+      :loading="detailDialog.loading"
+      :error-message="detailDialog.errorMessage"
+      :can-edit="canMutate"
+      @close="closeDetailDialog"
+      @edit="openEdit"
+      @retry="detailDialog.project ? openView(detailDialog.project) : undefined"
+    />
 
     <AppConfirmDialog
       :open="confirmDelete.open"

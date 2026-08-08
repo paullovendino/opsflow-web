@@ -101,11 +101,13 @@ export function useUserList() {
       const result = await userService.listUsers(params)
       users.value = result.users
       meta.value = result.meta
+      errorMessage.value = null
     } catch (error) {
       const apiError = toApiClientError(error)
       errorMessage.value = apiError.message || 'Unable to load users.'
-      users.value = []
-      meta.value = null
+      if (users.value.length === 0) {
+        meta.value = null
+      }
     } finally {
       isLoading.value = false
     }

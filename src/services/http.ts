@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import type { ApiEnvelope } from '@/types/api'
+import { useUiStore } from '@/stores/ui'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -21,6 +22,16 @@ function isLoginRequest(config: InternalAxiosRequestConfig | undefined): boolean
   return url.includes('/api/v1/auth/login')
 }
 
+/** Reference-data lookups should not drive the global progress bar. */
+function isQuietRequest(config: InternalAxiosRequestConfig | undefined): boolean {
+  const url = config?.url ?? ''
+  return url.includes('/api/v1/lookups/')
+}
+
+function shouldTrackProgress(config: InternalAxiosRequestConfig | undefined): boolean {
+  return !isQuietRequest(config)
+}
+
 let interceptorsRegistered = false
 
 export function registerHttpInterceptors(): void {
@@ -30,15 +41,30 @@ export function registerHttpInterceptors(): void {
 
   interceptorsRegistered = true
 
+  http.interceptors.request.use((config) => {
+    if (shouldTrackProgress(config)) {
+      useUiStore().beginHttp()
+    }
+    return config
+  })
+
   http.interceptors.response.use(
-    (response) => response,
+    (response) => {
+      if (shouldTrackProgress(response.config)) {
+        useUiStore().endHttp()
+      }
+      return response
+    },
     async (error: AxiosError<ApiEnvelope>) => {
       const status = error.response?.status ?? null
       const config = error.config
 
-      const [{ useAuthStore }, { useUiStore }, { default: router }] = await Promise.all([
+      if (shouldTrackProgress(config)) {
+        useUiStore().endHttp()
+      }
+
+      const [{ useAuthStore }, { default: router }] = await Promise.all([
         import('@/stores/auth'),
-        import('@/stores/ui'),
         import('@/router'),
       ])
 

@@ -43,20 +43,29 @@ onMounted(() => {
     <DashboardSkeleton v-if="isLoading && !summary" />
 
     <div
-      v-else-if="errorMessage"
+      v-else-if="errorMessage && !summary"
       class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
       role="alert"
     >
         <h2 class="text-base font-semibold text-red-900">Couldn't load the dashboard</h2>
       <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
       <div class="mt-4">
-        <AppButton type="button" variant="secondary" :loading="isLoading" @click="retry">
+        <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
         </AppButton>
       </div>
     </div>
 
     <template v-else-if="summary">
+      <div
+        v-if="errorMessage"
+        class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        role="status"
+      >
+        Couldn't refresh dashboard data. Showing the last loaded snapshot.
+        <button type="button" class="ml-2 font-medium underline" @click="retry">Retry</button>
+      </div>
+      <div :class="{ 'pointer-events-none opacity-60 transition-opacity': isLoading }" :aria-busy="isLoading">
       <DashboardSection title="Overview" description="Key counts for projects and tasks in your scope.">
         <div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           <DashboardStatCard label="Total Projects" :value="summary.projects.total" />
@@ -84,6 +93,7 @@ onMounted(() => {
         />
         <DashboardRecentWork v-else :items="summary.recent" />
       </DashboardSection>
+      </div>
     </template>
   </div>
 </template>

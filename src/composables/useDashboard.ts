@@ -18,10 +18,13 @@ export function useDashboard() {
     try {
       summary.value = await dashboardService.getSummary({ recent_limit: recentLimit })
       hasLoaded.value = true
+      errorMessage.value = null
     } catch (error) {
       const apiError = toApiClientError(error)
       errorMessage.value = apiError.message || 'Unable to load the dashboard.'
-      summary.value = null
+      if (!summary.value) {
+        hasLoaded.value = false
+      }
     } finally {
       isLoading.value = false
     }

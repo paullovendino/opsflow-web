@@ -3,10 +3,12 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
+import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import UserDetailPanel from '@/modules/users/components/UserDetailPanel.vue'
+import UserFormDialog from '@/modules/users/components/UserFormDialog.vue'
 import * as userService from '@/services/userService'
 import type { User } from '@/types/user'
 import { toApiClientError } from '@/utils/errors'
@@ -47,6 +49,10 @@ const confirm = reactive({
   action: null as null | (() => Promise<void>),
 })
 
+const formDialog = reactive({
+  open: false,
+})
+
 function resolveId(): number {
   if (props.profileMode) {
     return currentUser.value?.id ?? 0
@@ -70,7 +76,9 @@ async function load(): Promise<void> {
   } catch (error) {
     const apiError = toApiClientError(error)
     loadError.value = apiError.message || 'Unable to load user.'
-    user.value = null
+    if (!user.value) {
+      user.value = null
+    }
   } finally {
     isLoading.value = false
   }
@@ -159,6 +167,19 @@ function onRemove(): void {
   })
 }
 
+function openEdit(): void {
+  formDialog.open = true
+}
+
+function closeForm(): void {
+  formDialog.open = false
+}
+
+function onSaved(saved: User): void {
+  formDialog.open = false
+  user.value = saved
+}
+
 watch(
   () => [route.params.id, props.profileMode, currentUser.value?.id],
   () => {
@@ -188,12 +209,7 @@ onMounted(async () => {
           >
             Back to users
           </AppButton>
-          <AppButton
-            v-if="canEdit && user"
-            @click="router.push({ name: 'users.edit', params: { id: user.id } })"
-          >
-            Edit
-          </AppButton>
+          <AppButton v-if="canEdit && user" @click="openEdit">Edit</AppButton>
           <AppButton
             v-if="canManageStatus && user?.status === 'inactive'"
             variant="secondary"
@@ -215,21 +231,26 @@ onMounted(async () => {
       </AppPageHeader>
     </div>
 
-    <div v-if="isLoading" class="h-64 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
+    <AppDetailSkeleton v-if="isLoading && !user" />
 
     <div
-      v-else-if="loadError"
+      v-else-if="loadError && !user"
       class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
       role="alert"
     >
       <h2 class="text-base font-semibold text-red-900">Couldn't load user</h2>
       <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
       <div class="mt-4">
-        <AppButton type="button" variant="secondary" @click="load">Try again</AppButton>
+        <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">Try again</AppButton>
       </div>
     </div>
 
-    <section v-else-if="user" class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+    <section
+      v-else-if="user"
+      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity"
+      :class="{ 'pointer-events-none opacity-60': isLoading }"
+      :aria-busy="isLoading"
+    >
       <UserDetailPanel :user="user" />
     </section>
 
@@ -242,6 +263,14 @@ onMounted(async () => {
       :loading="confirm.loading"
       @confirm="runConfirm"
       @cancel="closeConfirm"
+    />
+
+    <UserFormDialog
+      :open="formDialog.open"
+      mode="edit"
+      :user="user"
+      @close="closeForm"
+      @saved="onSaved"
     />
   </div>
 </template>

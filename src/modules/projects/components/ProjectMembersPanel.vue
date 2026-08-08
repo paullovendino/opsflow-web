@@ -4,6 +4,7 @@ import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
+import AppSkeleton from '@/components/ui/AppSkeleton.vue'
 import { useToast } from '@/composables/useToast'
 import * as projectService from '@/services/projectService'
 import * as userService from '@/services/userService'
@@ -45,10 +46,13 @@ async function loadMembers(): Promise<void> {
 
   try {
     members.value = await projectService.listProjectMembers(props.projectId)
+    errorMessage.value = null
   } catch (error) {
     const apiError = toApiClientError(error)
     errorMessage.value = apiError.message || 'Unable to load members.'
-    members.value = []
+    if (members.value.length === 0) {
+      members.value = []
+    }
   } finally {
     isLoading.value = false
   }
@@ -199,17 +203,19 @@ onMounted(() => {
       </AppButton>
     </div>
 
-    <div v-if="isLoading" class="h-24 animate-pulse rounded-lg bg-slate-100" />
+    <div v-if="isLoading && members.length === 0" class="space-y-2" aria-busy="true">
+      <AppSkeleton v-for="index in 3" :key="index" class="h-14 w-full" rounded="lg" />
+    </div>
 
     <div
-      v-else-if="errorMessage"
+      v-else-if="errorMessage && members.length === 0"
       class="rounded-lg border border-red-200 bg-red-50 px-4 py-3"
       role="alert"
     >
       <p class="text-sm font-medium text-red-900">Couldn't load members</p>
       <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
       <div class="mt-3">
-        <AppButton type="button" variant="secondary" @click="loadMembers">Try again</AppButton>
+        <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="loadMembers">Try again</AppButton>
       </div>
     </div>
 
@@ -219,7 +225,13 @@ onMounted(() => {
       description="Add active users to collaborate on this project."
     />
 
-    <ul v-else class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200" role="list">
+    <ul
+      v-else
+      class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 transition-opacity"
+      :class="{ 'pointer-events-none opacity-60': isLoading }"
+      :aria-busy="isLoading"
+      role="list"
+    >
       <li
         v-for="member in members"
         :key="member.id"

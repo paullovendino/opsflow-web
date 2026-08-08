@@ -1,11 +1,17 @@
+<script setup lang="ts">
+import AppSkeleton from '@/components/ui/AppSkeleton.vue'
+import AppTableSkeleton from '@/components/ui/AppTableSkeleton.vue'
+</script>
+
 <template>
   <div class="flex flex-col gap-4" aria-busy="true" aria-live="polite">
-    <div class="h-24 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
-    <div class="hidden overflow-hidden rounded-xl border border-slate-200 md:block">
-      <div v-for="index in 6" :key="index" class="h-12 animate-pulse border-b border-slate-100 bg-slate-50" />
+    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-end">
+        <AppSkeleton class="h-10 w-full max-w-sm" rounded="lg" />
+        <AppSkeleton class="h-10 w-full max-w-[10rem]" rounded="lg" />
+        <AppSkeleton class="h-10 w-20" rounded="md" />
+      </div>
     </div>
-    <div class="flex flex-col gap-3 md:hidden">
-      <div v-for="index in 4" :key="`card-${index}`" class="h-28 animate-pulse rounded-xl border border-slate-200 bg-slate-100" />
-    </div>
+    <AppTableSkeleton :columns="7" :rows="6" />
   </div>
 </template>

@@ -18,7 +18,7 @@ type BadgeTone =
 
 const props = defineProps<{
   status: string
-  kind?: 'project' | 'task' | 'user' | 'generic'
+  kind?: 'project' | 'task' | 'user' | 'priority' | 'generic'
 }>()
 
 const tone = computed<BadgeTone>(() => {
@@ -34,6 +34,10 @@ const tone = computed<BadgeTone>(() => {
     in_progress: 'blue',
     in_review: 'violet',
     blocked: 'amber',
+    low: 'slate',
+    medium: 'sky',
+    high: 'orange',
+    urgent: 'red',
   }
 
   return map[props.status] ?? 'neutral'

@@ -8,24 +8,21 @@ import { useUiStore } from '@/stores/ui'
 const appName = import.meta.env.VITE_APP_NAME || 'OpsFlow'
 const ui = useUiStore()
 const { isSidebarOpen } = storeToRefs(ui)
-const { roleName } = useAuth()
+const { roleName, user } = useAuth()
 
 const showUsers = computed(
   () => roleName.value === 'administrator' || roleName.value === 'project_manager',
 )
 
-const upcoming = [
-  { label: 'Tasks', roles: ['administrator', 'project_manager', 'employee'] },
-  { label: 'Reports', roles: ['administrator', 'project_manager', 'employee'] },
-] as const
+const showEmployeeReports = computed(
+  () => roleName.value === 'administrator' || roleName.value === 'project_manager',
+)
 
-function showUpcoming(roles: readonly string[]): boolean {
-  if (!roleName.value) {
-    return true
-  }
-
-  return roles.includes(roleName.value)
-}
+const myReportTo = computed(() =>
+  user.value?.id
+    ? { name: 'reports.employees.show' as const, params: { id: user.value.id } }
+    : { name: 'reports.projects.index' as const },
+)
 
 const linkClass =
   'rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
@@ -73,6 +70,44 @@ const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
       </RouterLink>
 
       <RouterLink
+        :to="{ name: 'tasks.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Tasks
+      </RouterLink>
+
+      <RouterLink
+        :to="{ name: 'reports.projects.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Reports
+      </RouterLink>
+
+      <RouterLink
+        v-if="showEmployeeReports"
+        :to="{ name: 'reports.employees.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Employee reports
+      </RouterLink>
+
+      <RouterLink
+        v-else
+        :to="myReportTo"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        My report
+      </RouterLink>
+
+      <RouterLink
         :to="{ name: 'profile' }"
         :class="linkClass"
         :active-class="activeClass"
@@ -80,19 +115,6 @@ const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
       >
         Profile
       </RouterLink>
-
-      <p class="mt-4 px-3 text-xs font-semibold uppercase tracking-wide text-slate-400">Coming later</p>
-      <template v-for="item in upcoming" :key="item.label">
-        <button
-          v-if="showUpcoming(item.roles)"
-          type="button"
-          class="cursor-not-allowed rounded-md px-3 py-2 text-left text-sm text-slate-400"
-          disabled
-          :aria-label="`${item.label} (coming later)`"
-        >
-          {{ item.label }}
-        </button>
-      </template>
     </nav>
   </aside>
 </template>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppButton from '@/components/ui/AppButton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import UserDetailPanel from '@/modules/users/components/UserDetailPanel.vue'
 import type { User } from '@/types/user'
 
@@ -27,7 +28,7 @@ const emit = defineEmits<{
     size="lg"
     @close="emit('close')"
   >
-    <div v-if="loading" class="h-48 animate-pulse rounded-lg bg-slate-100" />
+    <AppDetailSkeleton v-if="loading" compact />
 
     <div
       v-else-if="errorMessage"

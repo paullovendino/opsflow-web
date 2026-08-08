@@ -9,9 +9,13 @@ import UserListView from '@/modules/users/views/UserListView.vue'
 import UserShowView from '@/modules/users/views/UserShowView.vue'
 import ProfileView from '@/modules/users/views/ProfileView.vue'
 import ProjectListView from '@/modules/projects/views/ProjectListView.vue'
-import ProjectCreateView from '@/modules/projects/views/ProjectCreateView.vue'
-import ProjectEditView from '@/modules/projects/views/ProjectEditView.vue'
 import ProjectShowView from '@/modules/projects/views/ProjectShowView.vue'
+import TaskListView from '@/modules/tasks/views/TaskListView.vue'
+import TaskShowView from '@/modules/tasks/views/TaskShowView.vue'
+import ProjectReportsListView from '@/modules/reports/views/ProjectReportsListView.vue'
+import ProjectReportShowView from '@/modules/reports/views/ProjectReportShowView.vue'
+import EmployeeReportsListView from '@/modules/reports/views/EmployeeReportsListView.vue'
+import EmployeeReportShowView from '@/modules/reports/views/EmployeeReportShowView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -112,7 +116,7 @@ const router = createRouter({
         {
           path: 'projects/create',
           name: 'projects.create',
-          component: ProjectCreateView,
+          component: ProjectListView,
           meta: {
             requiresAuth: true,
             title: 'Create project',
@@ -122,7 +126,7 @@ const router = createRouter({
         {
           path: 'projects/:id/edit',
           name: 'projects.edit',
-          component: ProjectEditView,
+          component: ProjectListView,
           meta: {
             requiresAuth: true,
             title: 'Edit project',
@@ -136,6 +140,85 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Project details',
+          },
+        },
+        {
+          path: 'tasks',
+          name: 'tasks.index',
+          component: TaskListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Tasks',
+          },
+        },
+        {
+          path: 'tasks/create',
+          name: 'tasks.create',
+          component: TaskListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Create task',
+            roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'tasks/:id/edit',
+          name: 'tasks.edit',
+          component: TaskListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Edit task',
+            roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'tasks/:id',
+          name: 'tasks.show',
+          component: TaskShowView,
+          meta: {
+            requiresAuth: true,
+            title: 'Task details',
+          },
+        },
+        {
+          path: 'reports',
+          redirect: { name: 'reports.projects.index' },
+        },
+        {
+          path: 'reports/projects',
+          name: 'reports.projects.index',
+          component: ProjectReportsListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Project reports',
+          },
+        },
+        {
+          path: 'reports/projects/:id',
+          name: 'reports.projects.show',
+          component: ProjectReportShowView,
+          meta: {
+            requiresAuth: true,
+            title: 'Project report',
+          },
+        },
+        {
+          path: 'reports/employees',
+          name: 'reports.employees.index',
+          component: EmployeeReportsListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Employee reports',
+            roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'reports/employees/:id',
+          name: 'reports.employees.show',
+          component: EmployeeReportShowView,
+          meta: {
+            requiresAuth: true,
+            title: 'Employee report',
           },
         },
       ],

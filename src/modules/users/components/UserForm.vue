@@ -216,7 +216,7 @@ function onSubmit(): void {
           :options="roleOptions"
           :disabled="lookupsLoading"
           :error="fieldError('role_id')"
-          placeholder="Select a role"
+          :placeholder="lookupsLoading ? 'Loading…' : 'Select a role'"
           @update:model-value="
             (value) => {
               form.role_id = typeof value === 'number' ? value : null
@@ -242,7 +242,7 @@ function onSubmit(): void {
           :options="departmentOptions"
           :disabled="lookupsLoading"
           optional
-          placeholder="No department"
+          :placeholder="lookupsLoading ? 'Loading…' : 'No department'"
           :error="fieldError('department_id')"
           @update:model-value="
             (value) => {
@@ -257,7 +257,7 @@ function onSubmit(): void {
           :options="jobTitleOptions"
           :disabled="lookupsLoading"
           optional
-          placeholder="No job title"
+          :placeholder="lookupsLoading ? 'Loading…' : 'No job title'"
           :error="fieldError('job_title_id')"
           @update:model-value="
             (value) => {
