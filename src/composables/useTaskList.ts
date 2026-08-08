@@ -42,6 +42,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     search: '',
     status: '' as TaskStatus | '',
     priority: '' as TaskPriority | '',
+    overdue: false,
+    due_after: '',
+    due_before: '',
     project_id: null as number | null,
     assigned_to: null as number | null,
     created_by: null as number | null,
@@ -59,6 +62,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
       Boolean(filters.search) ||
       Boolean(filters.status) ||
       Boolean(filters.priority) ||
+      filters.overdue ||
+      Boolean(filters.due_after) ||
+      Boolean(filters.due_before) ||
       (options.lockedProjectId == null && filters.project_id != null) ||
       filters.assigned_to != null ||
       filters.created_by != null,
@@ -75,6 +81,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     searchInput.value = filters.search
     filters.status = isTaskStatus(query.status) ? query.status : ''
     filters.priority = isTaskPriority(query.priority) ? query.priority : ''
+    filters.overdue = query.overdue === '1' || query.overdue === 'true'
+    filters.due_after = typeof query.due_after === 'string' ? query.due_after : ''
+    filters.due_before = typeof query.due_before === 'string' ? query.due_before : ''
     filters.project_id = parseOptionalInt(query.project_id)
     filters.assigned_to = parseOptionalInt(query.assigned_to)
     filters.created_by = parseOptionalInt(query.created_by)
@@ -94,6 +103,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     if (filters.search) query.search = filters.search
     if (filters.status) query.status = filters.status
     if (filters.priority) query.priority = filters.priority
+    if (filters.overdue) query.overdue = '1'
+    if (filters.due_after) query.due_after = filters.due_after
+    if (filters.due_before) query.due_before = filters.due_before
     if (filters.project_id != null) query.project_id = String(filters.project_id)
     if (filters.assigned_to != null) query.assigned_to = String(filters.assigned_to)
     if (filters.created_by != null) query.created_by = String(filters.created_by)
@@ -119,6 +131,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
       search: filters.search || undefined,
       status: filters.status || undefined,
       priority: filters.priority || undefined,
+      overdue: filters.overdue || undefined,
+      due_after: filters.due_after || undefined,
+      due_before: filters.due_before || undefined,
       project_id: options.lockedProjectId ?? filters.project_id,
       assigned_to: filters.assigned_to,
       created_by: filters.created_by,
@@ -158,6 +173,9 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     filters.search = ''
     filters.status = ''
     filters.priority = ''
+    filters.overdue = false
+    filters.due_after = ''
+    filters.due_before = ''
     if (options.lockedProjectId == null) {
       filters.project_id = null
     }

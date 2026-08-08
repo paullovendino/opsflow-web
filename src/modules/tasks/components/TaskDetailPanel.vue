@@ -10,7 +10,8 @@ import * as taskService from '@/services/taskService'
 import type { Task, TaskStatus } from '@/types/task'
 import { TASK_STATUSES } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
-import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
+import { formatDateTime, humanizeKey } from '@/utils/format'
+import { taskDueDateLabel } from '@/utils/taskDueDate'
 
 const props = defineProps<{
   task: Task
@@ -154,8 +155,18 @@ async function saveAssignment(): Promise<void> {
       </div>
       <div>
         <dt class="text-sm text-slate-500">Due date</dt>
-        <dd class="mt-1 text-sm text-slate-800">
-          {{ task.due_date ? formatDate(task.due_date) : '—' }}
+        <dd
+          class="mt-1 text-sm"
+          :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-800'"
+          data-test="task-detail-due-date"
+        >
+          {{ taskDueDateLabel(task.due_date, task.is_overdue, 'medium') }}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm text-slate-500">Priority</dt>
+        <dd class="mt-1">
+          <StatusBadge :status="String(task.priority)" kind="priority" />
         </dd>
       </div>
       <div>

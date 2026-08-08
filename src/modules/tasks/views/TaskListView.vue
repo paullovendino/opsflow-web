@@ -8,6 +8,7 @@ import AppFilterBar from '@/components/ui/AppFilterBar.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import AppPagination from '@/components/ui/AppPagination.vue'
+import AppInput from '@/components/ui/AppInput.vue'
 import AppSearch from '@/components/ui/AppSearch.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
 import AppTable from '@/components/ui/AppTable.vue'
@@ -25,7 +26,8 @@ import * as taskService from '@/services/taskService'
 import type { Task, TaskPriority, TaskStatus } from '@/types/task'
 import { TASK_PRIORITIES, TASK_STATUSES } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
-import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
+import { formatDateTime, humanizeKey } from '@/utils/format'
+import { taskDueDateLabel } from '@/utils/taskDueDate'
 
 const route = useRoute()
 const toast = useToast()
@@ -66,6 +68,8 @@ const priorityOptions = TASK_PRIORITIES.map((priority) => ({
   value: priority,
   label: humanizeKey(priority),
 }))
+
+const overdueOptions = [{ value: '1', label: 'Overdue' }]
 
 const formDialog = reactive({
   open: false,
@@ -369,10 +373,52 @@ onMounted(async () => {
             }
           "
         />
+        <AppSelect
+          id="filter_task_overdue"
+          :model-value="filters.overdue ? '1' : null"
+          class="min-w-[10rem] flex-1"
+          label="Overdue"
+          :options="overdueOptions"
+          optional
+          placeholder="All"
+          @update:model-value="
+            (value) => {
+              filters.overdue = value === 1 || value === '1'
+              onFilterChange()
+            }
+          "
+        />
+        <AppInput
+          id="filter_task_due_after"
+          :model-value="filters.due_after"
+          class="min-w-[10rem] flex-1"
+          label="Due after"
+          type="date"
+          @update:model-value="
+            (value) => {
+              filters.due_after = value
+              onFilterChange()
+            }
+          "
+        />
+        <AppInput
+          id="filter_task_due_before"
+          :model-value="filters.due_before"
+          class="min-w-[10rem] flex-1"
+          label="Due before"
+          type="date"
+          @update:model-value="
+            (value) => {
+              filters.due_before = value
+              onFilterChange()
+            }
+          "
+        />
         <div class="flex shrink-0 items-end">
           <AppButton
             variant="secondary"
             class="w-full lg:w-auto"
+            data-test="task-filter-clear"
             :disabled="!hasActiveFilters"
             @click="clearFilters"
           >
@@ -443,8 +489,12 @@ onMounted(async () => {
                 <StatusBadge :status="String(task.priority)" kind="priority" />
               </td>
               <td class="px-4 py-3 text-slate-600">{{ task.assignee?.full_name || 'Unassigned' }}</td>
-              <td class="px-4 py-3 text-slate-600">
-                {{ task.due_date ? formatDate(task.due_date) : '—' }}
+              <td
+                class="px-4 py-3"
+                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-600'"
+                data-test="task-due-date"
+              >
+                {{ taskDueDateLabel(task.due_date, task.is_overdue) }}
               </td>
               <td class="px-4 py-3 text-slate-600">{{ formatDateTime(task.created_at) }}</td>
               <td class="px-4 py-3 text-right">
@@ -486,6 +536,12 @@ onMounted(async () => {
               <StatusBadge :status="String(task.priority)" kind="priority" />
               <span class="text-sm text-slate-600">
                 {{ task.assignee?.full_name || 'Unassigned' }}
+              </span>
+              <span
+                class="text-sm"
+                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-600'"
+              >
+                {{ taskDueDateLabel(task.due_date, task.is_overdue) }}
               </span>
             </div>
             <div class="mt-3 flex justify-end">

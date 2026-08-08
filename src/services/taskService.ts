@@ -16,6 +16,9 @@ function cleanParams(params: TaskListQuery): Record<string, string | number> {
   if (params.search?.trim()) out.search = params.search.trim()
   if (params.status) out.status = params.status
   if (params.priority) out.priority = params.priority
+  if (params.overdue) out.overdue = 1
+  if (params.due_after?.trim()) out.due_after = params.due_after.trim()
+  if (params.due_before?.trim()) out.due_before = params.due_before.trim()
   if (params.project_id != null) out.project_id = params.project_id
   if (params.assigned_to != null) out.assigned_to = params.assigned_to
   if (params.created_by != null) out.created_by = params.created_by

@@ -29,6 +29,7 @@ export interface Task {
   status: TaskStatus | string
   priority: TaskPriority | string
   due_date: string | null
+  is_overdue: boolean
   project?: TaskProjectRef | null
   assignee?: TaskUserRef | null
   creator?: TaskUserRef | null
@@ -42,6 +43,9 @@ export interface TaskListQuery {
   search?: string
   status?: TaskStatus | ''
   priority?: TaskPriority | ''
+  overdue?: boolean
+  due_before?: string
+  due_after?: string
   project_id?: number | null
   assigned_to?: number | null
   created_by?: number | null

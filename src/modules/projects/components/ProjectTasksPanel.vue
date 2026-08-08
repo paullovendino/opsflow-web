@@ -12,7 +12,7 @@ import TaskFormDialog from '@/modules/tasks/components/TaskFormDialog.vue'
 import * as taskService from '@/services/taskService'
 import type { Task } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
-import { formatDate } from '@/utils/format'
+import { taskDueDateLabel } from '@/utils/taskDueDate'
 
 const props = defineProps<{
   projectId: number
@@ -192,9 +192,12 @@ onMounted(() => {
       >
         <button type="button" class="min-w-0 text-left" @click="openView(task)">
           <p class="truncate font-medium text-slate-900">{{ task.title }}</p>
-          <p class="truncate text-sm text-slate-600">
+          <p
+            class="truncate text-sm"
+            :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-600'"
+          >
             {{ task.assignee?.full_name || 'Unassigned' }}
-            · Due {{ task.due_date ? formatDate(task.due_date) : '—' }}
+            · {{ taskDueDateLabel(task.due_date, task.is_overdue) }}
           </p>
         </button>
         <div class="flex flex-wrap items-center gap-2">
