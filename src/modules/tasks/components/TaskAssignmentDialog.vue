@@ -35,8 +35,8 @@ async function loadAssignees(projectId: number | null): Promise<void> {
   assigneesLoading.value = true
   try {
     const [project, members] = await Promise.all([
-      projectService.getProject(projectId),
-      projectService.listProjectMembers(projectId),
+      projectService.getProject(projectId, { quietProgress: true }),
+      projectService.listProjectMembers(projectId, { quietProgress: true }),
     ])
     const options: Array<{ value: number; label: string }> = []
     const seen = new Set<number>()

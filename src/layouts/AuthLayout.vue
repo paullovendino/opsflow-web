@@ -5,24 +5,17 @@ import { storeToRefs } from 'pinia'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
 import { useUiStore } from '@/stores/ui'
+import { authLayoutViewKey } from '@/utils/modalRoutes'
 
 const route = useRoute()
 const ui = useUiStore()
 const { isSidebarOpen } = storeToRefs(ui)
 
 /**
- * Keep list views mounted when opening Create/Edit modal alias routes
- * so filters, pagination, and lookup state are not destroyed/refetched.
+ * One key per list family (index + create + edit aliases).
+ * Modal route changes must not remount the list or replay onMounted fetches.
  */
-const viewKey = computed(() => {
-  const name = typeof route.name === 'string' ? route.name : ''
-
-  if (name === 'users.create' || name === 'users.edit') return 'users.index'
-  if (name === 'projects.create' || name === 'projects.edit') return 'projects.index'
-  if (name === 'tasks.create' || name === 'tasks.edit') return 'tasks.index'
-
-  return route.path
-})
+const viewKey = computed(() => authLayoutViewKey(route.name, route.path))
 </script>
 
 <template>

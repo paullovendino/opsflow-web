@@ -1,32 +1,21 @@
-import type { Router, RouteLocationNormalized } from 'vue-router'
+import type { Router } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useUiStore } from '@/stores/ui'
-
-/** Modal alias routes share the list view — not a page navigation. */
-function isModalAliasNavigation(
-  to: RouteLocationNormalized,
-  from: RouteLocationNormalized,
-): boolean {
-  const toName = typeof to.name === 'string' ? to.name : ''
-  const fromName = typeof from.name === 'string' ? from.name : ''
-
-  const usersFamily = new Set(['users.index', 'users.create', 'users.edit'])
-  const projectsFamily = new Set(['projects.index', 'projects.create', 'projects.edit'])
-  const tasksFamily = new Set(['tasks.index', 'tasks.create', 'tasks.edit'])
-
-  if (usersFamily.has(toName) && usersFamily.has(fromName)) return true
-  if (projectsFamily.has(toName) && projectsFamily.has(fromName)) return true
-  if (tasksFamily.has(toName) && tasksFamily.has(fromName)) return true
-
-  return false
-}
+import { asRouteName, shouldTrackRouteProgress } from '@/utils/modalRoutes'
 
 export function setupRouterGuards(router: Router): void {
   router.beforeEach(async (to, from) => {
     const auth = useAuthStore()
     const ui = useUiStore()
 
-    if (to.path !== from.path && !isModalAliasNavigation(to, from)) {
+    if (
+      shouldTrackRouteProgress(
+        asRouteName(to.name),
+        asRouteName(from.name),
+        to.path,
+        from.path,
+      )
+    ) {
       ui.setRouteLoading(true)
     }
 

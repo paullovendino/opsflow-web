@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
@@ -26,7 +26,6 @@ import { toApiClientError } from '@/utils/errors'
 import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
 
 const route = useRoute()
-const router = useRouter()
 const toast = useToast()
 const { roleName } = useAuth()
 
@@ -46,6 +45,7 @@ const {
   onFilterChange,
   load,
   syncQuery,
+  openModalAlias,
 } = useProjectList()
 
 const headingRef = ref<HTMLElement | null>(null)
@@ -96,7 +96,7 @@ function openCreate(): void {
   formDialog.project = null
   formDialog.open = true
   if (route.name !== 'projects.create') {
-    void router.push({ name: 'projects.create' })
+    openModalAlias('projects.create')
   }
 }
 
@@ -106,7 +106,7 @@ function openEdit(project: Project): void {
   formDialog.project = project
   formDialog.open = true
   if (route.name !== 'projects.edit' || Number(route.params.id) !== project.id) {
-    void router.push({ name: 'projects.edit', params: { id: project.id } })
+    openModalAlias('projects.edit', { id: project.id })
   }
 }
 
@@ -116,7 +116,7 @@ async function openView(project: Project): Promise<void> {
   detailDialog.loading = true
   detailDialog.errorMessage = null
   try {
-    detailDialog.project = await projectService.getProject(project.id)
+    detailDialog.project = await projectService.getProject(project.id, { quietProgress: true })
   } catch (error) {
     const apiError = toApiClientError(error)
     detailDialog.errorMessage = apiError.message || 'Unable to load project.'
@@ -128,11 +128,7 @@ async function openView(project: Project): Promise<void> {
 function closeFormDialog(): void {
   formDialog.open = false
   formDialog.project = null
-  void syncRouteToIndex().then(() => {
-    if (route.name === 'projects.create' || route.name === 'projects.edit') {
-      void router.replace({ name: 'projects.index', query: route.query })
-    }
-  })
+  void syncRouteToIndex()
 }
 
 function closeDetailDialog(): void {
@@ -145,9 +141,6 @@ async function onSaved(project: Project): Promise<void> {
   formDialog.open = false
   formDialog.project = null
   await syncRouteToIndex()
-  if (route.name === 'projects.create' || route.name === 'projects.edit') {
-    await router.replace({ name: 'projects.index', query: route.query })
-  }
   await load()
   await openView(project)
 }
@@ -214,40 +207,42 @@ async function saveStatus(): Promise<void> {
   }
 }
 
+async function loadEditFromRoute(id: number): Promise<void> {
+  formDialog.mode = 'edit'
+  formDialog.open = true
+  formDialog.project = projects.value.find((item) => item.id === id) ?? null
+
+  try {
+    formDialog.project = await projectService.getProject(id, { quietProgress: true })
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    formDialog.open = false
+    toast.error(apiError.message || 'Unable to load project for edit.')
+    await syncRouteToIndex()
+  }
+}
+
 watch(
-  () => route.name,
-  async (name) => {
+  () => [route.name, route.params.id] as const,
+  ([name, id]) => {
     if (name === 'projects.create') {
-      openCreate()
+      formDialog.mode = 'create'
+      formDialog.project = null
+      formDialog.open = true
       return
     }
+
     if (name === 'projects.edit') {
-      const id = Number(route.params.id)
-      if (!Number.isFinite(id)) return
-      try {
-        openEdit(await projectService.getProject(id))
-      } catch (error) {
-        const apiError = toApiClientError(error)
-        toast.error(apiError.message || 'Unable to load project for edit.')
-        await router.replace({ name: 'projects.index' })
+      const projectId = Number(id)
+      if (Number.isFinite(projectId)) {
+        void loadEditFromRoute(projectId)
       }
     }
   },
+  { immediate: true },
 )
 
 onMounted(async () => {
-  if (route.name === 'projects.create') openCreate()
-  if (route.name === 'projects.edit') {
-    const id = Number(route.params.id)
-    if (Number.isFinite(id)) {
-      try {
-        openEdit(await projectService.getProject(id))
-      } catch (error) {
-        const apiError = toApiClientError(error)
-        toast.error(apiError.message || 'Unable to load project for edit.')
-      }
-    }
-  }
   await nextTick()
   headingRef.value?.focus()
 })

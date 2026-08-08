@@ -50,8 +50,10 @@ export async function listTasks(params: TaskListQuery = {}): Promise<TaskListRes
   }
 }
 
-export async function getTask(id: number): Promise<Task> {
-  const { data } = await http.get<ApiEnvelope<Task>>(`/api/v1/tasks/${id}`)
+export async function getTask(id: number, options: { quietProgress?: boolean } = {}): Promise<Task> {
+  const { data } = await http.get<ApiEnvelope<Task>>(`/api/v1/tasks/${id}`, {
+    quietProgress: options.quietProgress,
+  })
   if (!data.data) throw new Error(data.message || 'Task payload missing.')
   return data.data
 }

@@ -61,8 +61,13 @@ export async function listProjects(params: ProjectListQuery = {}): Promise<Proje
   }
 }
 
-export async function getProject(id: number): Promise<Project> {
-  const { data } = await http.get<ApiEnvelope<Project>>(`/api/v1/projects/${id}`)
+export async function getProject(
+  id: number,
+  options: { quietProgress?: boolean } = {},
+): Promise<Project> {
+  const { data } = await http.get<ApiEnvelope<Project>>(`/api/v1/projects/${id}`, {
+    quietProgress: options.quietProgress,
+  })
 
   if (!data.data) {
     throw new Error(data.message || 'Project payload missing.')
@@ -105,8 +110,14 @@ export async function updateProjectStatus(id: number, payload: ProjectStatusPayl
   return data.data
 }
 
-export async function listProjectMembers(projectId: number): Promise<ProjectMember[]> {
-  const { data } = await http.get<ApiEnvelope<ProjectMember[]>>(`/api/v1/projects/${projectId}/members`)
+export async function listProjectMembers(
+  projectId: number,
+  options: { quietProgress?: boolean } = {},
+): Promise<ProjectMember[]> {
+  const { data } = await http.get<ApiEnvelope<ProjectMember[]>>(
+    `/api/v1/projects/${projectId}/members`,
+    { quietProgress: options.quietProgress },
+  )
   return data.data ?? []
 }
 

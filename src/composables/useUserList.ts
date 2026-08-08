@@ -4,6 +4,7 @@ import * as userService from '@/services/userService'
 import type { PaginationMeta } from '@/types/api'
 import type { User, UserListQuery, UserSortField, UserStatus } from '@/types/user'
 import { toApiClientError } from '@/utils/errors'
+import { asRouteName, listIndexLocation, modalAliasLocation } from '@/utils/modalRoutes'
 
 function parseOptionalInt(value: unknown): number | null {
   if (typeof value !== 'string' || value === '') {
@@ -77,8 +78,12 @@ export function useUserList() {
     if (filters.page > 1) query.page = String(filters.page)
     if (filters.per_page !== 15) query.per_page = String(filters.per_page)
 
-    const onModalRoute = route.name === 'users.create' || route.name === 'users.edit'
-    await router.replace(onModalRoute ? { name: 'users.index', query } : { query })
+    const indexLocation = listIndexLocation(asRouteName(route.name), query)
+    await router.replace(indexLocation ?? { query })
+  }
+
+  function openModalAlias(name: 'users.create' | 'users.edit', params?: Record<string, string | number>): void {
+    void router.push(modalAliasLocation(name, route.query, params))
   }
 
   async function load(): Promise<void> {
@@ -187,5 +192,6 @@ export function useUserList() {
     onSearchInput,
     onFilterChange,
     syncQuery,
+    openModalAlias,
   }
 }

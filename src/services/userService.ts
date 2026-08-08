@@ -65,8 +65,10 @@ export async function listUsers(params: UserListQuery = {}): Promise<UserListRes
   }
 }
 
-export async function getUser(id: number): Promise<User> {
-  const { data } = await http.get<ApiEnvelope<User>>(`/api/v1/users/${id}`)
+export async function getUser(id: number, options: { quietProgress?: boolean } = {}): Promise<User> {
+  const { data } = await http.get<ApiEnvelope<User>>(`/api/v1/users/${id}`, {
+    quietProgress: options.quietProgress,
+  })
 
   if (!data.data) {
     throw new Error(data.message || 'User payload missing.')

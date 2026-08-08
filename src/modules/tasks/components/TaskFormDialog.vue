@@ -14,10 +14,12 @@ const props = withDefaults(
     mode: 'create' | 'edit'
     task?: Task | null
     lockedProjectId?: number | null
+    availableProjects?: Array<{ value: number; label: string }>
   }>(),
   {
     task: null,
     lockedProjectId: null,
+    availableProjects: () => [],
   },
 )
 
@@ -37,6 +39,10 @@ const assigneesLoading = ref(false)
 
 async function loadProjects(): Promise<void> {
   if (props.lockedProjectId != null) return
+  if (props.availableProjects.length > 0) {
+    projectOptions.value = props.availableProjects
+    return
+  }
   projectsLoading.value = true
   try {
     const result = await projectService.listProjects({
@@ -66,8 +72,8 @@ async function loadAssignees(projectId: number | null): Promise<void> {
   assigneesLoading.value = true
   try {
     const [project, members] = await Promise.all([
-      projectService.getProject(projectId),
-      projectService.listProjectMembers(projectId),
+      projectService.getProject(projectId, { quietProgress: true }),
+      projectService.listProjectMembers(projectId, { quietProgress: true }),
     ])
 
     const options: Array<{ value: number; label: string }> = []

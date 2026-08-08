@@ -90,7 +90,7 @@ async function openView(task: Task): Promise<void> {
   detailDialog.loading = true
   detailDialog.errorMessage = null
   try {
-    detailDialog.task = await taskService.getTask(task.id)
+    detailDialog.task = await taskService.getTask(task.id, { quietProgress: true })
   } catch (error) {
     const apiError = toApiClientError(error)
     detailDialog.errorMessage = apiError.message || 'Unable to load task.'

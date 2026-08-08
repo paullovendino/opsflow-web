@@ -11,6 +11,7 @@ import type {
 } from '@/types/task'
 import { TASK_PRIORITIES, TASK_STATUSES } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
+import { asRouteName, listIndexLocation, modalAliasLocation } from '@/utils/modalRoutes'
 
 function parseOptionalInt(value: unknown): number | null {
   if (typeof value === 'number' && Number.isFinite(value)) return value
@@ -101,7 +102,13 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     if (filters.page > 1) query.page = String(filters.page)
     if (filters.per_page !== 15) query.per_page = String(filters.per_page)
 
-    await router.replace({ query })
+    const indexLocation = listIndexLocation(asRouteName(route.name), query)
+    await router.replace(indexLocation ?? { query })
+  }
+
+  function openModalAlias(name: 'tasks.create' | 'tasks.edit', params?: Record<string, string | number>): void {
+    if (options.lockedProjectId != null) return
+    void router.push(modalAliasLocation(name, route.query, params))
   }
 
   async function load(): Promise<void> {
@@ -220,5 +227,6 @@ export function useTaskList(options: { lockedProjectId?: number | null } = {}) {
     onSearchInput,
     onFilterChange,
     syncQuery,
+    openModalAlias,
   }
 }

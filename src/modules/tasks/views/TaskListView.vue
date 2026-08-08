@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
@@ -28,7 +28,6 @@ import { toApiClientError } from '@/utils/errors'
 import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
 
 const route = useRoute()
-const router = useRouter()
 const toast = useToast()
 const { roleName, user: currentUser } = useAuth()
 
@@ -48,6 +47,7 @@ const {
   onFilterChange,
   load,
   syncQuery,
+  openModalAlias,
 } = useTaskList()
 
 const headingRef = ref<HTMLElement | null>(null)
@@ -114,7 +114,7 @@ function openCreate(): void {
   formDialog.task = null
   formDialog.open = true
   if (route.name !== 'tasks.create') {
-    void router.push({ name: 'tasks.create' })
+    openModalAlias('tasks.create')
   }
 }
 
@@ -124,7 +124,7 @@ function openEdit(task: Task): void {
   formDialog.task = task
   formDialog.open = true
   if (route.name !== 'tasks.edit' || Number(route.params.id) !== task.id) {
-    void router.push({ name: 'tasks.edit', params: { id: task.id } })
+    openModalAlias('tasks.edit', { id: task.id })
   }
 }
 
@@ -134,7 +134,7 @@ async function openView(task: Task): Promise<void> {
   detailDialog.loading = true
   detailDialog.errorMessage = null
   try {
-    detailDialog.task = await taskService.getTask(task.id)
+    detailDialog.task = await taskService.getTask(task.id, { quietProgress: true })
   } catch (error) {
     const apiError = toApiClientError(error)
     detailDialog.errorMessage = apiError.message || 'Unable to load task.'
@@ -146,11 +146,7 @@ async function openView(task: Task): Promise<void> {
 function closeFormDialog(): void {
   formDialog.open = false
   formDialog.task = null
-  void syncRouteToIndex().then(() => {
-    if (route.name === 'tasks.create' || route.name === 'tasks.edit') {
-      void router.replace({ name: 'tasks.index', query: route.query })
-    }
-  })
+  void syncRouteToIndex()
 }
 
 function closeDetailDialog(): void {
@@ -163,9 +159,6 @@ async function onSaved(task: Task): Promise<void> {
   formDialog.open = false
   formDialog.task = null
   await syncRouteToIndex()
-  if (route.name === 'tasks.create' || route.name === 'tasks.edit') {
-    await router.replace({ name: 'tasks.index', query: route.query })
-  }
   await load()
   await openView(task)
 }
@@ -267,42 +260,43 @@ async function loadProjectOptions(): Promise<void> {
   }
 }
 
+async function loadEditFromRoute(id: number): Promise<void> {
+  formDialog.mode = 'edit'
+  formDialog.open = true
+  formDialog.task = tasks.value.find((item) => item.id === id) ?? null
+
+  try {
+    formDialog.task = await taskService.getTask(id, { quietProgress: true })
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    formDialog.open = false
+    toast.error(apiError.message || 'Unable to load task for edit.')
+    await syncRouteToIndex()
+  }
+}
+
 watch(
-  () => route.name,
-  async (name) => {
+  () => [route.name, route.params.id] as const,
+  ([name, id]) => {
     if (name === 'tasks.create') {
-      openCreate()
+      formDialog.mode = 'create'
+      formDialog.task = null
+      formDialog.open = true
       return
     }
+
     if (name === 'tasks.edit') {
-      const id = Number(route.params.id)
-      if (!Number.isFinite(id)) return
-      try {
-        const task = await taskService.getTask(id)
-        openEdit(task)
-      } catch (error) {
-        const apiError = toApiClientError(error)
-        toast.error(apiError.message || 'Unable to load task for edit.')
-        await router.replace({ name: 'tasks.index' })
+      const taskId = Number(id)
+      if (Number.isFinite(taskId)) {
+        void loadEditFromRoute(taskId)
       }
     }
   },
+  { immediate: true },
 )
 
 onMounted(async () => {
   await loadProjectOptions()
-  if (route.name === 'tasks.create') openCreate()
-  if (route.name === 'tasks.edit') {
-    const id = Number(route.params.id)
-    if (Number.isFinite(id)) {
-      try {
-        openEdit(await taskService.getTask(id))
-      } catch (error) {
-        const apiError = toApiClientError(error)
-        toast.error(apiError.message || 'Unable to load task for edit.')
-      }
-    }
-  }
   await nextTick()
   headingRef.value?.focus()
 })
@@ -524,6 +518,7 @@ onMounted(async () => {
       :open="formDialog.open"
       :mode="formDialog.mode"
       :task="formDialog.task"
+      :available-projects="projectOptions"
       @close="closeFormDialog"
       @saved="onSaved"
     />

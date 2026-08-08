@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+import { useRoute } from 'vue-router'
 import AppBadge from '@/components/ui/AppBadge.vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppConfirmDialog from '@/components/ui/AppConfirmDialog.vue'
@@ -26,7 +26,6 @@ import { toApiClientError } from '@/utils/errors'
 import { formatDateTime, humanizeKey } from '@/utils/format'
 
 const route = useRoute()
-const router = useRouter()
 const { roleName, user: currentUser } = useAuth()
 const toast = useToast()
 const { roleOptions, departmentOptions, jobTitleOptions } = useLookups()
@@ -47,6 +46,7 @@ const {
     onFilterChange,
     load,
     syncQuery,
+    openModalAlias,
   } = useUserList()
 
 const headingRef = ref<HTMLElement | null>(null)
@@ -95,7 +95,7 @@ function openCreate(): void {
   formDialog.user = null
   formDialog.open = true
   if (route.name !== 'users.create') {
-    void router.push({ name: 'users.create' })
+    openModalAlias('users.create')
   }
 }
 
@@ -105,7 +105,7 @@ function openEdit(user: User): void {
   formDialog.user = user
   formDialog.open = true
   if (route.name !== 'users.edit' || Number(route.params.id) !== user.id) {
-    void router.push({ name: 'users.edit', params: { id: user.id } })
+    openModalAlias('users.edit', { id: user.id })
   }
 }
 
@@ -116,7 +116,7 @@ async function openView(user: User): Promise<void> {
   detailDialog.errorMessage = null
 
   try {
-    detailDialog.user = await userService.getUser(user.id)
+    detailDialog.user = await userService.getUser(user.id, { quietProgress: true })
   } catch (error) {
     const apiError = toApiClientError(error)
     detailDialog.errorMessage = apiError.message || 'Unable to load user.'
@@ -151,7 +151,7 @@ async function loadEditFromRoute(id: number): Promise<void> {
   formDialog.user = users.value.find((item) => item.id === id) ?? null
 
   try {
-    formDialog.user = await userService.getUser(id)
+    formDialog.user = await userService.getUser(id, { quietProgress: true })
   } catch (error) {
     const apiError = toApiClientError(error)
     formDialog.open = false

@@ -1,6 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from 'axios'
 import type { ApiEnvelope } from '@/types/api'
 import { useUiStore } from '@/stores/ui'
+import { shouldTrackHttpProgress } from '@/utils/httpProgress'
 
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
 
@@ -22,14 +23,8 @@ function isLoginRequest(config: InternalAxiosRequestConfig | undefined): boolean
   return url.includes('/api/v1/auth/login')
 }
 
-/** Reference-data lookups should not drive the global progress bar. */
-function isQuietRequest(config: InternalAxiosRequestConfig | undefined): boolean {
-  const url = config?.url ?? ''
-  return url.includes('/api/v1/lookups/')
-}
-
 function shouldTrackProgress(config: InternalAxiosRequestConfig | undefined): boolean {
-  return !isQuietRequest(config)
+  return shouldTrackHttpProgress(config?.url ?? '', Boolean(config?.quietProgress))
 }
 
 let interceptorsRegistered = false

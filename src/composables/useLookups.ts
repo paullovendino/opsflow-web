@@ -60,6 +60,17 @@ export async function ensureLookups(options: { force?: boolean } = {}): Promise<
   await inFlight
 }
 
+/** Reset SPA-session lookup cache (tests / full reload equivalent). */
+export function resetLookupsCache(): void {
+  roles.value = []
+  departments.value = []
+  jobTitles.value = []
+  isLoading.value = false
+  errorMessage.value = null
+  hasLoaded.value = false
+  inFlight = null
+}
+
 export function useLookups() {
   const roleOptions = computed(() =>
     roles.value.map((role) => ({

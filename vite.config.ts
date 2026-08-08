@@ -12,4 +12,10 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  test: {
+    environment: 'happy-dom',
+    globals: false,
+    include: ['src/**/*.spec.ts'],
+    setupFiles: ['src/test/setup.ts'],
+  },
 })

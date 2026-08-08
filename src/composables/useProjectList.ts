@@ -5,6 +5,7 @@ import type { PaginationMeta } from '@/types/api'
 import type { Project, ProjectListQuery, ProjectSortField, ProjectStatus } from '@/types/project'
 import { PROJECT_STATUSES } from '@/types/project'
 import { toApiClientError } from '@/utils/errors'
+import { asRouteName, listIndexLocation, modalAliasLocation } from '@/utils/modalRoutes'
 
 function parseOptionalInt(value: unknown): number | null {
   if (typeof value !== 'string' || value === '') {
@@ -70,7 +71,15 @@ export function useProjectList() {
     if (filters.page > 1) query.page = String(filters.page)
     if (filters.per_page !== 15) query.per_page = String(filters.per_page)
 
-    await router.replace({ query })
+    const indexLocation = listIndexLocation(asRouteName(route.name), query)
+    await router.replace(indexLocation ?? { query })
+  }
+
+  function openModalAlias(
+    name: 'projects.create' | 'projects.edit',
+    params?: Record<string, string | number>,
+  ): void {
+    void router.push(modalAliasLocation(name, route.query, params))
   }
 
   async function load(): Promise<void> {
@@ -168,5 +177,6 @@ export function useProjectList() {
     onSearchInput,
     onFilterChange,
     syncQuery,
+    openModalAlias,
   }
 }
