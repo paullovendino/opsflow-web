@@ -3,6 +3,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import { useAuth } from '@/composables/useAuth'
+import NotificationBell from '@/modules/notifications/components/NotificationBell.vue'
 import { useUiStore } from '@/stores/ui'
 
 const route = useRoute()
@@ -39,6 +40,7 @@ async function onLogout(): Promise<void> {
     </div>
 
     <div class="flex items-center gap-3">
+      <NotificationBell />
       <div class="hidden text-right sm:block">
         <p class="text-sm font-medium text-slate-900">{{ fullName || 'User' }}</p>
         <p class="text-xs text-slate-500">{{ email }}</p>

@@ -12,6 +12,7 @@ const routes = [
   { path: '/projects', name: 'projects.index', component: { template: '<div />' } },
   { path: '/tasks', name: 'tasks.index', component: { template: '<div />' } },
   { path: '/activity', name: 'activity.index', component: { template: '<div />' } },
+  { path: '/notifications', name: 'notifications.index', component: { template: '<div />' } },
   { path: '/reports/projects', name: 'reports.projects.index', component: { template: '<div />' } },
   { path: '/reports/employees', name: 'reports.employees.index', component: { template: '<div />' } },
   {
@@ -66,6 +67,7 @@ describe('AppSidebar', () => {
     expect(text).toContain('Users')
     expect(text).toContain('Activity')
     expect(text).toContain('Employee reports')
+    expect(text).toContain('Notifications')
     expect(text).not.toContain('My report')
   })
 
@@ -86,5 +88,6 @@ describe('AppSidebar', () => {
     expect(wrapper.text()).toContain('Tasks')
     expect(wrapper.text()).toContain('Reports')
     expect(wrapper.text()).toContain('Profile')
+    expect(wrapper.text()).toContain('Notifications')
   })
 })

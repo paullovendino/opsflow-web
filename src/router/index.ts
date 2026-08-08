@@ -17,6 +17,7 @@ import ProjectReportShowView from '@/modules/reports/views/ProjectReportShowView
 import EmployeeReportsListView from '@/modules/reports/views/EmployeeReportsListView.vue'
 import EmployeeReportShowView from '@/modules/reports/views/EmployeeReportShowView.vue'
 import ActivityListView from '@/modules/activity/views/ActivityListView.vue'
+import NotificationListView from '@/modules/notifications/views/NotificationListView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -189,6 +190,15 @@ const router = createRouter({
             requiresAuth: true,
             title: 'Activity',
             roles: ['administrator', 'project_manager'],
+          },
+        },
+        {
+          path: 'notifications',
+          name: 'notifications.index',
+          component: NotificationListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Notifications',
           },
         },
         {

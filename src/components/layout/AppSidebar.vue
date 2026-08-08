@@ -93,6 +93,15 @@ const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
       </RouterLink>
 
       <RouterLink
+        :to="{ name: 'notifications.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Notifications
+      </RouterLink>
+
+      <RouterLink
         :to="{ name: 'reports.projects.index' }"
         :class="linkClass"
         :active-class="activeClass"

@@ -1,15 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, onMounted, onUnmounted } from 'vue'
 import { RouterView, useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import AppTopbar from '@/components/layout/AppTopbar.vue'
+import { useNotificationsStore } from '@/stores/notifications'
 import { useUiStore } from '@/stores/ui'
 import { authLayoutViewKey } from '@/utils/modalRoutes'
 
 const route = useRoute()
 const ui = useUiStore()
+const notifications = useNotificationsStore()
 const { isSidebarOpen } = storeToRefs(ui)
+
+onMounted(() => {
+  notifications.startPolling()
+})
+
+onUnmounted(() => {
+  notifications.stopPolling()
+})
 
 /**
  * One key per list family (index + create + edit aliases).
