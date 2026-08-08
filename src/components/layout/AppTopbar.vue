@@ -1,25 +1,17 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import AppButton from '@/components/ui/AppButton.vue'
-import { useAuth } from '@/composables/useAuth'
+import { useRoute } from 'vue-router'
+import AppAccountMenu from '@/components/layout/AppAccountMenu.vue'
 import NotificationBell from '@/modules/notifications/components/NotificationBell.vue'
 import { useUiStore } from '@/stores/ui'
 
 const route = useRoute()
-const router = useRouter()
 const ui = useUiStore()
-const { fullName, email, logout, isLoading } = useAuth()
 
 const title = computed(() => {
   const metaTitle = route.meta.title
   return typeof metaTitle === 'string' ? metaTitle : 'Dashboard'
 })
-
-async function onLogout(): Promise<void> {
-  await logout()
-  await router.push({ name: 'login' })
-}
 </script>
 
 <template>
@@ -41,11 +33,7 @@ async function onLogout(): Promise<void> {
 
     <div class="flex items-center gap-3">
       <NotificationBell />
-      <div class="hidden text-right sm:block">
-        <p class="text-sm font-medium text-slate-900">{{ fullName || 'User' }}</p>
-        <p class="text-xs text-slate-500">{{ email }}</p>
-      </div>
-      <AppButton variant="secondary" :loading="isLoading" @click="onLogout">Logout</AppButton>
+      <AppAccountMenu />
     </div>
   </header>
 </template>

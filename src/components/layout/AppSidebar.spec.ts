@@ -40,20 +40,25 @@ function userFor(role: 'administrator' | 'project_manager' | 'employee'): AuthUs
   }
 }
 
-async function mountSidebar(role: 'administrator' | 'project_manager' | 'employee') {
+async function mountSidebar(
+  role: 'administrator' | 'project_manager' | 'employee',
+  path = '/dashboard',
+) {
   const router = createRouter({ history: createMemoryHistory(), routes })
-  await router.push('/dashboard')
+  await router.push(path)
   await router.isReady()
 
   const pinia = createPinia()
   setActivePinia(pinia)
   useAuthStore().setUser(userFor(role))
 
-  return mount(AppSidebar, {
+  const wrapper = mount(AppSidebar, {
     global: {
       plugins: [pinia, router],
     },
   })
+
+  return { wrapper, router }
 }
 
 describe('AppSidebar', () => {
@@ -62,24 +67,31 @@ describe('AppSidebar', () => {
   })
 
   it('shows Users, Activity, and Employee reports for administrators', async () => {
-    const wrapper = await mountSidebar('administrator')
+    const { wrapper } = await mountSidebar('administrator')
     const text = wrapper.text()
     expect(text).toContain('Users')
     expect(text).toContain('Activity')
     expect(text).toContain('Employee reports')
-    expect(text).toContain('Notifications')
+    expect(text).toContain('Dashboard')
+    expect(text).toContain('Projects')
+    expect(text).toContain('Tasks')
+    expect(text).toContain('Reports')
     expect(text).not.toContain('My report')
+    expect(text).not.toContain('Notifications')
+    expect(text).not.toContain('Profile')
   })
 
   it('shows Users, Activity, and Employee reports for project managers', async () => {
-    const wrapper = await mountSidebar('project_manager')
+    const { wrapper } = await mountSidebar('project_manager')
     expect(wrapper.text()).toContain('Users')
     expect(wrapper.text()).toContain('Activity')
     expect(wrapper.text()).toContain('Employee reports')
+    expect(wrapper.text()).not.toContain('Notifications')
+    expect(wrapper.text()).not.toContain('Profile')
   })
 
   it('hides Users, Activity, and Employee reports for employees and shows My report', async () => {
-    const wrapper = await mountSidebar('employee')
+    const { wrapper } = await mountSidebar('employee')
     expect(wrapper.text()).not.toContain('Users')
     expect(wrapper.text()).not.toContain('Activity')
     expect(wrapper.text()).not.toContain('Employee reports')
@@ -87,7 +99,21 @@ describe('AppSidebar', () => {
     expect(wrapper.text()).toContain('Projects')
     expect(wrapper.text()).toContain('Tasks')
     expect(wrapper.text()).toContain('Reports')
-    expect(wrapper.text()).toContain('Profile')
-    expect(wrapper.text()).toContain('Notifications')
+    expect(wrapper.text()).not.toContain('Profile')
+    expect(wrapper.text()).not.toContain('Notifications')
+  })
+
+  it('does not mark a primary item active on profile or notifications routes', async () => {
+    const { wrapper: profileWrapper } = await mountSidebar('administrator', '/profile')
+    expect(profileWrapper.find('.bg-slate-900').exists()).toBe(false)
+
+    const { wrapper: notificationsWrapper } = await mountSidebar('administrator', '/notifications')
+    expect(notificationsWrapper.find('.bg-slate-900').exists()).toBe(false)
+  })
+
+  it('keeps dashboard active only on the dashboard route', async () => {
+    const { wrapper } = await mountSidebar('administrator', '/dashboard')
+    const dashboard = wrapper.findAll('a').find((link) => link.text() === 'Dashboard')
+    expect(dashboard?.classes()).toContain('bg-slate-900')
   })
 })
