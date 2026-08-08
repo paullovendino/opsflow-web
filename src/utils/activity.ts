@@ -53,8 +53,8 @@ export function activityChangeSummary(log: ActivityLog): string | null {
     if (!(key in before) && !(key in after)) {
       continue
     }
-    const from = formatChangeValue(before[key])
-    const to = formatChangeValue(after[key])
+    const from = formatFieldChange(key, before)
+    const to = formatFieldChange(key, after)
     if (from === to) {
       continue
     }
@@ -66,6 +66,25 @@ export function activityChangeSummary(log: ActivityLog): string | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value)
+}
+
+function formatFieldChange(key: string, side: Record<string, unknown>): string {
+  if (key === 'assigned_to') {
+    const name = side.assigned_to_name
+    if (typeof name === 'string' && name.trim()) {
+      return name.trim()
+    }
+    if (
+      name === null ||
+      side.assigned_to === null ||
+      side.assigned_to === undefined ||
+      side.assigned_to === ''
+    ) {
+      return 'none'
+    }
+  }
+
+  return formatChangeValue(side[key])
 }
 
 function formatChangeValue(value: unknown): string {

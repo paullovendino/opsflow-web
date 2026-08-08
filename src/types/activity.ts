@@ -21,6 +21,9 @@ export type ActivityAction =
   | 'task.status_changed'
   | 'task.priority_changed'
   | 'task.due_date_changed'
+  | 'remark.created'
+  | 'remark.updated'
+  | 'remark.deleted'
   | string
 
 export interface ActivityActor {
@@ -86,6 +89,9 @@ export const ACTIVITY_ACTIONS: Array<{ value: string; label: string }> = [
   { value: 'task.status_changed', label: 'Task status changed' },
   { value: 'task.priority_changed', label: 'Task priority changed' },
   { value: 'task.due_date_changed', label: 'Task due date changed' },
+  { value: 'remark.created', label: 'Remark created' },
+  { value: 'remark.updated', label: 'Remark updated' },
+  { value: 'remark.deleted', label: 'Remark deleted' },
 ]
 
 export const ACTIVITY_SUBJECT_TYPES: Array<{ value: ActivitySubjectType; label: string }> = [

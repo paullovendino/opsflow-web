@@ -12,6 +12,10 @@ defineProps<{
 defineEmits<{
   'update:modelValue': [value: string]
 }>()
+
+defineOptions({
+  inheritAttrs: false,
+})
 </script>
 
 <template>
@@ -25,6 +29,7 @@ defineEmits<{
       :disabled="disabled"
       class="w-full rounded-md border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 outline-none focus:border-slate-500 focus:ring-2 focus:ring-slate-200 disabled:cursor-not-allowed disabled:bg-slate-50"
       :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-100': Boolean(error) }"
+      v-bind="$attrs"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
     />
     <p v-if="error" class="text-sm text-red-600">{{ error }}</p>

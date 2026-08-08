@@ -53,9 +53,13 @@ function asPaginationMeta(meta: Record<string, unknown> | null): PaginationMeta 
   }
 }
 
-export async function listUsers(params: UserListQuery = {}): Promise<UserListResult> {
+export async function listUsers(
+  params: UserListQuery = {},
+  options: { quietProgress?: boolean } = {},
+): Promise<UserListResult> {
   const { data } = await http.get<ApiEnvelope<User[]>>('/api/v1/users', {
     params: cleanParams(params),
+    quietProgress: options.quietProgress,
   })
 
   return {

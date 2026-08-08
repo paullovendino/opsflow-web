@@ -8,6 +8,7 @@ import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import ActivityTimeline from '@/modules/activity/components/ActivityTimeline.vue'
+import RemarkThread from '@/modules/remarks/components/RemarkThread.vue'
 import TaskDetailPanel from '@/modules/tasks/components/TaskDetailPanel.vue'
 import TaskFormDialog from '@/modules/tasks/components/TaskFormDialog.vue'
 import * as taskService from '@/services/taskService'
@@ -160,6 +161,13 @@ onMounted(async () => {
           @updated="(value) => (task = value)"
         />
       </div>
+
+      <RemarkThread
+        :source="{ type: 'task', id: task.id }"
+        :project-id="task.project?.id ?? null"
+        title="Remarks"
+        description="Notes and conversation on this task. Type @ to mention teammates."
+      />
 
       <ActivityTimeline
         :source="{ type: 'task', id: task.id }"

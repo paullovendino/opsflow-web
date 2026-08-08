@@ -11,6 +11,7 @@ import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
 import ActivityTimeline from '@/modules/activity/components/ActivityTimeline.vue'
+import RemarkThread from '@/modules/remarks/components/RemarkThread.vue'
 import ProjectMembersPanel from '@/modules/projects/components/ProjectMembersPanel.vue'
 import ProjectFormDialog from '@/modules/projects/components/ProjectFormDialog.vue'
 import ProjectTasksPanel from '@/modules/projects/components/ProjectTasksPanel.vue'
@@ -258,6 +259,13 @@ onMounted(async () => {
       <ProjectMembersPanel :project-id="project.id" :can-manage="canMutate" />
 
       <ProjectTasksPanel :project-id="project.id" />
+
+      <RemarkThread
+        :source="{ type: 'project', id: project.id }"
+        :project-id="project.id"
+        title="Remarks"
+        description="Notes and conversation on this project. Type @ to mention teammates."
+      />
 
       <ActivityTimeline
         :source="{ type: 'project', id: project.id }"

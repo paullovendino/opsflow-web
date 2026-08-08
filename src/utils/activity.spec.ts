@@ -59,6 +59,25 @@ describe('activity presentation helpers', () => {
     ).toBe('Member: John Reyes')
   })
 
+  it('shows assignee names instead of user ids', () => {
+    expect(
+      activityChangeSummary({
+        ...baseLog,
+        action: 'task.assigned',
+        properties: {
+          before: {
+            assigned_to: 3,
+            assigned_to_name: 'Maria Lopez',
+          },
+          after: {
+            assigned_to: 2,
+            assigned_to_name: 'John Reyes',
+          },
+        },
+      }),
+    ).toBe('Assigned To: Maria Lopez → John Reyes')
+  })
+
   it('humanizes machine action names', () => {
     expect(humanizeAction('project.member_added')).toBe('Project member added')
     expect(humanizeAction('user.created')).toBe('User created')
