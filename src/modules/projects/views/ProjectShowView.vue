@@ -10,6 +10,7 @@ import AppSelect from '@/components/ui/AppSelect.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import ActivityTimeline from '@/modules/activity/components/ActivityTimeline.vue'
 import ProjectMembersPanel from '@/modules/projects/components/ProjectMembersPanel.vue'
 import ProjectFormDialog from '@/modules/projects/components/ProjectFormDialog.vue'
 import ProjectTasksPanel from '@/modules/projects/components/ProjectTasksPanel.vue'
@@ -258,12 +259,11 @@ onMounted(async () => {
 
       <ProjectTasksPanel :project-id="project.id" />
 
-      <section class="rounded-xl border border-dashed border-slate-300 bg-slate-50/60 p-5">
-        <h2 class="text-base font-semibold text-slate-900">Activity</h2>
-        <p class="mt-1 text-sm text-slate-600">
-          Activity history will appear here in a later phase. No placeholder data.
-        </p>
-      </section>
+      <ActivityTimeline
+        :source="{ type: 'project', id: project.id }"
+        title="Activity"
+        description="Significant changes recorded for this project."
+      />
       </div>
     </template>
 

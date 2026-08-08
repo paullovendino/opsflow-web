@@ -16,6 +16,7 @@ import ProjectReportsListView from '@/modules/reports/views/ProjectReportsListVi
 import ProjectReportShowView from '@/modules/reports/views/ProjectReportShowView.vue'
 import EmployeeReportsListView from '@/modules/reports/views/EmployeeReportsListView.vue'
 import EmployeeReportShowView from '@/modules/reports/views/EmployeeReportShowView.vue'
+import ActivityListView from '@/modules/activity/views/ActivityListView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -178,6 +179,16 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'Task details',
+          },
+        },
+        {
+          path: 'activity',
+          name: 'activity.index',
+          component: ActivityListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Activity',
+            roles: ['administrator', 'project_manager'],
           },
         },
         {

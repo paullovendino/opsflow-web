@@ -7,6 +7,7 @@ import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import ActivityTimeline from '@/modules/activity/components/ActivityTimeline.vue'
 import TaskDetailPanel from '@/modules/tasks/components/TaskDetailPanel.vue'
 import TaskFormDialog from '@/modules/tasks/components/TaskFormDialog.vue'
 import * as taskService from '@/services/taskService'
@@ -143,22 +144,29 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div
-      v-else-if="task"
-      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity sm:p-6"
-      :class="{ 'pointer-events-none opacity-60': isLoading }"
-      :aria-busy="isLoading"
-    >
-      <TaskDetailPanel
-        :task="task"
-        :can-edit="canMutate"
-        :can-assign="canMutate"
-        :can-delete="canMutate"
-        @edit="openEdit"
-        @remove="askDelete"
-        @updated="(value) => (task = value)"
+    <template v-else-if="task">
+      <div
+        class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity sm:p-6"
+        :class="{ 'pointer-events-none opacity-60': isLoading }"
+        :aria-busy="isLoading"
+      >
+        <TaskDetailPanel
+          :task="task"
+          :can-edit="canMutate"
+          :can-assign="canMutate"
+          :can-delete="canMutate"
+          @edit="openEdit"
+          @remove="askDelete"
+          @updated="(value) => (task = value)"
+        />
+      </div>
+
+      <ActivityTimeline
+        :source="{ type: 'task', id: task.id }"
+        title="Activity"
+        description="Significant changes recorded for this task."
       />
-    </div>
+    </template>
 
     <TaskFormDialog
       :open="formDialog.open"

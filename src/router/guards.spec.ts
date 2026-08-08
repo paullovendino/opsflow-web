@@ -33,6 +33,12 @@ const routes: RouteRecordRaw[] = [
     component: { template: '<div>emp reports</div>' },
     meta: { requiresAuth: true, roles: ['administrator', 'project_manager'] },
   },
+  {
+    path: '/activity',
+    name: 'activity.index',
+    component: { template: '<div>activity</div>' },
+    meta: { requiresAuth: true, roles: ['administrator', 'project_manager'] },
+  },
   { path: '/403', name: 'forbidden', component: { template: '<div>403</div>' } },
 ]
 
@@ -113,6 +119,22 @@ describe('router guards', () => {
     auth.isBootstrapped = true
     await router.push('/reports/employees')
     expect(router.currentRoute.value.name).toBe('forbidden')
+  })
+
+  it('forbids employees from the global activity page', async () => {
+    const { router, auth } = await createGuardedRouter()
+    auth.setUser(userFor('employee'))
+    auth.isBootstrapped = true
+    await router.push('/activity')
+    expect(router.currentRoute.value.name).toBe('forbidden')
+  })
+
+  it('allows project managers to open global activity', async () => {
+    const { router, auth } = await createGuardedRouter()
+    auth.setUser(userFor('project_manager'))
+    auth.isBootstrapped = true
+    await router.push('/activity')
+    expect(router.currentRoute.value.name).toBe('activity.index')
   })
 
   it('does not start route loading for modal alias navigation', async () => {

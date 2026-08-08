@@ -18,6 +18,10 @@ const showEmployeeReports = computed(
   () => roleName.value === 'administrator' || roleName.value === 'project_manager',
 )
 
+const showActivity = computed(
+  () => roleName.value === 'administrator' || roleName.value === 'project_manager',
+)
+
 const myReportTo = computed(() =>
   user.value?.id
     ? { name: 'reports.employees.show' as const, params: { id: user.value.id } }
@@ -76,6 +80,16 @@ const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
         @click="ui.closeSidebar()"
       >
         Tasks
+      </RouterLink>
+
+      <RouterLink
+        v-if="showActivity"
+        :to="{ name: 'activity.index' }"
+        :class="linkClass"
+        :active-class="activeClass"
+        @click="ui.closeSidebar()"
+      >
+        Activity
       </RouterLink>
 
       <RouterLink

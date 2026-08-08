@@ -7,6 +7,7 @@ import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
+import ActivityTimeline from '@/modules/activity/components/ActivityTimeline.vue'
 import UserDetailPanel from '@/modules/users/components/UserDetailPanel.vue'
 import UserFormDialog from '@/modules/users/components/UserFormDialog.vue'
 import * as userService from '@/services/userService'
@@ -245,14 +246,21 @@ onMounted(async () => {
       </div>
     </div>
 
-    <section
-      v-else-if="user"
-      class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity"
-      :class="{ 'pointer-events-none opacity-60': isLoading }"
-      :aria-busy="isLoading"
-    >
-      <UserDetailPanel :user="user" />
-    </section>
+    <template v-else-if="user">
+      <section
+        class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity"
+        :class="{ 'pointer-events-none opacity-60': isLoading }"
+        :aria-busy="isLoading"
+      >
+        <UserDetailPanel :user="user" />
+      </section>
+
+      <ActivityTimeline
+        :source="{ type: 'user', id: user.id }"
+        title="Activity"
+        description="Significant changes recorded for this user."
+      />
+    </template>
 
     <AppConfirmDialog
       :open="confirm.open"

@@ -11,6 +11,7 @@ const routes = [
   { path: '/users', name: 'users.index', component: { template: '<div />' } },
   { path: '/projects', name: 'projects.index', component: { template: '<div />' } },
   { path: '/tasks', name: 'tasks.index', component: { template: '<div />' } },
+  { path: '/activity', name: 'activity.index', component: { template: '<div />' } },
   { path: '/reports/projects', name: 'reports.projects.index', component: { template: '<div />' } },
   { path: '/reports/employees', name: 'reports.employees.index', component: { template: '<div />' } },
   {
@@ -59,23 +60,26 @@ describe('AppSidebar', () => {
     vi.stubEnv('VITE_APP_NAME', 'OpsFlow')
   })
 
-  it('shows Users and Employee reports for administrators', async () => {
+  it('shows Users, Activity, and Employee reports for administrators', async () => {
     const wrapper = await mountSidebar('administrator')
     const text = wrapper.text()
     expect(text).toContain('Users')
+    expect(text).toContain('Activity')
     expect(text).toContain('Employee reports')
     expect(text).not.toContain('My report')
   })
 
-  it('shows Users read nav and Employee reports for project managers', async () => {
+  it('shows Users, Activity, and Employee reports for project managers', async () => {
     const wrapper = await mountSidebar('project_manager')
     expect(wrapper.text()).toContain('Users')
+    expect(wrapper.text()).toContain('Activity')
     expect(wrapper.text()).toContain('Employee reports')
   })
 
-  it('hides Users and Employee reports for employees and shows My report', async () => {
+  it('hides Users, Activity, and Employee reports for employees and shows My report', async () => {
     const wrapper = await mountSidebar('employee')
     expect(wrapper.text()).not.toContain('Users')
+    expect(wrapper.text()).not.toContain('Activity')
     expect(wrapper.text()).not.toContain('Employee reports')
     expect(wrapper.text()).toContain('My report')
     expect(wrapper.text()).toContain('Projects')
