@@ -3,6 +3,7 @@ import { RouterLink } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
+import ProjectProgressMeter from '@/components/ui/ProjectProgressMeter.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import type { Project } from '@/types/project'
 import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
@@ -53,6 +54,8 @@ const emit = defineEmits<{
         </div>
         <StatusBadge :status="String(project.status)" kind="project" />
       </div>
+
+      <ProjectProgressMeter :progress="project.progress" compact />
 
       <dl class="grid gap-3 sm:grid-cols-2">
         <div class="sm:col-span-2">

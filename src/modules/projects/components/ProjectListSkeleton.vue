@@ -12,6 +12,6 @@ import AppTableSkeleton from '@/components/ui/AppTableSkeleton.vue'
         <AppSkeleton class="h-10 w-20" rounded="md" />
       </div>
     </div>
-    <AppTableSkeleton :columns="7" :rows="6" />
+    <AppTableSkeleton :columns="8" :rows="6" />
   </div>
 </template>

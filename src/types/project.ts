@@ -17,6 +17,7 @@ export interface Project {
   status: ProjectStatus | string
   start_date: string | null
   due_date: string | null
+  progress: number | null
   owner?: ProjectOwner | null
   created_at: string
   updated_at: string

@@ -11,6 +11,7 @@ import AppPagination from '@/components/ui/AppPagination.vue'
 import AppSearch from '@/components/ui/AppSearch.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
 import AppTable from '@/components/ui/AppTable.vue'
+import ProjectProgressMeter from '@/components/ui/ProjectProgressMeter.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useProjectList } from '@/composables/useProjectList'
@@ -341,6 +342,7 @@ onMounted(async () => {
               <tr>
                 <th scope="col" class="px-4 py-3">Name</th>
                 <th scope="col" class="px-4 py-3">Status</th>
+                <th scope="col" class="px-4 py-3">Progress</th>
                 <th scope="col" class="px-4 py-3">Owner</th>
                 <th scope="col" class="px-4 py-3">Start</th>
                 <th scope="col" class="px-4 py-3">Due</th>
@@ -352,6 +354,9 @@ onMounted(async () => {
               <td class="px-4 py-3 font-medium text-slate-900">{{ project.name }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(project.status)" kind="project" />
+              </td>
+              <td class="px-4 py-3">
+                <ProjectProgressMeter :progress="project.progress" compact />
               </td>
               <td class="px-4 py-3 text-slate-600">{{ project.owner?.full_name || '—' }}</td>
               <td class="px-4 py-3 text-slate-600">
@@ -396,6 +401,9 @@ onMounted(async () => {
                 </p>
               </div>
               <StatusBadge :status="String(project.status)" kind="project" />
+            </div>
+            <div class="mt-3">
+              <ProjectProgressMeter :progress="project.progress" compact />
             </div>
             <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
               <div>

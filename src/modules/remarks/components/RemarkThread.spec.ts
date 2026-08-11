@@ -102,6 +102,7 @@ describe('RemarkThread', () => {
       status: 'active',
       start_date: null,
       due_date: null,
+      progress: null,
       owner: {
         id: 1,
         first_name: 'Ada',

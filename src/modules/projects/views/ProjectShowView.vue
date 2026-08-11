@@ -7,6 +7,7 @@ import AppDetailSkeleton from '@/components/ui/AppDetailSkeleton.vue'
 import AppModal from '@/components/ui/AppModal.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
+import ProjectProgressMeter from '@/components/ui/ProjectProgressMeter.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useToast } from '@/composables/useToast'
@@ -212,6 +213,10 @@ onMounted(async () => {
           </div>
           <StatusBadge :status="String(project.status)" kind="project" />
         </header>
+
+        <div class="mt-5 max-w-md">
+          <ProjectProgressMeter :progress="project.progress" />
+        </div>
 
         <dl class="mt-5 grid gap-4 sm:grid-cols-2">
           <div class="sm:col-span-2">
