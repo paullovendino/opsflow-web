@@ -23,6 +23,14 @@ vi.mock('@/services/notificationService', () => ({
   markAllNotificationsRead: vi.fn(),
 }))
 
+vi.mock('@/services/searchService', () => ({
+  search: vi.fn().mockResolvedValue({
+    results: { users: [], projects: [], tasks: [] },
+    meta: { q: '', per_type: 5, users_returned: 0, projects_returned: 0, tasks_returned: 0 },
+    message: 'ok',
+  }),
+}))
+
 const user: AuthUser = {
   id: 1,
   first_name: 'Ada',
@@ -63,6 +71,7 @@ describe('AppTopbar', () => {
 
     expect(wrapper.find('[data-test="notification-bell"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="account-menu"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="global-search"]').exists()).toBe(true)
     expect(
       wrapper.findAll('button').some((button) => button.text().trim() === 'Logout'),
     ).toBe(false)
