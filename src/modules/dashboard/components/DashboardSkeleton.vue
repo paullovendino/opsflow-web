@@ -5,7 +5,18 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
 
 <template>
   <div class="flex flex-col gap-6" aria-busy="true" aria-live="polite">
-    <AppCardSkeleton :count="4" :columns="4" />
+    <AppCardSkeleton :count="6" :columns="3" />
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <AppSkeleton class="h-4 w-48" />
+        <AppSkeleton class="mt-4 h-2 w-full" rounded="full" />
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <AppSkeleton class="h-4 w-32" />
+        <AppSkeleton class="mt-4 h-4 w-2/3" />
+      </div>
+    </div>
 
     <div>
       <AppSkeleton class="mb-3 h-4 w-40" />
@@ -44,6 +55,33 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
               <AppSkeleton class="h-3 w-8" />
             </div>
             <AppSkeleton class="h-2 w-full" rounded="full" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid gap-4 lg:grid-cols-2">
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <AppSkeleton class="h-4 w-28" />
+        <div class="mt-4 space-y-3">
+          <div v-for="index in 4" :key="`d-${index}`" class="flex items-center gap-3">
+            <AppSkeleton class="h-9 w-9 shrink-0" rounded="full" />
+            <div class="min-w-0 flex-1 space-y-2">
+              <AppSkeleton class="h-3 w-2/3" />
+              <AppSkeleton class="h-3 w-1/3" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <AppSkeleton class="h-4 w-36" />
+        <div class="mt-4 space-y-3">
+          <div v-for="index in 4" :key="`a-${index}`" class="flex gap-3">
+            <AppSkeleton class="mt-1 h-3 w-3 shrink-0" rounded="full" />
+            <div class="min-w-0 flex-1 space-y-2">
+              <AppSkeleton class="h-3 w-3/4" />
+              <AppSkeleton class="h-3 w-1/2" />
+            </div>
           </div>
         </div>
       </div>

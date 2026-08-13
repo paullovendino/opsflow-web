@@ -10,13 +10,18 @@ export function useDashboard() {
   const hasLoaded = ref(false)
 
   const isEmptyRecent = computed(() => (summary.value?.recent.length ?? 0) === 0)
+  const isEmptyDueSoon = computed(() => (summary.value?.due_soon.length ?? 0) === 0)
+  const isEmptyRecentActivity = computed(() => (summary.value?.recent_activity.length ?? 0) === 0)
 
-  async function load(recentLimit = 10): Promise<void> {
+  async function load(recentLimit = 10, activityLimit = 10): Promise<void> {
     isLoading.value = true
     errorMessage.value = null
 
     try {
-      summary.value = await dashboardService.getSummary({ recent_limit: recentLimit })
+      summary.value = await dashboardService.getSummary({
+        recent_limit: recentLimit,
+        activity_limit: activityLimit,
+      })
       hasLoaded.value = true
       errorMessage.value = null
     } catch (error) {
@@ -40,6 +45,8 @@ export function useDashboard() {
     errorMessage,
     hasLoaded,
     isEmptyRecent,
+    isEmptyDueSoon,
+    isEmptyRecentActivity,
     load,
     retry,
   }

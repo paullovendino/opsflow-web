@@ -1,19 +1,13 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { RouterLink, useRouter } from 'vue-router'
+import AppAvatar from '@/components/ui/AppAvatar.vue'
 import AppDropdownMenu from '@/components/ui/AppDropdownMenu.vue'
 import { useAuth } from '@/composables/useAuth'
 
 const router = useRouter()
-const { fullName, email, logout, isLoading } = useAuth()
+const { fullName, email, user, logout, isLoading } = useAuth()
 const open = ref(false)
-
-const initials = computed(() => {
-  const parts = (fullName.value || 'U').trim().split(/\s+/).filter(Boolean)
-  const first = parts[0]?.charAt(0) ?? 'U'
-  const last = parts.length > 1 ? parts[parts.length - 1]!.charAt(0) : ''
-  return `${first}${last}`.toUpperCase()
-})
 
 const itemClass =
   'block w-full px-3 py-2 text-left text-sm text-slate-700 outline-none hover:bg-slate-50 focus:bg-slate-50 focus-visible:bg-slate-100'
@@ -45,12 +39,7 @@ async function onLogout(): Promise<void> {
         data-test="account-menu"
         @click.stop="toggle"
       >
-        <span
-          class="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-800 text-[11px] font-semibold text-white"
-          aria-hidden="true"
-        >
-          {{ initials }}
-        </span>
+        <AppAvatar :name="fullName || 'User'" :avatar="user?.avatar" size="sm" />
         <span class="hidden min-w-0 sm:block">
           <span class="block truncate text-sm font-medium text-slate-900">{{ fullName || 'User' }}</span>
           <span class="block truncate text-xs text-slate-500">{{ email }}</span>

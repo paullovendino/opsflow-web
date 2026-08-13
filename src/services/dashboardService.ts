@@ -6,6 +6,7 @@ export async function getSummary(params: DashboardQuery = {}): Promise<Dashboard
   const { data } = await http.get<ApiEnvelope<DashboardSummary>>('/api/v1/dashboard', {
     params: {
       recent_limit: params.recent_limit,
+      activity_limit: params.activity_limit,
     },
   })
 
