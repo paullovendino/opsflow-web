@@ -190,11 +190,11 @@ onMounted(async () => {
 
     <div
       v-else-if="loadError && !project"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load project</h2>
-      <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load project</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ loadError }}</p>
       <div class="mt-4 flex flex-wrap gap-2">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -205,11 +205,11 @@ onMounted(async () => {
 
     <template v-else-if="project">
       <div class="flex flex-col gap-6 transition-opacity" :class="{ 'pointer-events-none opacity-60': isLoading }" :aria-busy="isLoading">
-      <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+      <section class="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
         <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <h2 class="text-base font-semibold text-slate-900">Project information</h2>
-            <p class="mt-1 text-sm text-slate-600">Core details from the project API.</p>
+            <h2 class="text-base font-semibold text-fg">Project information</h2>
+            <p class="mt-1 text-sm text-fg-subtle">Core details from the project API.</p>
           </div>
           <StatusBadge :status="String(project.status)" kind="project" />
         </header>
@@ -220,43 +220,43 @@ onMounted(async () => {
 
         <dl class="mt-5 grid gap-4 sm:grid-cols-2">
           <div class="sm:col-span-2">
-            <dt class="text-sm text-slate-500">Description</dt>
-            <dd class="mt-1 whitespace-pre-wrap text-sm text-slate-800">
+            <dt class="text-sm text-fg-muted">Description</dt>
+            <dd class="mt-1 whitespace-pre-wrap text-sm text-fg-secondary">
               {{ project.description || '—' }}
             </dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Owner</dt>
-            <dd class="mt-1 text-sm text-slate-800">
+            <dt class="text-sm text-fg-muted">Owner</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">
               {{ project.owner?.full_name || '—' }}
-              <span v-if="project.owner?.email" class="block text-slate-500">
+              <span v-if="project.owner?.email" class="block text-fg-muted">
                 {{ project.owner.email }}
               </span>
             </dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Status</dt>
-            <dd class="mt-1 text-sm text-slate-800">{{ humanizeKey(String(project.status)) }}</dd>
+            <dt class="text-sm text-fg-muted">Status</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">{{ humanizeKey(String(project.status)) }}</dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Start date</dt>
-            <dd class="mt-1 text-sm text-slate-800">
+            <dt class="text-sm text-fg-muted">Start date</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">
               {{ project.start_date ? formatDate(project.start_date) : '—' }}
             </dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Due date</dt>
-            <dd class="mt-1 text-sm text-slate-800">
+            <dt class="text-sm text-fg-muted">Due date</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">
               {{ project.due_date ? formatDate(project.due_date) : '—' }}
             </dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Created</dt>
-            <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.created_at) }}</dd>
+            <dt class="text-sm text-fg-muted">Created</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">{{ formatDateTime(project.created_at) }}</dd>
           </div>
           <div>
-            <dt class="text-sm text-slate-500">Updated</dt>
-            <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.updated_at) }}</dd>
+            <dt class="text-sm text-fg-muted">Updated</dt>
+            <dd class="mt-1 text-sm text-fg-secondary">{{ formatDateTime(project.updated_at) }}</dd>
           </div>
         </dl>
       </section>

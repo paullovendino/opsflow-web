@@ -36,11 +36,11 @@ const emit = defineEmits<{
 
     <div
       v-else-if="errorMessage"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-3"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-3"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load project</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load project</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-3">
         <AppButton type="button" variant="secondary" @click="emit('retry')">Try again</AppButton>
       </div>
@@ -49,8 +49,8 @@ const emit = defineEmits<{
     <div v-else-if="project" class="flex flex-col gap-4">
       <div class="flex flex-wrap items-start justify-between gap-3">
         <div class="min-w-0">
-          <h2 class="text-lg font-semibold text-slate-900">{{ project.name }}</h2>
-          <p class="mt-1 text-sm text-slate-600">{{ project.owner?.full_name || '—' }}</p>
+          <h2 class="text-lg font-semibold text-fg">{{ project.name }}</h2>
+          <p class="mt-1 text-sm text-fg-subtle">{{ project.owner?.full_name || '—' }}</p>
         </div>
         <StatusBadge :status="String(project.status)" kind="project" />
       </div>
@@ -59,38 +59,38 @@ const emit = defineEmits<{
 
       <dl class="grid gap-3 sm:grid-cols-2">
         <div class="sm:col-span-2">
-          <dt class="text-sm text-slate-500">Description</dt>
-          <dd class="mt-1 whitespace-pre-wrap text-sm text-slate-800">
+          <dt class="text-sm text-fg-muted">Description</dt>
+          <dd class="mt-1 whitespace-pre-wrap text-sm text-fg-secondary">
             {{ project.description || '—' }}
           </dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Status</dt>
-          <dd class="mt-1 text-sm text-slate-800">{{ humanizeKey(String(project.status)) }}</dd>
+          <dt class="text-sm text-fg-muted">Status</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">{{ humanizeKey(String(project.status)) }}</dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Owner email</dt>
-          <dd class="mt-1 text-sm text-slate-800">{{ project.owner?.email || '—' }}</dd>
+          <dt class="text-sm text-fg-muted">Owner email</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">{{ project.owner?.email || '—' }}</dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Start</dt>
-          <dd class="mt-1 text-sm text-slate-800">
+          <dt class="text-sm text-fg-muted">Start</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">
             {{ project.start_date ? formatDate(project.start_date) : '—' }}
           </dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Due</dt>
-          <dd class="mt-1 text-sm text-slate-800">
+          <dt class="text-sm text-fg-muted">Due</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">
             {{ project.due_date ? formatDate(project.due_date) : '—' }}
           </dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Created</dt>
-          <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.created_at) }}</dd>
+          <dt class="text-sm text-fg-muted">Created</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">{{ formatDateTime(project.created_at) }}</dd>
         </div>
         <div>
-          <dt class="text-sm text-slate-500">Updated</dt>
-          <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(project.updated_at) }}</dd>
+          <dt class="text-sm text-fg-muted">Updated</dt>
+          <dd class="mt-1 text-sm text-fg-secondary">{{ formatDateTime(project.updated_at) }}</dd>
         </div>
       </dl>
     </div>
@@ -99,7 +99,7 @@ const emit = defineEmits<{
       <div class="flex flex-wrap justify-end gap-2">
         <AppButton variant="secondary" @click="emit('close')">Close</AppButton>
         <RouterLink
-          class="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+          class="inline-flex items-center justify-center rounded-md border border-border-strong bg-surface px-3 py-2 text-sm font-medium text-fg-secondary hover:bg-surface-hover"
           :to="{ name: 'projects.show', params: { id: project.id } }"
           @click="emit('close')"
         >

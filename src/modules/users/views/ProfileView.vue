@@ -9,9 +9,9 @@ import AppFormActions from '@/components/ui/AppFormActions.vue'
 import AppFormSection from '@/components/ui/AppFormSection.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppPageHeader from '@/components/ui/AppPageHeader.vue'
-import AppSelect from '@/components/ui/AppSelect.vue'
 import StatusBadge from '@/components/ui/StatusBadge.vue'
 import { useProfile } from '@/composables/useProfile'
+import { useTheme } from '@/composables/useTheme'
 import { useToast } from '@/composables/useToast'
 import AvatarUploader from '@/modules/users/components/AvatarUploader.vue'
 import type { ProfileUpdatePayload, ProfileUser, ThemePreference } from '@/types/profile'
@@ -22,6 +22,7 @@ import { formatDateTime, humanizeKey } from '@/utils/format'
 const toast = useToast()
 const { summary, user, isLoading, isSaving, errorMessage, serverErrors, load, save, applyProfileUser } =
   useProfile()
+const { themePreference, setPreference } = useTheme()
 
 const headingRef = ref<HTMLElement | null>(null)
 
@@ -104,6 +105,18 @@ function validateLocal(): boolean {
   return ok
 }
 
+watch(
+  themePreference,
+  (value) => {
+    form.theme_preference = value
+  },
+)
+
+async function onThemeSelect(next: ThemePreference): Promise<void> {
+  form.theme_preference = next
+  await setPreference(next)
+}
+
 async function onSubmit(): Promise<void> {
   if (!validateLocal()) return
 
@@ -164,12 +177,12 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && !summary"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
       data-test="profile-load-error"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load profile</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load profile</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -182,15 +195,15 @@ onMounted(async () => {
         <AvatarUploader :name="user.full_name" :avatar="user.avatar" @updated="onAvatarUpdated" />
       </AppFormSection>
 
-      <div class="min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-        <p class="truncate text-lg font-semibold text-slate-900">{{ user.full_name }}</p>
-        <p class="truncate text-sm text-slate-600">{{ user.email }}</p>
+      <div class="min-w-0 rounded-xl border border-border bg-surface p-4 shadow-sm">
+        <p class="truncate text-lg font-semibold text-fg">{{ user.full_name }}</p>
+        <p class="truncate text-sm text-fg-subtle">{{ user.email }}</p>
       </div>
 
       <form class="flex flex-col gap-6" data-test="profile-form" @submit.prevent="onSubmit">
         <p
           v-if="errorMessage"
-          class="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800"
+          class="rounded-lg border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
           role="alert"
           data-test="profile-form-error"
         >
@@ -257,69 +270,96 @@ onMounted(async () => {
           description="Control which in-app notifications you receive."
         >
           <div class="flex flex-col gap-3">
-            <label class="flex items-start gap-3 text-sm text-slate-700">
+            <label class="flex items-start gap-3 text-sm text-fg-secondary">
               <input
                 v-model="form.notify_task_assigned"
                 type="checkbox"
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                class="mt-0.5 h-4 w-4 rounded border-border-strong text-fg focus:ring-ring"
                 data-test="notify-task-assigned"
               />
               <span>
-                <span class="font-medium text-slate-900">Task assignment</span>
-                <span class="mt-0.5 block text-slate-600">When a task is assigned to you</span>
+                <span class="font-medium text-fg">Task assignment</span>
+                <span class="mt-0.5 block text-fg-subtle">When a task is assigned to you</span>
               </span>
             </label>
-            <label class="flex items-start gap-3 text-sm text-slate-700">
+            <label class="flex items-start gap-3 text-sm text-fg-secondary">
               <input
                 v-model="form.notify_task_status"
                 type="checkbox"
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                class="mt-0.5 h-4 w-4 rounded border-border-strong text-fg focus:ring-ring"
                 data-test="notify-task-status"
               />
               <span>
-                <span class="font-medium text-slate-900">Task status</span>
-                <span class="mt-0.5 block text-slate-600">When status changes on your assigned tasks</span>
+                <span class="font-medium text-fg">Task status</span>
+                <span class="mt-0.5 block text-fg-subtle">When status changes on your assigned tasks</span>
               </span>
             </label>
-            <label class="flex items-start gap-3 text-sm text-slate-700">
+            <label class="flex items-start gap-3 text-sm text-fg-secondary">
               <input
                 v-model="form.notify_remarks"
                 type="checkbox"
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                class="mt-0.5 h-4 w-4 rounded border-border-strong text-fg focus:ring-ring"
                 data-test="notify-remarks"
               />
               <span>
-                <span class="font-medium text-slate-900">Remarks</span>
-                <span class="mt-0.5 block text-slate-600">Comments on work you own or are assigned</span>
+                <span class="font-medium text-fg">Remarks</span>
+                <span class="mt-0.5 block text-fg-subtle">Comments on work you own or are assigned</span>
               </span>
             </label>
-            <label class="flex items-start gap-3 text-sm text-slate-700">
+            <label class="flex items-start gap-3 text-sm text-fg-secondary">
               <input
                 v-model="form.notify_mentions"
                 type="checkbox"
-                class="mt-0.5 h-4 w-4 rounded border-slate-300 text-slate-900 focus:ring-slate-400"
+                class="mt-0.5 h-4 w-4 rounded border-border-strong text-fg focus:ring-ring"
                 data-test="notify-mentions"
               />
               <span>
-                <span class="font-medium text-slate-900">Mentions</span>
-                <span class="mt-0.5 block text-slate-600">When someone mentions you in a remark</span>
+                <span class="font-medium text-fg">Mentions</span>
+                <span class="mt-0.5 block text-fg-subtle">When someone mentions you in a remark</span>
               </span>
             </label>
           </div>
         </AppFormSection>
 
         <AppFormSection
-          title="Appearance preference"
-          description="Saved for later. Dark mode switching arrives in a future release."
+          title="Appearance"
+          description="Choose System to follow your device, or lock Light or Dark."
         >
-          <AppSelect
-            id="profile_theme_preference"
-            label="Theme preference"
-            :model-value="form.theme_preference"
-            :options="THEME_PREFERENCE_OPTIONS"
-            :error="fieldError('theme_preference')"
-            @update:model-value="form.theme_preference = String($event ?? 'system') as ThemePreference"
-          />
+          <div
+            class="grid gap-2 sm:grid-cols-3"
+            role="radiogroup"
+            aria-label="Theme preference"
+            data-test="profile-theme-options"
+          >
+            <button
+              v-for="option in THEME_PREFERENCE_OPTIONS"
+              :key="option.value"
+              type="button"
+              role="radio"
+              class="rounded-lg border px-3 py-3 text-left text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+              :class="
+                form.theme_preference === option.value
+                  ? 'border-inverse bg-inverse text-on-inverse'
+                  : 'border-border-strong bg-surface text-fg hover:bg-surface-hover'
+              "
+              :aria-checked="form.theme_preference === option.value"
+              :data-test="`profile-theme-${option.value}`"
+              @click="onThemeSelect(option.value)"
+            >
+              <span class="block font-medium">{{ option.label }}</span>
+              <span
+                class="mt-1 block text-xs"
+                :class="form.theme_preference === option.value ? 'text-on-inverse/80' : 'text-fg-muted'"
+              >
+                <template v-if="option.value === 'system'">Match device setting</template>
+                <template v-else-if="option.value === 'light'">Always light</template>
+                <template v-else>Always dark</template>
+              </span>
+            </button>
+          </div>
+          <p v-if="fieldError('theme_preference')" class="mt-2 text-sm text-danger-fg">
+            {{ fieldError('theme_preference') }}
+          </p>
         </AppFormSection>
 
         <AppFormActions>
@@ -338,8 +378,8 @@ onMounted(async () => {
       <AppFormSection title="Managed by administrator" description="These fields cannot be changed here.">
         <dl class="grid gap-4 sm:grid-cols-2" data-test="managed-fields">
           <div v-for="field in managedFields" :key="field.label">
-            <dt class="text-sm text-slate-500">{{ field.label }}</dt>
-            <dd class="mt-1 text-slate-900">
+            <dt class="text-sm text-fg-muted">{{ field.label }}</dt>
+            <dd class="mt-1 text-fg">
               <StatusBadge v-if="field.label === 'Status'" :status="String(field.value)" kind="user" />
               <AppBadge
                 v-else-if="field.label === 'Role' && user.role"
@@ -354,36 +394,36 @@ onMounted(async () => {
 
       <AppFormSection title="Your work" description="Quick counts for projects and assigned tasks.">
         <div class="grid gap-3 sm:grid-cols-2" data-test="profile-work-summary">
-          <div class="rounded-lg border border-slate-200 px-4 py-3">
-            <p class="text-sm text-slate-500">Owned projects</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
+          <div class="rounded-lg border border-border px-4 py-3">
+            <p class="text-sm text-fg-muted">Owned projects</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums text-fg">
               {{ summary.projects.owned_count }}
             </p>
           </div>
-          <div class="rounded-lg border border-slate-200 px-4 py-3">
-            <p class="text-sm text-slate-500">Member projects</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
+          <div class="rounded-lg border border-border px-4 py-3">
+            <p class="text-sm text-fg-muted">Member projects</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums text-fg">
               {{ summary.projects.member_count }}
             </p>
           </div>
-          <div class="rounded-lg border border-slate-200 px-4 py-3">
-            <p class="text-sm text-slate-500">Open assigned tasks</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
+          <div class="rounded-lg border border-border px-4 py-3">
+            <p class="text-sm text-fg-muted">Open assigned tasks</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums text-fg">
               {{ summary.tasks.assigned_open }}
             </p>
           </div>
-          <div class="rounded-lg border border-slate-200 px-4 py-3">
-            <p class="text-sm text-slate-500">Overdue assigned</p>
-            <p class="mt-1 text-2xl font-semibold tabular-nums text-slate-900">
+          <div class="rounded-lg border border-border px-4 py-3">
+            <p class="text-sm text-fg-muted">Overdue assigned</p>
+            <p class="mt-1 text-2xl font-semibold tabular-nums text-fg">
               {{ summary.tasks.assigned_overdue }}
             </p>
           </div>
         </div>
         <div class="flex flex-wrap gap-3 text-sm">
-          <RouterLink class="font-medium text-slate-800 underline-offset-2 hover:underline" :to="{ name: 'projects.index' }">
+          <RouterLink class="font-medium text-fg-secondary underline-offset-2 hover:underline" :to="{ name: 'projects.index' }">
             Browse projects
           </RouterLink>
-          <RouterLink class="font-medium text-slate-800 underline-offset-2 hover:underline" :to="{ name: 'tasks.index' }">
+          <RouterLink class="font-medium text-fg-secondary underline-offset-2 hover:underline" :to="{ name: 'tasks.index' }">
             Browse tasks
           </RouterLink>
         </div>
@@ -399,10 +439,10 @@ onMounted(async () => {
           <li
             v-for="log in summary.recent_activity"
             :key="log.id"
-            class="border-l border-slate-200 pl-3"
+            class="border-l border-border pl-3"
           >
-            <p class="text-sm font-medium text-slate-900">{{ activityHeadline(log) }}</p>
-            <p class="mt-0.5 text-xs text-slate-500">
+            <p class="text-sm font-medium text-fg">{{ activityHeadline(log) }}</p>
+            <p class="mt-0.5 text-xs text-fg-muted">
               {{ activitySubjectLabel(log) }} · {{ formatDateTime(log.created_at) }}
             </p>
           </li>

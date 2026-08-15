@@ -3,6 +3,7 @@ import { computed, ref } from 'vue'
 import * as authService from '@/services/authService'
 import type { AuthUser, LoginCredentials } from '@/types/auth'
 import { toApiClientError } from '@/utils/errors'
+import { useUiStore } from '@/stores/ui'
 
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<AuthUser | null>(null)
@@ -14,8 +15,16 @@ export const useAuthStore = defineStore('auth', () => {
   const email = computed(() => user.value?.email ?? '')
   const roleName = computed(() => user.value?.role?.name ?? '')
 
+  function syncThemeFromUser(next: AuthUser | null): void {
+    const ui = useUiStore()
+    if (next?.theme_preference) {
+      ui.syncThemeFromAuth(next.theme_preference)
+    }
+  }
+
   function setUser(next: AuthUser | null): void {
     user.value = next
+    syncThemeFromUser(next)
   }
 
   function clear(): void {

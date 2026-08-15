@@ -236,11 +236,11 @@ onMounted(async () => {
 
     <div
       v-else-if="loadError && !user"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load user</h2>
-      <p class="mt-1 text-sm text-red-800">{{ loadError }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load user</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ loadError }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">Try again</AppButton>
       </div>
@@ -248,7 +248,7 @@ onMounted(async () => {
 
     <template v-else-if="user">
       <section
-        class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-opacity"
+        class="rounded-xl border border-border bg-surface p-5 shadow-sm transition-opacity"
         :class="{ 'pointer-events-none opacity-60': isLoading }"
         :aria-busy="isLoading"
       >

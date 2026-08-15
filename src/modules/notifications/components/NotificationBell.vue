@@ -61,7 +61,7 @@ function viewAll(): void {
     <template #trigger>
       <button
         type="button"
-        class="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
+        class="relative inline-flex h-9 w-9 items-center justify-center rounded-md border border-border-strong bg-surface text-fg-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
         :aria-expanded="isOpen"
         aria-haspopup="true"
         :aria-label="hasUnread ? `Notifications, ${unreadCount} unread` : 'Notifications'"
@@ -79,9 +79,9 @@ function viewAll(): void {
       </button>
     </template>
 
-    <div class="border-b border-slate-100 px-3 py-2">
+    <div class="border-b border-border px-3 py-2">
       <div class="flex items-center justify-between gap-2">
-        <p class="text-sm font-semibold text-slate-900">Notifications</p>
+        <p class="text-sm font-semibold text-fg">Notifications</p>
         <AppButton
           type="button"
           variant="secondary"
@@ -102,7 +102,7 @@ function viewAll(): void {
     </div>
 
     <div v-else-if="errorMessage && preview.length === 0" class="p-3" role="alert">
-      <p class="text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm text-danger-fg">{{ errorMessage }}</p>
       <AppButton type="button" variant="secondary" class="mt-2" data-test="notification-retry" @click="store.retry">
         Try again
       </AppButton>
@@ -120,8 +120,8 @@ function viewAll(): void {
         :key="item.id"
         type="button"
         role="menuitem"
-        class="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-slate-50 focus:bg-slate-50 focus-visible:bg-slate-100"
-        :class="item.read_at ? 'text-slate-600' : 'bg-slate-50 text-slate-900'"
+        class="flex w-full flex-col items-start gap-0.5 px-3 py-2 text-left hover:bg-surface-hover focus:bg-muted focus-visible:bg-canvas"
+        :class="item.read_at ? 'text-fg-subtle' : 'bg-muted text-fg'"
         data-test="notification-preview-item"
         @click="onItemClick(item.id)"
       >
@@ -133,15 +133,15 @@ function viewAll(): void {
             aria-label="Unread"
           />
         </span>
-        <span class="line-clamp-2 text-xs text-slate-600">{{ notificationMessage(item) }}</span>
+        <span class="line-clamp-2 text-xs text-fg-subtle">{{ notificationMessage(item) }}</span>
         <span class="text-[11px] text-slate-400">{{ formatRelativeTime(item.created_at) }}</span>
       </button>
     </div>
 
-    <div class="border-t border-slate-100 px-3 py-2">
+    <div class="border-t border-border px-3 py-2">
       <button
         type="button"
-        class="w-full rounded-md px-2 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
+        class="w-full rounded-md px-2 py-1.5 text-sm font-medium text-fg-secondary hover:bg-surface-hover"
         data-test="notification-view-all"
         @click="viewAll"
       >

@@ -49,7 +49,7 @@ watch(
 
 <template>
   <span
-    class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-800 font-semibold text-white"
+    class="inline-flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-inverse font-semibold text-on-inverse"
     :class="sizeClass"
     data-test="app-avatar"
     :aria-label="name || 'User avatar'"

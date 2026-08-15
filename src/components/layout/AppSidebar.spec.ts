@@ -105,15 +105,15 @@ describe('AppSidebar', () => {
 
   it('does not mark a primary item active on profile or notifications routes', async () => {
     const { wrapper: profileWrapper } = await mountSidebar('administrator', '/profile')
-    expect(profileWrapper.find('.bg-slate-900').exists()).toBe(false)
+    expect(profileWrapper.find('.bg-inverse').exists()).toBe(false)
 
     const { wrapper: notificationsWrapper } = await mountSidebar('administrator', '/notifications')
-    expect(notificationsWrapper.find('.bg-slate-900').exists()).toBe(false)
+    expect(notificationsWrapper.find('.bg-inverse').exists()).toBe(false)
   })
 
   it('keeps dashboard active only on the dashboard route', async () => {
     const { wrapper } = await mountSidebar('administrator', '/dashboard')
     const dashboard = wrapper.findAll('a').find((link) => link.text() === 'Dashboard')
-    expect(dashboard?.classes()).toContain('bg-slate-900')
+    expect(dashboard?.classes()).toContain('bg-inverse')
   })
 })

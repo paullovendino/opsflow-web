@@ -95,7 +95,7 @@ onMounted(async () => {
     </div>
 
     <div v-if="showSkeleton" class="space-y-3" aria-busy="true" aria-label="Loading notifications">
-      <div v-for="index in 5" :key="index" class="rounded-xl border border-slate-200 bg-white p-4">
+      <div v-for="index in 5" :key="index" class="rounded-xl border border-border bg-surface p-4">
         <AppSkeleton class="h-4 w-1/3" />
         <AppSkeleton class="mt-2 h-3 w-2/3" />
       </div>
@@ -103,11 +103,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && notifications.length === 0"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load notifications</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load notifications</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
@@ -126,15 +126,15 @@ onMounted(async () => {
         v-for="item in notifications"
         :key="item.id"
         type="button"
-        class="w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm hover:border-slate-300"
+        class="w-full rounded-xl border border-border bg-surface p-4 text-left shadow-sm hover:border-border-strong"
         :class="item.read_at ? '' : 'ring-1 ring-sky-200'"
         data-test="notification-row"
         @click="onOpen(item.id)"
       >
         <div class="flex items-start justify-between gap-3">
           <div class="min-w-0">
-            <p class="text-sm font-semibold text-slate-900">{{ notificationTitle(item) }}</p>
-            <p class="mt-1 text-sm text-slate-600">{{ notificationMessage(item) }}</p>
+            <p class="text-sm font-semibold text-fg">{{ notificationTitle(item) }}</p>
+            <p class="mt-1 text-sm text-fg-subtle">{{ notificationMessage(item) }}</p>
             <p class="mt-2 text-xs text-slate-400">{{ formatRelativeTime(item.created_at) }}</p>
           </div>
           <span

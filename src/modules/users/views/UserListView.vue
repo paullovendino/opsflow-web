@@ -372,11 +372,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load users</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load users</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" @click="retry">
           Try again
@@ -421,9 +421,9 @@ onMounted(async () => {
                 <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
               </tr>
             </template>
-            <tr v-for="user in users" :key="user.id" class="hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ user.full_name }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ user.email }}</td>
+            <tr v-for="user in users" :key="user.id" class="hover:bg-surface-hover">
+              <td class="px-4 py-3 font-medium text-fg">{{ user.full_name }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ user.email }}</td>
               <td class="px-4 py-3">
                 <AppBadge
                   v-if="user.role"
@@ -432,12 +432,12 @@ onMounted(async () => {
                 />
                 <span v-else class="text-slate-400">—</span>
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ user.department?.name || '—' }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ user.job_title?.name || '—' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ user.department?.name || '—' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ user.job_title?.name || '—' }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(user.status)" kind="user" />
               </td>
-              <td class="px-4 py-3 text-slate-600">
+              <td class="px-4 py-3 text-fg-subtle">
                 {{ user.last_login_at ? formatDateTime(user.last_login_at) : '—' }}
               </td>
               <td class="px-4 py-3 text-right">
@@ -466,33 +466,33 @@ onMounted(async () => {
           <li
             v-for="user in users"
             :key="`card-${user.id}`"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-border-strong"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="truncate font-medium text-slate-900">{{ user.full_name }}</p>
-                <p class="truncate text-sm text-slate-600">{{ user.email }}</p>
+                <p class="truncate font-medium text-fg">{{ user.full_name }}</p>
+                <p class="truncate text-sm text-fg-subtle">{{ user.email }}</p>
               </div>
               <StatusBadge :status="String(user.status)" kind="user" />
             </div>
             <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <dt class="text-slate-500">Role</dt>
-                <dd class="text-slate-800">
+                <dt class="text-fg-muted">Role</dt>
+                <dd class="text-fg-secondary">
                   {{ user.role ? humanizeKey(user.role.name) : '—' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-slate-500">Department</dt>
-                <dd class="text-slate-800">{{ user.department?.name || '—' }}</dd>
+                <dt class="text-fg-muted">Department</dt>
+                <dd class="text-fg-secondary">{{ user.department?.name || '—' }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Job title</dt>
-                <dd class="text-slate-800">{{ user.job_title?.name || '—' }}</dd>
+                <dt class="text-fg-muted">Job title</dt>
+                <dd class="text-fg-secondary">{{ user.job_title?.name || '—' }}</dd>
               </div>
               <div>
-                <dt class="text-slate-500">Last login</dt>
-                <dd class="text-slate-800">
+                <dt class="text-fg-muted">Last login</dt>
+                <dd class="text-fg-secondary">
                   {{ user.last_login_at ? formatDateTime(user.last_login_at) : '—' }}
                 </dd>
               </div>

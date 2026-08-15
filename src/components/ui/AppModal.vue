@@ -114,26 +114,26 @@ onBeforeUnmount(() => {
       class="fixed inset-0 z-50 flex items-end justify-center p-0 sm:items-center sm:p-4"
       role="presentation"
     >
-      <div class="absolute inset-0 bg-slate-900/50" aria-hidden="true" @click="requestClose" />
+      <div class="absolute inset-0 bg-overlay" aria-hidden="true" @click="requestClose" />
       <div
         ref="dialogRef"
         role="dialog"
         aria-modal="true"
         :aria-labelledby="titleId"
         :aria-describedby="description ? descriptionId : undefined"
-        class="relative z-10 flex max-h-[92vh] w-full flex-col rounded-t-xl border border-slate-200 bg-white shadow-lg sm:rounded-xl"
+        class="relative z-10 flex max-h-[92vh] w-full flex-col rounded-t-xl border border-border bg-surface shadow-lg sm:rounded-xl"
         :class="sizeClass[size]"
       >
-        <header class="flex items-start justify-between gap-3 border-b border-slate-200 px-5 py-4">
+        <header class="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
           <div class="min-w-0">
-            <h2 :id="titleId" class="text-lg font-semibold text-slate-900">{{ title }}</h2>
-            <p v-if="description" :id="descriptionId" class="mt-1 text-sm text-slate-600">
+            <h2 :id="titleId" class="text-lg font-semibold text-fg">{{ title }}</h2>
+            <p v-if="description" :id="descriptionId" class="mt-1 text-sm text-fg-subtle">
               {{ description }}
             </p>
           </div>
           <button
             type="button"
-            class="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400"
+            class="rounded-md p-1.5 text-fg-muted hover:bg-surface-hover hover:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             aria-label="Close dialog"
             :disabled="busy || !dismissible"
             @click="requestClose"
@@ -146,7 +146,7 @@ onBeforeUnmount(() => {
           <slot />
         </div>
 
-        <footer v-if="$slots.footer" class="border-t border-slate-200 px-5 py-4">
+        <footer v-if="$slots.footer" class="border-t border-border px-5 py-4">
           <slot name="footer" />
         </footer>
       </div>

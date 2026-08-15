@@ -29,19 +29,19 @@ const myReportTo = computed(() =>
 )
 
 const linkClass =
-  'rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100'
-const activeClass = 'bg-slate-900 text-white hover:bg-slate-900'
+  'rounded-md px-3 py-2 text-sm font-medium text-fg-secondary hover:bg-surface-hover'
+const activeClass = 'bg-inverse text-on-inverse hover:bg-inverse'
 </script>
 
 <template>
   <aside
-    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform md:static md:translate-x-0"
+    class="fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-border bg-surface transition-transform md:static md:translate-x-0"
     :class="isSidebarOpen ? 'translate-x-0' : '-translate-x-full'"
     aria-label="Primary"
   >
-    <div class="border-b border-slate-200 px-5 py-4">
-      <p class="text-lg font-semibold tracking-tight text-slate-900">{{ appName }}</p>
-      <p class="text-xs text-slate-500">Operations workspace</p>
+    <div class="border-b border-border px-5 py-4">
+      <p class="text-lg font-semibold tracking-tight text-fg">{{ appName }}</p>
+      <p class="text-xs text-fg-muted">Operations workspace</p>
     </div>
 
     <nav class="flex flex-1 flex-col gap-1 p-3" aria-label="Main">

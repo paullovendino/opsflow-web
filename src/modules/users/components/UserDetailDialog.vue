@@ -32,11 +32,11 @@ const emit = defineEmits<{
 
     <div
       v-else-if="errorMessage"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-3"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-3"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load user</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load user</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-3">
         <AppButton type="button" variant="secondary" @click="emit('retry')">Try again</AppButton>
       </div>

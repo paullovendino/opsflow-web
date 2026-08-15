@@ -11,7 +11,7 @@ const { isBootstrapped } = useAuth()
 <template>
   <AppProgressBar />
   <AppToastHost />
-  <div v-if="!isBootstrapped" class="flex min-h-screen items-center justify-center bg-slate-100">
+  <div v-if="!isBootstrapped" class="flex min-h-screen items-center justify-center bg-canvas">
     <AppSpinner block label="Starting OpsFlow…" />
   </div>
   <RouterView v-else />

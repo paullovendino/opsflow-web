@@ -8,11 +8,11 @@ defineProps<{
 
 <template>
   <article
-    class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+    class="rounded-xl border border-border bg-surface p-4 shadow-sm"
     data-test="dashboard-average-progress"
   >
-    <p class="text-sm font-medium text-slate-500">Average project progress</p>
-    <div v-if="progress === null" class="mt-3 text-sm text-slate-600" data-test="average-progress-empty">
+    <p class="text-sm font-medium text-fg-muted">Average project progress</p>
+    <div v-if="progress === null" class="mt-3 text-sm text-fg-subtle" data-test="average-progress-empty">
       No active project progress
     </div>
     <div v-else class="mt-3">

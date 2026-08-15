@@ -6,9 +6,10 @@ const ui = useUiStore()
 const { toasts } = storeToRefs(ui)
 
 const typeClass: Record<string, string> = {
-  success: 'border-emerald-200 bg-emerald-50 text-emerald-900',
-  error: 'border-red-200 bg-red-50 text-red-900',
-  info: 'border-slate-200 bg-white text-slate-900',
+  success:
+    'border-emerald-200 bg-emerald-50 text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-100',
+  error: 'border-danger-border bg-danger-soft text-danger-fg',
+  info: 'border-border bg-elevated text-fg',
 }
 </script>
 

@@ -46,10 +46,10 @@ const softRefresh = computed(() => isSoftListRefresh(isLoading.value, logs.value
 </script>
 
 <template>
-  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
+  <section class="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6">
     <header class="mb-4">
-      <h2 class="text-base font-semibold text-slate-900">{{ title }}</h2>
-      <p v-if="description" class="mt-1 text-sm text-slate-600">{{ description }}</p>
+      <h2 class="text-base font-semibold text-fg">{{ title }}</h2>
+      <p v-if="description" class="mt-1 text-sm text-fg-subtle">{{ description }}</p>
     </header>
 
     <div v-if="showSkeleton" class="space-y-4" aria-busy="true" aria-label="Loading activity">
@@ -64,11 +64,11 @@ const softRefresh = computed(() => isSoftListRefresh(isLoading.value, logs.value
 
     <div
       v-else-if="errorMessage && logs.length === 0"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-4"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-4"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load activity</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load activity</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-3">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
@@ -96,20 +96,20 @@ const softRefresh = computed(() => isSoftListRefresh(isLoading.value, logs.value
         <li
           v-for="log in logs"
           :key="log.id"
-          class="relative border-l border-slate-200 pl-4"
+          class="relative border-l border-border pl-4"
           data-test="activity-item"
         >
           <span class="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-slate-400" />
           <div class="flex flex-wrap items-center gap-2">
-            <p class="text-sm font-medium text-slate-900">{{ activityHeadline(log) }}</p>
+            <p class="text-sm font-medium text-fg">{{ activityHeadline(log) }}</p>
             <AppBadge :label="humanizeAction(String(log.action))" tone="slate" />
           </div>
-          <p class="mt-1 text-sm text-slate-600">
+          <p class="mt-1 text-sm text-fg-subtle">
             {{ activitySubjectLabel(log) }}
             <span class="text-slate-400">·</span>
             {{ formatDateTime(log.created_at) }}
           </p>
-          <p v-if="activityChangeSummary(log)" class="mt-1 text-xs text-slate-500">
+          <p v-if="activityChangeSummary(log)" class="mt-1 text-xs text-fg-muted">
             {{ activityChangeSummary(log) }}
           </p>
         </li>

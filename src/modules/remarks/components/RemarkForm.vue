@@ -176,12 +176,12 @@ defineExpose({ reset })
       />
     </div>
 
-    <p v-if="mentionIds.length > 0" class="text-xs text-slate-500">
+    <p v-if="mentionIds.length > 0" class="text-xs text-fg-muted">
       Mentions:
       <span
         v-for="id in mentionIds"
         :key="id"
-        class="mr-1 inline-flex rounded bg-slate-100 px-1.5 py-0.5 text-slate-700"
+        class="mr-1 inline-flex rounded bg-canvas px-1.5 py-0.5 text-fg-secondary"
       >
         {{ candidates.find((candidate) => candidate.id === id)?.full_name || `User #${id}` }}
       </span>

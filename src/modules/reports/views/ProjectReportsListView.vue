@@ -174,7 +174,7 @@ onMounted(async () => {
         <template #actions>
           <RouterLink
             v-if="canViewEmployeeReports"
-            class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            class="rounded-md border border-border-strong bg-surface px-3 py-2 text-sm font-medium text-fg-secondary hover:bg-surface-hover"
             :to="{ name: 'reports.employees.index' }"
           >
             Employee reports
@@ -234,11 +234,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && reports.length === 0"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load reports</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load reports</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -267,18 +267,18 @@ onMounted(async () => {
                 <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
               </tr>
             </template>
-            <tr v-for="report in reports" :key="report.project.id" class="hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ report.project.name }}</td>
+            <tr v-for="report in reports" :key="report.project.id" class="hover:bg-surface-hover">
+              <td class="px-4 py-3 font-medium text-fg">{{ report.project.name }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(report.project.status)" kind="project" />
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ report.tasks.total }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ report.tasks.overdue }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ report.tasks.unassigned }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ report.members_count }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.tasks.total }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.tasks.overdue }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.tasks.unassigned }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.members_count }}</td>
               <td class="px-4 py-3 text-right">
                 <RouterLink
-                  class="text-sm font-medium text-slate-900 underline-offset-2 hover:underline"
+                  class="text-sm font-medium text-fg underline-offset-2 hover:underline"
                   :to="{
                     name: 'reports.projects.show',
                     params: { id: report.project.id },
@@ -296,10 +296,10 @@ onMounted(async () => {
           <li
             v-for="report in reports"
             :key="`card-${report.project.id}`"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <div class="flex items-start justify-between gap-3">
-              <p class="font-medium text-slate-900">{{ report.project.name }}</p>
+              <p class="font-medium text-fg">{{ report.project.name }}</p>
               <StatusBadge :status="String(report.project.status)" kind="project" />
             </div>
             <div class="mt-3 grid grid-cols-2 gap-2">
@@ -308,7 +308,7 @@ onMounted(async () => {
             </div>
             <div class="mt-3 text-right">
               <RouterLink
-                class="text-sm font-medium text-slate-900 underline"
+                class="text-sm font-medium text-fg underline"
                 :to="{
                   name: 'reports.projects.show',
                   params: { id: report.project.id },

@@ -107,13 +107,13 @@ onMounted(() => {
   >
     <p
       v-if="formError"
-      class="mb-3 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700"
+      class="mb-3 rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700"
       role="alert"
     >
       {{ formError }}
     </p>
-    <p v-if="task" class="mb-3 text-sm text-slate-600">
-      Task: <span class="font-medium text-slate-900">{{ task.title }}</span>
+    <p v-if="task" class="mb-3 text-sm text-fg-subtle">
+      Task: <span class="font-medium text-fg">{{ task.title }}</span>
     </p>
     <AppSelect
       id="task_assign_dialog"

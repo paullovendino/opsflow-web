@@ -228,7 +228,7 @@ onBeforeUnmount(() => {
         autocomplete="off"
         spellcheck="false"
         placeholder="Search…"
-        class="h-9 w-full rounded-md border border-slate-300 bg-white py-1.5 pl-8 pr-16 text-sm text-slate-900 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
+        class="h-9 w-full rounded-md border border-border-strong bg-surface py-1.5 pl-8 pr-16 text-sm text-fg placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
         role="combobox"
         aria-autocomplete="list"
         aria-controls="opsflow-global-search-results"
@@ -250,7 +250,7 @@ onBeforeUnmount(() => {
         <button
           v-if="query.length > 0"
           type="button"
-          class="rounded px-1.5 py-0.5 text-xs font-medium text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+          class="rounded px-1.5 py-0.5 text-xs font-medium text-fg-muted hover:bg-surface-hover hover:text-fg-secondary"
           data-test="global-search-clear"
           @click="onClear"
         >
@@ -262,7 +262,7 @@ onBeforeUnmount(() => {
     <div
       v-if="showPanel"
       id="opsflow-global-search-results"
-      class="absolute right-0 z-[70] mt-1 max-h-[min(24rem,70vh)] w-[min(100vw-2rem,28rem)] overflow-auto rounded-lg border border-slate-200 bg-white shadow-lg"
+      class="absolute right-0 z-[70] mt-1 max-h-[min(24rem,70vh)] w-[min(100vw-2rem,28rem)] overflow-auto rounded-lg border border-border bg-surface shadow-lg"
       role="listbox"
       :aria-busy="isLoading"
       data-test="global-search-panel"
@@ -270,7 +270,7 @@ onBeforeUnmount(() => {
       <div
         v-if="showStatusOnly"
         class="px-3 py-3 text-sm"
-        :class="errorMessage ? 'text-red-700' : 'text-slate-600'"
+        :class="errorMessage ? 'text-red-700' : 'text-fg-subtle'"
         role="status"
         data-test="global-search-status"
       >
@@ -278,8 +278,8 @@ onBeforeUnmount(() => {
       </div>
 
       <template v-else>
-        <section v-if="projectHits.length > 0" class="border-b border-slate-100 py-2" data-test="global-search-projects">
-          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Projects</h2>
+        <section v-if="projectHits.length > 0" class="border-b border-border py-2" data-test="global-search-projects">
+          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">Projects</h2>
           <ul class="list-none p-0">
             <li
               v-for="hit in projectHits"
@@ -287,15 +287,15 @@ onBeforeUnmount(() => {
               :key="`project-${hit.item.id}`"
               role="option"
               :aria-selected="activeIndex === hit.index"
-              class="cursor-pointer px-3 py-2 hover:bg-slate-50"
-              :class="{ 'bg-slate-100': activeIndex === hit.index }"
+              class="cursor-pointer px-3 py-2 hover:bg-surface-hover"
+              :class="{ 'bg-canvas': activeIndex === hit.index }"
               data-test="global-search-project-hit"
               @mousedown.prevent="navigateTo(hit)"
             >
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-medium text-slate-900">{{ hit.item.name }}</p>
-                  <p class="text-xs text-slate-500">
+                  <p class="truncate text-sm font-medium text-fg">{{ hit.item.name }}</p>
+                  <p class="text-xs text-fg-muted">
                     {{ hit.item.progress === null ? 'No tasks' : `${hit.item.progress}%` }}
                   </p>
                 </div>
@@ -305,8 +305,8 @@ onBeforeUnmount(() => {
           </ul>
         </section>
 
-        <section v-if="taskHits.length > 0" class="border-b border-slate-100 py-2" data-test="global-search-tasks">
-          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Tasks</h2>
+        <section v-if="taskHits.length > 0" class="border-b border-border py-2" data-test="global-search-tasks">
+          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">Tasks</h2>
           <ul class="list-none p-0">
             <li
               v-for="hit in taskHits"
@@ -314,15 +314,15 @@ onBeforeUnmount(() => {
               :key="`task-${hit.item.id}`"
               role="option"
               :aria-selected="activeIndex === hit.index"
-              class="cursor-pointer px-3 py-2 hover:bg-slate-50"
-              :class="{ 'bg-slate-100': activeIndex === hit.index }"
+              class="cursor-pointer px-3 py-2 hover:bg-surface-hover"
+              :class="{ 'bg-canvas': activeIndex === hit.index }"
               data-test="global-search-task-hit"
               @mousedown.prevent="navigateTo(hit)"
             >
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-medium text-slate-900">{{ hit.item.title }}</p>
-                  <p class="truncate text-xs text-slate-500">
+                  <p class="truncate text-sm font-medium text-fg">{{ hit.item.title }}</p>
+                  <p class="truncate text-xs text-fg-muted">
                     {{ hit.item.project?.name || 'Task' }}
                     <span v-if="hit.item.is_overdue" class="font-medium text-red-700"> · Overdue</span>
                   </p>
@@ -334,7 +334,7 @@ onBeforeUnmount(() => {
         </section>
 
         <section v-if="userHits.length > 0" class="py-2" data-test="global-search-users">
-          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-slate-500">Users</h2>
+          <h2 class="px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted">Users</h2>
           <ul class="list-none p-0">
             <li
               v-for="hit in userHits"
@@ -342,17 +342,17 @@ onBeforeUnmount(() => {
               :key="`user-${hit.item.id}`"
               role="option"
               :aria-selected="activeIndex === hit.index"
-              class="cursor-pointer px-3 py-2 hover:bg-slate-50"
-              :class="{ 'bg-slate-100': activeIndex === hit.index }"
+              class="cursor-pointer px-3 py-2 hover:bg-surface-hover"
+              :class="{ 'bg-canvas': activeIndex === hit.index }"
               data-test="global-search-user-hit"
               @mousedown.prevent="navigateTo(hit)"
             >
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
-                  <p class="truncate text-sm font-medium text-slate-900">{{ hit.item.full_name }}</p>
-                  <p class="truncate text-xs text-slate-500">{{ hit.item.email }}</p>
+                  <p class="truncate text-sm font-medium text-fg">{{ hit.item.full_name }}</p>
+                  <p class="truncate text-xs text-fg-muted">{{ hit.item.email }}</p>
                 </div>
-                <span class="shrink-0 text-xs text-slate-500">{{ humanizeKey(String(hit.item.status)) }}</span>
+                <span class="shrink-0 text-xs text-fg-muted">{{ humanizeKey(String(hit.item.status)) }}</span>
               </div>
             </li>
           </ul>

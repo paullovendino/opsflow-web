@@ -101,7 +101,7 @@ onBeforeUnmount(() => {
       role="presentation"
     >
       <div
-        class="absolute inset-0 bg-slate-900/50"
+        class="absolute inset-0 bg-overlay"
         aria-hidden="true"
         @click="!loading && emit('cancel')"
       />
@@ -111,10 +111,10 @@ onBeforeUnmount(() => {
         aria-modal="true"
         :aria-labelledby="titleId"
         :aria-describedby="description ? descriptionId : undefined"
-        class="relative z-10 w-full max-w-md rounded-xl border border-slate-200 bg-white p-5 shadow-lg"
+        class="relative z-10 w-full max-w-md rounded-xl border border-border bg-surface p-5 shadow-lg"
       >
-        <h2 :id="titleId" class="text-lg font-semibold text-slate-900">{{ title }}</h2>
-        <p v-if="description" :id="descriptionId" class="mt-2 text-sm text-slate-600">
+        <h2 :id="titleId" class="text-lg font-semibold text-fg">{{ title }}</h2>
+        <p v-if="description" :id="descriptionId" class="mt-2 text-sm text-fg-subtle">
           {{ description }}
         </p>
         <div class="mt-5 flex justify-end gap-2">

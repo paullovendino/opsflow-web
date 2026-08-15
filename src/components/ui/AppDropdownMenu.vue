@@ -80,7 +80,12 @@ function onKeydown(event: KeyboardEvent): void {
   if (event.key === 'Escape') {
     event.preventDefault()
     close()
-    triggerRef.value?.querySelector<HTMLElement>('button, [tabindex]')?.focus()
+    void nextTick(() => {
+      const trigger = triggerRef.value?.querySelector<HTMLElement>('button, [tabindex]')
+      if (trigger?.isConnected) {
+        trigger.focus()
+      }
+    })
     return
   }
 
@@ -155,7 +160,7 @@ onBeforeUnmount(() => {
       v-if="open"
       ref="menuRef"
       role="menu"
-      class="fixed z-[60] rounded-md border border-slate-200 bg-white py-1 shadow-lg"
+      class="fixed z-[60] rounded-md border border-border bg-surface py-1 shadow-lg"
       :class="menuClass"
       :style="menuStyle"
     >

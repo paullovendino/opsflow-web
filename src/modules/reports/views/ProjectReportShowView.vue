@@ -130,11 +130,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && !report"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load report</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load report</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4 flex flex-wrap gap-2">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -147,7 +147,7 @@ onMounted(async () => {
       <div class="flex flex-col gap-6 transition-opacity" :class="{ 'pointer-events-none opacity-60': isLoading }" :aria-busy="isLoading">
       <div class="flex flex-wrap items-center gap-3">
         <StatusBadge :status="String(report.project.status)" kind="project" />
-        <p class="text-sm text-slate-600">
+        <p class="text-sm text-fg-subtle">
           Start {{ report.project.start_date ? formatDate(report.project.start_date) : '—' }}
           · Due {{ report.project.due_date ? formatDate(report.project.due_date) : '—' }}
         </p>

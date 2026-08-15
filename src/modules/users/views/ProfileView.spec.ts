@@ -41,6 +41,15 @@ vi.mock('@/modules/users/components/AvatarUploader.vue', () => ({
   },
 }))
 
+const setPreference = vi.fn(async () => true)
+
+vi.mock('@/composables/useTheme', () => ({
+  useTheme: () => ({
+    themePreference: ref('system'),
+    setPreference,
+  }),
+}))
+
 vi.mock('@/composables/useToast', () => ({
   useToast: () => ({
     success: vi.fn(),
@@ -116,7 +125,9 @@ describe('ProfileView', () => {
     load.mockClear()
     save.mockClear()
     applyProfileUser.mockClear()
+    setPreference.mockClear()
     save.mockResolvedValue(true)
+    setPreference.mockResolvedValue(true)
   })
 
   it('shows a loading skeleton initially', async () => {
@@ -134,7 +145,7 @@ describe('ProfileView', () => {
     await flushPromises()
 
     expect((wrapper.get('#profile_first_name').element as HTMLInputElement).value).toBe('Eli')
-    expect((wrapper.get('#profile_theme_preference').element as HTMLSelectElement).value).toBe('system')
+    expect(wrapper.get('[data-test="profile-theme-system"]').attributes('aria-checked')).toBe('true')
     expect((wrapper.get('[data-test="notify-task-status"]').element as HTMLInputElement).checked).toBe(false)
     expect(wrapper.get('[data-test="managed-fields"]').text()).toContain('eli@opsflow.test')
     expect(wrapper.get('[data-test="managed-fields"]').text()).toContain('Employee')
@@ -154,10 +165,11 @@ describe('ProfileView', () => {
     await flushPromises()
 
     await wrapper.get('#profile_first_name').setValue('Elena')
-    await wrapper.get('#profile_theme_preference').setValue('dark')
+    await wrapper.get('[data-test="profile-theme-dark"]').trigger('click')
     await wrapper.get('[data-test="notify-task-assigned"]').setValue(false)
     await wrapper.get('[data-test="profile-form"]').trigger('submit')
 
+    expect(setPreference).toHaveBeenCalledWith('dark')
     expect(save).toHaveBeenCalledWith(
       expect.objectContaining({
         first_name: 'Elena',

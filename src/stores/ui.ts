@@ -1,5 +1,14 @@
 import { defineStore } from 'pinia'
 import { computed, ref } from 'vue'
+import type { ThemePreference } from '@/types/profile'
+import {
+  applyResolvedTheme,
+  getSystemPrefersDark,
+  readStoredThemePreference,
+  resolveTheme,
+  writeStoredThemePreference,
+  type ResolvedTheme,
+} from '@/utils/theme'
 
 export type ToastType = 'success' | 'error' | 'info'
 
@@ -20,6 +29,15 @@ export const useUiStore = defineStore('ui', () => {
   const globalLoadingProgress = ref(0)
   let progressTimer: ReturnType<typeof setInterval> | null = null
   let hideTimer: ReturnType<typeof setTimeout> | null = null
+
+  const themePreference = ref<ThemePreference>(readStoredThemePreference())
+  const resolvedTheme = ref<ResolvedTheme>(
+    resolveTheme(themePreference.value, getSystemPrefersDark()),
+  )
+  const isDark = computed(() => resolvedTheme.value === 'dark')
+
+  let systemMedia: MediaQueryList | null = null
+  let systemListener: ((event: MediaQueryListEvent) => void) | null = null
 
   const isGlobalLoading = computed(() => routeLoading.value || httpPending.value > 0)
 
@@ -108,6 +126,61 @@ export const useUiStore = defineStore('ui', () => {
     isSidebarOpen.value = !isSidebarOpen.value
   }
 
+  function detachSystemListener(): void {
+    if (systemMedia && systemListener) {
+      systemMedia.removeEventListener('change', systemListener)
+    }
+    systemMedia = null
+    systemListener = null
+  }
+
+  function recomputeResolvedTheme(systemPrefersDark?: boolean): void {
+    const next = resolveTheme(
+      themePreference.value,
+      systemPrefersDark ?? getSystemPrefersDark(systemMedia),
+    )
+    resolvedTheme.value = next
+    applyResolvedTheme(next)
+  }
+
+  function attachSystemListener(): void {
+    detachSystemListener()
+    if (themePreference.value !== 'system') return
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') return
+
+    systemMedia = window.matchMedia('(prefers-color-scheme: dark)')
+    systemListener = (event: MediaQueryListEvent) => {
+      recomputeResolvedTheme(event.matches)
+    }
+    systemMedia.addEventListener('change', systemListener)
+  }
+
+  function setThemePreference(preference: ThemePreference, options: { persistLocal?: boolean } = {}): void {
+    const persistLocal = options.persistLocal ?? true
+    themePreference.value = preference
+    if (persistLocal) {
+      writeStoredThemePreference(preference)
+    }
+    attachSystemListener()
+    recomputeResolvedTheme()
+  }
+
+  function initTheme(): void {
+    setThemePreference(readStoredThemePreference(), { persistLocal: false })
+  }
+
+  function syncThemeFromAuth(preference: ThemePreference | string | null | undefined): void {
+    if (preference !== 'light' && preference !== 'dark' && preference !== 'system') {
+      return
+    }
+    if (preference === themePreference.value) {
+      attachSystemListener()
+      recomputeResolvedTheme()
+      return
+    }
+    setThemePreference(preference)
+  }
+
   return {
     toasts,
     isSidebarOpen,
@@ -115,6 +188,9 @@ export const useUiStore = defineStore('ui', () => {
     httpPending,
     globalLoadingProgress,
     isGlobalLoading,
+    themePreference,
+    resolvedTheme,
+    isDark,
     setRouteLoading,
     beginHttp,
     endHttp,
@@ -123,5 +199,9 @@ export const useUiStore = defineStore('ui', () => {
     openSidebar,
     closeSidebar,
     toggleSidebar,
+    setThemePreference,
+    initTheme,
+    syncThemeFromAuth,
+    detachSystemListener,
   }
 })

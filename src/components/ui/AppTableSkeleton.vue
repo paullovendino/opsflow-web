@@ -17,9 +17,9 @@ withDefaults(
 
 <template>
   <div class="flex flex-col gap-3" aria-busy="true" aria-live="polite">
-    <div class="hidden overflow-hidden rounded-xl border border-slate-200 bg-white md:block">
+    <div class="hidden overflow-hidden rounded-xl border border-border bg-surface md:block">
       <div
-        class="grid gap-3 border-b border-slate-100 bg-slate-50 px-4 py-3"
+        class="grid gap-3 border-b border-border bg-muted px-4 py-3"
         :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
       >
         <AppSkeleton v-for="col in columns" :key="`h-${col}`" class="h-3 w-20" />
@@ -42,7 +42,7 @@ withDefaults(
       <div
         v-for="index in Math.min(rows, 4)"
         :key="`m-${index}`"
-        class="rounded-xl border border-slate-200 bg-white p-4"
+        class="rounded-xl border border-border bg-surface p-4"
       >
         <AppSkeleton class="h-4 w-2/3" rounded="lg" />
         <AppSkeleton class="mt-3 h-3 w-1/2" />

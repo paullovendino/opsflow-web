@@ -25,9 +25,9 @@ const bodySegments = computed(() => segmentRemarkBody(props.remark.body, props.r
 const showActions = computed(() => props.remark.can_edit || props.remark.can_delete)
 
 const itemClass =
-  'block w-full px-3 py-2 text-left text-sm text-slate-700 outline-none hover:bg-slate-50 focus:bg-slate-50 focus-visible:bg-slate-100'
+  'block w-full px-3 py-2 text-left text-sm text-fg-secondary outline-none hover:bg-surface-hover focus:bg-muted focus-visible:bg-canvas'
 const dangerClass =
-  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-red-50 focus:bg-red-50 focus-visible:bg-red-100'
+  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-red-100'
 
 function toggleMenu(): void {
   menuOpen.value = !menuOpen.value
@@ -62,13 +62,13 @@ defineExpose({
 </script>
 
 <template>
-  <article class="rounded-lg border border-slate-200 bg-slate-50/60 p-4" data-test="remark-item">
+  <article class="rounded-lg border border-border bg-muted/60 p-4" data-test="remark-item">
     <header class="flex items-start justify-between gap-3">
       <div class="min-w-0">
-        <p class="text-sm font-medium text-slate-900">
+        <p class="text-sm font-medium text-fg">
           {{ remark.author?.full_name || 'Unknown author' }}
         </p>
-        <p class="text-xs text-slate-500">
+        <p class="text-xs text-fg-muted">
           {{ formatDateTime(remark.created_at) }}
           <span v-if="remark.updated_at !== remark.created_at"> · edited</span>
         </p>
@@ -83,7 +83,7 @@ defineExpose({
         <template #trigger>
           <button
             type="button"
-            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-slate-500 hover:bg-slate-200/70 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
+            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-slate-200/70 hover:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
             :aria-expanded="menuOpen"
             :aria-haspopup="true"
             aria-label="Remark actions"
@@ -117,11 +117,11 @@ defineExpose({
       </AppDropdownMenu>
     </header>
 
-    <p class="mt-3 whitespace-pre-wrap break-words text-sm text-slate-800" data-test="remark-body">
+    <p class="mt-3 whitespace-pre-wrap break-words text-sm text-fg-secondary" data-test="remark-body">
       <template v-for="(segment, index) in bodySegments" :key="`${segment.type}-${index}`">
         <span
           v-if="segment.type === 'mention'"
-          class="rounded border border-slate-300 bg-slate-100 px-1 py-0.5 font-medium text-slate-900"
+          class="rounded border border-border-strong bg-canvas px-1 py-0.5 font-medium text-fg"
           data-test="remark-mention"
         >{{ segment.value }}</span>
         <template v-else>{{ segment.value }}</template>

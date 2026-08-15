@@ -21,9 +21,9 @@ const emit = defineEmits<{
 const open = ref(false)
 
 const itemClass =
-  'block w-full px-3 py-2 text-left text-sm text-slate-700 outline-none hover:bg-slate-50 focus:bg-slate-50 focus-visible:bg-slate-100'
+  'block w-full px-3 py-2 text-left text-sm text-fg-secondary outline-none hover:bg-surface-hover focus:bg-muted focus-visible:bg-canvas'
 const dangerClass =
-  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-red-50 focus:bg-red-50 focus-visible:bg-red-100'
+  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-red-100'
 
 function toggle(): void {
   open.value = !open.value
@@ -64,7 +64,7 @@ function onRemove(): void {
     <template #trigger>
       <button
         type="button"
-        class="rounded-md border border-slate-300 bg-white px-2.5 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-1"
+        class="rounded-md border border-border-strong bg-surface px-2.5 py-1.5 text-sm font-medium text-fg-secondary hover:bg-surface-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
         :aria-expanded="open"
         :aria-haspopup="true"
         :aria-label="`Actions for ${user.full_name}`"

@@ -179,7 +179,7 @@ onMounted(async () => {
       >
         <template #actions>
           <RouterLink
-            class="rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50"
+            class="rounded-md border border-border-strong bg-surface px-3 py-2 text-sm font-medium text-fg-secondary hover:bg-surface-hover"
             :to="{ name: 'reports.projects.index' }"
           >
             Project reports
@@ -269,11 +269,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && reports.length === 0"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load reports</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load reports</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -300,19 +300,19 @@ onMounted(async () => {
                 <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
               </tr>
             </template>
-            <tr v-for="report in reports" :key="report.user.id" class="hover:bg-slate-50">
+            <tr v-for="report in reports" :key="report.user.id" class="hover:bg-surface-hover">
               <td class="px-4 py-3">
-                <p class="font-medium text-slate-900">{{ report.user.full_name }}</p>
-                <p class="text-sm text-slate-600">{{ report.user.email }}</p>
+                <p class="font-medium text-fg">{{ report.user.full_name }}</p>
+                <p class="text-sm text-fg-subtle">{{ report.user.email }}</p>
               </td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(report.user.status)" kind="user" />
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ report.tasks.total }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ report.tasks.overdue }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.tasks.total }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ report.tasks.overdue }}</td>
               <td class="px-4 py-3 text-right">
                 <RouterLink
-                  class="text-sm font-medium text-slate-900 underline-offset-2 hover:underline"
+                  class="text-sm font-medium text-fg underline-offset-2 hover:underline"
                   :to="{
                     name: 'reports.employees.show',
                     params: { id: report.user.id },
@@ -330,12 +330,12 @@ onMounted(async () => {
           <li
             v-for="report in reports"
             :key="`card-${report.user.id}`"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <div class="flex items-start justify-between gap-3">
               <div>
-                <p class="font-medium text-slate-900">{{ report.user.full_name }}</p>
-                <p class="text-sm text-slate-600">{{ report.user.email }}</p>
+                <p class="font-medium text-fg">{{ report.user.full_name }}</p>
+                <p class="text-sm text-fg-subtle">{{ report.user.email }}</p>
               </div>
               <StatusBadge :status="String(report.user.status)" kind="user" />
             </div>
@@ -345,7 +345,7 @@ onMounted(async () => {
             </div>
             <div class="mt-3 text-right">
               <RouterLink
-                class="text-sm font-medium text-slate-900 underline"
+                class="text-sm font-medium text-fg underline"
                 :to="{
                   name: 'reports.employees.show',
                   params: { id: report.user.id },

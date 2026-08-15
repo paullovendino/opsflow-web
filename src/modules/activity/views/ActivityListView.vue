@@ -189,11 +189,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && logs.length === 0"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load activity</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load activity</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
@@ -228,22 +228,22 @@ onMounted(async () => {
           </tr>
         </template>
         <tr v-for="log in logs" :key="log.id" data-test="activity-row">
-          <td class="whitespace-nowrap px-4 py-3 text-slate-600">{{ formatDateTime(log.created_at) }}</td>
+          <td class="whitespace-nowrap px-4 py-3 text-fg-subtle">{{ formatDateTime(log.created_at) }}</td>
           <td class="px-4 py-3">
-            <div class="font-medium text-slate-900">{{ log.actor?.full_name || 'System' }}</div>
-            <div v-if="log.actor?.email" class="text-xs text-slate-500">{{ log.actor.email }}</div>
+            <div class="font-medium text-fg">{{ log.actor?.full_name || 'System' }}</div>
+            <div v-if="log.actor?.email" class="text-xs text-fg-muted">{{ log.actor.email }}</div>
           </td>
-          <td class="px-4 py-3 text-slate-800">{{ activityHeadline(log) }}</td>
+          <td class="px-4 py-3 text-fg-secondary">{{ activityHeadline(log) }}</td>
           <td class="px-4 py-3">
             <RouterLink
               v-if="subjectRoute(log)"
-              class="text-sm font-medium text-slate-900 underline-offset-2 hover:underline"
+              class="text-sm font-medium text-fg underline-offset-2 hover:underline"
               :to="subjectRoute(log)!"
             >
               {{ activitySubjectLabel(log) }}
             </RouterLink>
             <span v-else>{{ activitySubjectLabel(log) }}</span>
-            <div class="text-xs text-slate-500">{{ humanizeKey(String(log.subject_type)) }}</div>
+            <div class="text-xs text-fg-muted">{{ humanizeKey(String(log.subject_type)) }}</div>
           </td>
           <td class="px-4 py-3">
             <AppBadge :label="humanizeAction(String(log.action))" tone="slate" />

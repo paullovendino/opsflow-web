@@ -47,8 +47,8 @@ onMounted(() => {
 <template>
   <div class="flex flex-col gap-8">
     <header class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight text-slate-900">Dashboard</h1>
-      <p class="text-sm text-slate-600">
+      <h1 class="text-2xl font-semibold tracking-tight text-fg">Dashboard</h1>
+      <p class="text-sm text-fg-subtle">
         Welcome{{ fullName ? `, ${fullName}` : '' }}. Here's a snapshot of your scoped work.
       </p>
     </header>
@@ -57,11 +57,11 @@ onMounted(() => {
 
     <div
       v-else-if="errorMessage && !summary"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load the dashboard</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load the dashboard</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
@@ -94,15 +94,15 @@ onMounted(() => {
           </div>
           <div class="mt-4 grid gap-4 lg:grid-cols-2">
             <DashboardAverageProgress :progress="summary.projects.average_progress" />
-            <article class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-              <p class="text-sm font-medium text-slate-500">Notifications</p>
-              <p class="mt-2 text-sm text-slate-700">
+            <article class="rounded-xl border border-border bg-surface p-4 shadow-sm">
+              <p class="text-sm font-medium text-fg-muted">Notifications</p>
+              <p class="mt-2 text-sm text-fg-secondary">
                 <template v-if="summary.notifications.unread_count === 0">
                   You're all caught up.
                 </template>
                 <template v-else>
                   You have
-                  <span class="font-semibold tabular-nums text-slate-900">{{
+                  <span class="font-semibold tabular-nums text-fg">{{
                     summary.notifications.unread_count
                   }}</span>
                   unread notification{{ summary.notifications.unread_count === 1 ? '' : 's' }}.
@@ -110,7 +110,7 @@ onMounted(() => {
               </p>
               <RouterLink
                 :to="{ name: 'notifications.index' }"
-                class="mt-3 inline-flex text-sm font-medium text-slate-800 underline-offset-2 hover:underline"
+                class="mt-3 inline-flex text-sm font-medium text-fg-secondary underline-offset-2 hover:underline"
               >
                 Open notifications
               </RouterLink>

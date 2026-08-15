@@ -8,11 +8,11 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
     <AppCardSkeleton :count="6" :columns="3" />
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-48" />
         <AppSkeleton class="mt-4 h-2 w-full" rounded="full" />
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-32" />
         <AppSkeleton class="mt-4 h-4 w-2/3" />
       </div>
@@ -21,7 +21,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
     <div>
       <AppSkeleton class="mb-3 h-4 w-40" />
       <div class="grid gap-4 lg:grid-cols-2">
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
           <AppSkeleton class="h-4 w-36" />
           <div class="mt-4 space-y-3">
             <div v-for="index in 5" :key="index" class="space-y-1">
@@ -33,7 +33,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
             </div>
           </div>
         </div>
-        <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
           <AppSkeleton class="h-4 w-36" />
           <div class="mt-4 space-y-3">
             <div v-for="index in 4" :key="`p-${index}`" class="space-y-1">
@@ -46,7 +46,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
           </div>
         </div>
       </div>
-      <div class="mt-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="mt-4 rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-40" />
         <div class="mt-4 space-y-3">
           <div v-for="index in 4" :key="`s-${index}`" class="space-y-1">
@@ -61,7 +61,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
     </div>
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-28" />
         <div class="mt-4 space-y-3">
           <div v-for="index in 4" :key="`d-${index}`" class="flex items-center gap-3">
@@ -73,7 +73,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
           </div>
         </div>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-36" />
         <div class="mt-4 space-y-3">
           <div v-for="index in 4" :key="`a-${index}`" class="flex gap-3">
@@ -87,7 +87,7 @@ import AppSkeleton from '@/components/ui/AppSkeleton.vue'
       </div>
     </div>
 
-    <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
       <AppSkeleton class="h-4 w-32" />
       <div class="mt-4 space-y-3">
         <div v-for="index in 4" :key="`r-${index}`" class="flex items-center gap-3">

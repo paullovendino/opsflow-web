@@ -29,10 +29,10 @@ const viewKey = computed(() => authLayoutViewKey(route.name, route.path))
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100">
+  <div class="min-h-screen bg-canvas">
     <div
       v-if="isSidebarOpen"
-      class="fixed inset-0 z-30 bg-slate-900/40 md:hidden"
+      class="fixed inset-0 z-30 bg-overlay md:hidden"
       @click="ui.closeSidebar()"
     />
 

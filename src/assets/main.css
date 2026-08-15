@@ -1,5 +1,90 @@
 @import 'tailwindcss/index.css';
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --of-page: #f8fafc;
+  --of-canvas: #f1f5f9;
+  --of-surface: #ffffff;
+  --of-elevated: #ffffff;
+  --of-surface-hover: #f8fafc;
+  --of-muted: #f1f5f9;
+  --of-border: #e2e8f0;
+  --of-border-strong: #cbd5e1;
+  --of-fg: #0f172a;
+  --of-fg-secondary: #1e293b;
+  --of-fg-subtle: #475569;
+  --of-fg-muted: #64748b;
+  --of-fg-disabled: #94a3b8;
+  --of-inverse: #0f172a;
+  --of-on-inverse: #ffffff;
+  --of-input: #ffffff;
+  --of-ring: #94a3b8;
+  --of-overlay: rgb(15 23 42 / 0.5);
+  --of-skeleton-a: #f1f5f9;
+  --of-skeleton-b: #e2e8f0;
+  --of-danger-soft: #fef2f2;
+  --of-danger-border: #fecaca;
+  --of-danger-fg: #b91c1c;
+  --of-table-header: #f8fafc;
+  --of-progress-track: #e2e8f0;
+}
+
+html.dark {
+  --of-page: #0b1220;
+  --of-canvas: #0f172a;
+  --of-surface: #1e293b;
+  --of-elevated: #273549;
+  --of-surface-hover: #334155;
+  --of-muted: #1e293b;
+  --of-border: #334155;
+  --of-border-strong: #475569;
+  --of-fg: #f1f5f9;
+  --of-fg-secondary: #e2e8f0;
+  --of-fg-subtle: #94a3b8;
+  --of-fg-muted: #94a3b8;
+  --of-fg-disabled: #64748b;
+  --of-inverse: #f1f5f9;
+  --of-on-inverse: #0f172a;
+  --of-input: #0f172a;
+  --of-ring: #64748b;
+  --of-overlay: rgb(2 6 23 / 0.65);
+  --of-skeleton-a: #1e293b;
+  --of-skeleton-b: #334155;
+  --of-danger-soft: rgb(127 29 29 / 0.35);
+  --of-danger-border: #7f1d1d;
+  --of-danger-fg: #fecaca;
+  --of-table-header: #1e293b;
+  --of-progress-track: #334155;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-page: var(--of-page);
+  --color-canvas: var(--of-canvas);
+  --color-surface: var(--of-surface);
+  --color-elevated: var(--of-elevated);
+  --color-surface-hover: var(--of-surface-hover);
+  --color-muted: var(--of-muted);
+  --color-border: var(--of-border);
+  --color-border-strong: var(--of-border-strong);
+  --color-fg: var(--of-fg);
+  --color-fg-secondary: var(--of-fg-secondary);
+  --color-fg-subtle: var(--of-fg-subtle);
+  --color-fg-muted: var(--of-fg-muted);
+  --color-fg-disabled: var(--of-fg-disabled);
+  --color-inverse: var(--of-inverse);
+  --color-on-inverse: var(--of-on-inverse);
+  --color-input: var(--of-input);
+  --color-ring: var(--of-ring);
+  --color-overlay: var(--of-overlay);
+  --color-danger-soft: var(--of-danger-soft);
+  --color-danger-border: var(--of-danger-border);
+  --color-danger-fg: var(--of-danger-fg);
+  --color-table-header: var(--of-table-header);
+  --color-progress-track: var(--of-progress-track);
+}
+
 html,
 body,
 #app {
@@ -13,8 +98,8 @@ body {
     system-ui,
     -apple-system,
     sans-serif;
-  color: #0f172a;
-  background-color: #f8fafc;
+  color: var(--of-fg);
+  background-color: var(--of-page);
 }
 
 @keyframes opsflow-shimmer {
@@ -29,12 +114,23 @@ body {
 .opsflow-skeleton {
   background-image: linear-gradient(
     90deg,
-    rgb(241 245 249) 0%,
-    rgb(226 232 240) 40%,
-    rgb(241 245 249) 80%
+    var(--of-skeleton-a) 0%,
+    var(--of-skeleton-b) 40%,
+    var(--of-skeleton-a) 80%
   );
   background-size: 200% 100%;
   animation: opsflow-shimmer 1.4s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .opsflow-skeleton {
+    animation: none;
+  }
+
+  .opsflow-fade-enter-active,
+  .opsflow-fade-leave-active {
+    transition: none;
+  }
 }
 
 .opsflow-fade-enter-active,

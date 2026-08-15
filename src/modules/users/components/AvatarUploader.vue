@@ -119,7 +119,7 @@ async function onRemove(): Promise<void> {
     <div class="flex flex-wrap items-center gap-4">
       <button
         type="button"
-        class="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-400 focus-visible:ring-offset-2 disabled:opacity-60"
+        class="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-page disabled:opacity-60"
         :disabled="isBusy"
         aria-label="Change photo"
         data-test="avatar-uploader-trigger"
@@ -173,7 +173,7 @@ async function onRemove(): Promise<void> {
             Remove photo
           </AppButton>
         </div>
-        <p class="text-xs text-slate-500">JPEG, PNG, or WEBP · max 2 MB</p>
+        <p class="text-xs text-fg-muted">JPEG, PNG, or WEBP · max 2 MB</p>
       </div>
     </div>
 
@@ -186,10 +186,10 @@ async function onRemove(): Promise<void> {
       @change="onFileChange"
     />
 
-    <p v-if="previewUrl" class="text-sm text-slate-600" data-test="avatar-preview-hint">
+    <p v-if="previewUrl" class="text-sm text-fg-subtle" data-test="avatar-preview-hint">
       Preview ready — save to upload.
     </p>
-    <p v-if="errorMessage" class="text-sm text-red-600" role="alert" data-test="avatar-error">
+    <p v-if="errorMessage" class="text-sm text-danger-fg" role="alert" data-test="avatar-error">
       {{ errorMessage }}
     </p>
   </div>

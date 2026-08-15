@@ -199,14 +199,14 @@ watch(
 </script>
 
 <template>
-  <section class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6" data-test="remark-thread">
+  <section class="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6" data-test="remark-thread">
     <header class="mb-4">
-      <h2 class="text-base font-semibold text-slate-900">{{ title }}</h2>
-      <p v-if="description" class="mt-1 text-sm text-slate-600">{{ description }}</p>
+      <h2 class="text-base font-semibold text-fg">{{ title }}</h2>
+      <p v-if="description" class="mt-1 text-sm text-fg-subtle">{{ description }}</p>
     </header>
 
     <div v-if="showSkeleton" class="space-y-4" aria-busy="true" aria-label="Loading remarks">
-      <div v-for="index in 3" :key="index" class="space-y-2 rounded-lg border border-slate-100 p-4">
+      <div v-for="index in 3" :key="index" class="space-y-2 rounded-lg border border-border p-4">
         <AppSkeleton class="h-4 w-1/3" />
         <AppSkeleton class="h-3 w-1/4" />
         <AppSkeleton class="h-16 w-full" />
@@ -215,11 +215,11 @@ watch(
 
     <div
       v-else-if="errorMessage && remarks.length === 0"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-4"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-4"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load remarks</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load remarks</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-3">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="retry">
           Try again
@@ -264,7 +264,7 @@ watch(
         <AppPagination :meta="meta" :disabled="isLoading" @change="setPage" />
       </div>
 
-      <div class="border-t border-slate-100 pt-4">
+      <div class="border-t border-border pt-4">
         <p v-if="candidatesError" class="mb-2 text-xs text-amber-700">
           Mention suggestions may be limited: {{ candidatesError }}
         </p>

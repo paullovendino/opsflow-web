@@ -13,7 +13,7 @@ withDefaults(
 
 <template>
   <div
-    class="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6"
+    class="rounded-xl border border-border bg-surface p-5 shadow-sm sm:p-6"
     aria-busy="true"
     aria-live="polite"
   >

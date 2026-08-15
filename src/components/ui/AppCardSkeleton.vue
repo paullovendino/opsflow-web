@@ -27,7 +27,7 @@ withDefaults(
     <div
       v-for="index in count"
       :key="index"
-      class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+      class="rounded-xl border border-border bg-surface p-4 shadow-sm"
     >
       <AppSkeleton class="h-3 w-24" />
       <AppSkeleton class="mt-3 h-8 w-16" rounded="lg" />

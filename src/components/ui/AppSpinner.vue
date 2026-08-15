@@ -13,7 +13,7 @@ withDefaults(
 
 <template>
   <div
-    class="inline-flex items-center justify-center gap-3 text-slate-600"
+    class="inline-flex items-center justify-center gap-3 text-fg-subtle"
     :class="{ 'min-h-40 w-full': block }"
     role="status"
     aria-live="polite"

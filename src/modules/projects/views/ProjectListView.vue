@@ -301,11 +301,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load projects</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load projects</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" @click="retry">
           Try again
@@ -350,22 +350,22 @@ onMounted(async () => {
                 <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
               </tr>
             </template>
-            <tr v-for="project in projects" :key="project.id" class="hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ project.name }}</td>
+            <tr v-for="project in projects" :key="project.id" class="hover:bg-surface-hover">
+              <td class="px-4 py-3 font-medium text-fg">{{ project.name }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(project.status)" kind="project" />
               </td>
               <td class="px-4 py-3">
                 <ProjectProgressMeter :progress="project.progress" compact />
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ project.owner?.full_name || '—' }}</td>
-              <td class="px-4 py-3 text-slate-600">
+              <td class="px-4 py-3 text-fg-subtle">{{ project.owner?.full_name || '—' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">
                 {{ project.start_date ? formatDate(project.start_date) : '—' }}
               </td>
-              <td class="px-4 py-3 text-slate-600">
+              <td class="px-4 py-3 text-fg-subtle">
                 {{ project.due_date ? formatDate(project.due_date) : '—' }}
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ formatDateTime(project.created_at) }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ formatDateTime(project.created_at) }}</td>
               <td class="px-4 py-3 text-right">
                 <ProjectActionsMenu
                   :project="project"
@@ -391,12 +391,12 @@ onMounted(async () => {
           <li
             v-for="project in projects"
             :key="`card-${project.id}`"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm transition hover:border-slate-300"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm transition hover:border-border-strong"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="truncate font-medium text-slate-900">{{ project.name }}</p>
-                <p class="truncate text-sm text-slate-600">
+                <p class="truncate font-medium text-fg">{{ project.name }}</p>
+                <p class="truncate text-sm text-fg-subtle">
                   Owner: {{ project.owner?.full_name || '—' }}
                 </p>
               </div>
@@ -407,20 +407,20 @@ onMounted(async () => {
             </div>
             <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
               <div>
-                <dt class="text-slate-500">Start</dt>
-                <dd class="text-slate-800">
+                <dt class="text-fg-muted">Start</dt>
+                <dd class="text-fg-secondary">
                   {{ project.start_date ? formatDate(project.start_date) : '—' }}
                 </dd>
               </div>
               <div>
-                <dt class="text-slate-500">Due</dt>
-                <dd class="text-slate-800">
+                <dt class="text-fg-muted">Due</dt>
+                <dd class="text-fg-secondary">
                   {{ project.due_date ? formatDate(project.due_date) : '—' }}
                 </dd>
               </div>
               <div class="col-span-2">
-                <dt class="text-slate-500">Created</dt>
-                <dd class="text-slate-800">{{ formatDateTime(project.created_at) }}</dd>
+                <dt class="text-fg-muted">Created</dt>
+                <dd class="text-fg-secondary">{{ formatDateTime(project.created_at) }}</dd>
               </div>
             </dl>
             <div class="mt-3 flex justify-end">

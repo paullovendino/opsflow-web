@@ -103,10 +103,10 @@ async function onSubmit(): Promise<void> {
 </script>
 
 <template>
-  <div class="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
+  <div class="rounded-xl border border-border bg-surface p-6 shadow-sm">
     <div class="mb-6">
-      <p class="text-2xl font-semibold tracking-tight text-slate-900">{{ appName }}</p>
-      <p class="mt-1 text-sm text-slate-600">Sign in to continue</p>
+      <p class="text-2xl font-semibold tracking-tight text-fg">{{ appName }}</p>
+      <p class="mt-1 text-sm text-fg-subtle">Sign in to continue</p>
     </div>
 
     <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
@@ -127,7 +127,7 @@ async function onSubmit(): Promise<void> {
         :error="fieldErrors.password"
       />
 
-      <p v-if="formError" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+      <p v-if="formError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700">
         {{ formError }}
       </p>
 

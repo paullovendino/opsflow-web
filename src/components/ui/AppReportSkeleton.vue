@@ -15,7 +15,7 @@ import AppTableSkeleton from '@/components/ui/AppTableSkeleton.vue'
     <AppCardSkeleton :count="4" :columns="4" />
 
     <div class="grid gap-4 lg:grid-cols-2">
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-40" />
         <div class="mt-4 space-y-3">
           <div v-for="index in 5" :key="index" class="space-y-1">
@@ -27,7 +27,7 @@ import AppTableSkeleton from '@/components/ui/AppTableSkeleton.vue'
           </div>
         </div>
       </div>
-      <div class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div class="rounded-xl border border-border bg-surface p-4 shadow-sm">
         <AppSkeleton class="h-4 w-40" />
         <div class="mt-4 space-y-3">
           <div v-for="index in 4" :key="`p-${index}`" class="space-y-1">

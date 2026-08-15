@@ -25,7 +25,7 @@ const matches = computed(() => filterMentionCandidates(props.candidates, props.q
 <template>
   <div
     v-if="open && matches.length > 0"
-    class="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg"
+    class="absolute left-0 right-0 z-20 mt-1 max-h-48 overflow-y-auto rounded-md border border-border bg-surface shadow-lg"
     role="listbox"
     aria-label="Mention suggestions"
     data-test="mention-picker"
@@ -35,14 +35,14 @@ const matches = computed(() => filterMentionCandidates(props.candidates, props.q
       :key="candidate.id"
       type="button"
       role="option"
-      class="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-slate-50"
-      :class="{ 'bg-slate-100': index === highlightedIndex }"
+      class="flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-surface-hover"
+      :class="{ 'bg-canvas': index === highlightedIndex }"
       :aria-selected="index === highlightedIndex"
       data-test="mention-option"
       @mousedown.prevent="emit('select', candidate)"
     >
-      <span class="font-medium text-slate-900">{{ candidate.full_name }}</span>
-      <span class="text-xs text-slate-500">{{ candidate.email }}</span>
+      <span class="font-medium text-fg">{{ candidate.full_name }}</span>
+      <span class="text-xs text-fg-muted">{{ candidate.email }}</span>
     </button>
   </div>
 </template>

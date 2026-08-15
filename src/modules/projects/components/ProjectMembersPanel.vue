@@ -175,17 +175,17 @@ onMounted(() => {
 </script>
 
 <template>
-  <section class="flex flex-col gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+  <section class="flex flex-col gap-4 rounded-xl border border-border bg-surface p-5 shadow-sm">
     <header class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
       <div>
-        <h2 class="text-base font-semibold text-slate-900">Members</h2>
-        <p class="text-sm text-slate-600">
+        <h2 class="text-base font-semibold text-fg">Members</h2>
+        <p class="text-sm text-fg-subtle">
           {{ members.length }} member{{ members.length === 1 ? '' : 's' }}
         </p>
       </div>
     </header>
 
-    <div v-if="canManage" class="flex flex-col gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3 sm:flex-row sm:items-end">
+    <div v-if="canManage" class="flex flex-col gap-3 rounded-lg border border-border bg-muted p-3 sm:flex-row sm:items-end">
       <AppSelect
         id="add_member_user"
         :model-value="selectedUserId"
@@ -209,11 +209,11 @@ onMounted(() => {
 
     <div
       v-else-if="errorMessage && members.length === 0"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-3"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-3"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load members</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load members</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-3">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="loadMembers">Try again</AppButton>
       </div>
@@ -227,7 +227,7 @@ onMounted(() => {
 
     <ul
       v-else
-      class="divide-y divide-slate-200 overflow-hidden rounded-lg border border-slate-200 transition-opacity"
+      class="divide-y divide-border overflow-hidden rounded-lg border border-border transition-opacity"
       :class="{ 'pointer-events-none opacity-60': isLoading }"
       :aria-busy="isLoading"
       role="list"
@@ -238,9 +238,9 @@ onMounted(() => {
         class="flex flex-col gap-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
       >
         <div class="min-w-0">
-          <p class="truncate font-medium text-slate-900">{{ member.full_name }}</p>
-          <p class="truncate text-sm text-slate-600">{{ member.email }}</p>
-          <p class="text-xs text-slate-500">
+          <p class="truncate font-medium text-fg">{{ member.full_name }}</p>
+          <p class="truncate text-sm text-fg-subtle">{{ member.email }}</p>
+          <p class="text-xs text-fg-muted">
             Joined {{ member.joined_at ? formatDateTime(member.joined_at) : '—' }}
           </p>
         </div>

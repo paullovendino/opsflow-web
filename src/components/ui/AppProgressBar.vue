@@ -23,7 +23,7 @@ const widthStyle = computed(() => ({
     aria-label="Loading"
   >
     <div
-      class="h-full bg-slate-900 transition-[width,opacity] duration-200 ease-out"
+      class="h-full bg-inverse transition-[width,opacity] duration-200 ease-out"
       :style="widthStyle"
     />
   </div>

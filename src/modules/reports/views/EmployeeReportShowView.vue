@@ -154,11 +154,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage && !report"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load report</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load report</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4 flex flex-wrap gap-2">
         <AppButton type="button" variant="secondary" :loading="isLoading" loading-label="Retrying…" @click="load">
           Try again
@@ -171,7 +171,7 @@ onMounted(async () => {
       <div class="flex flex-col gap-6 transition-opacity" :class="{ 'pointer-events-none opacity-60': isLoading }" :aria-busy="isLoading">
       <div class="flex flex-wrap items-center gap-3">
         <StatusBadge :status="String(report.user.status)" kind="user" />
-        <p class="text-sm text-slate-600">{{ report.user.email }}</p>
+        <p class="text-sm text-fg-subtle">{{ report.user.email }}</p>
       </div>
 
       <DashboardSection title="Overview" description="Assigned task counts.">
@@ -194,7 +194,7 @@ onMounted(async () => {
           title="No project breakdown"
           description="No assigned tasks in the selected date range."
         />
-        <div v-else class="overflow-hidden rounded-xl border border-slate-200 bg-white">
+        <div v-else class="overflow-hidden rounded-xl border border-border bg-surface">
           <AppTable caption="Tasks by project">
             <template #head>
               <tr>
@@ -203,8 +203,8 @@ onMounted(async () => {
               </tr>
             </template>
             <tr v-for="row in byProject" :key="row.project_id">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ row.name }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ row.total }}</td>
+              <td class="px-4 py-3 font-medium text-fg">{{ row.name }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ row.total }}</td>
             </tr>
           </AppTable>
         </div>

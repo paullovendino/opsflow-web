@@ -127,8 +127,8 @@ async function saveAssignment(): Promise<void> {
   <div class="flex flex-col gap-5">
     <div class="flex flex-wrap items-start justify-between gap-3">
       <div class="min-w-0">
-        <h2 class="text-lg font-semibold text-slate-900">{{ task.title }}</h2>
-        <p class="mt-1 text-sm text-slate-600">
+        <h2 class="text-lg font-semibold text-fg">{{ task.title }}</h2>
+        <p class="mt-1 text-sm text-fg-subtle">
           Project: {{ task.project?.name || '—' }}
         </p>
       </div>
@@ -140,43 +140,43 @@ async function saveAssignment(): Promise<void> {
 
     <dl class="grid gap-4 sm:grid-cols-2">
       <div class="sm:col-span-2">
-        <dt class="text-sm text-slate-500">Description</dt>
-        <dd class="mt-1 whitespace-pre-wrap text-sm text-slate-800">
+        <dt class="text-sm text-fg-muted">Description</dt>
+        <dd class="mt-1 whitespace-pre-wrap text-sm text-fg-secondary">
           {{ task.description || '—' }}
         </dd>
       </div>
       <div>
-        <dt class="text-sm text-slate-500">Assignee</dt>
-        <dd class="mt-1 text-sm text-slate-800">{{ task.assignee?.full_name || 'Unassigned' }}</dd>
+        <dt class="text-sm text-fg-muted">Assignee</dt>
+        <dd class="mt-1 text-sm text-fg-secondary">{{ task.assignee?.full_name || 'Unassigned' }}</dd>
       </div>
       <div>
-        <dt class="text-sm text-slate-500">Creator</dt>
-        <dd class="mt-1 text-sm text-slate-800">{{ task.creator?.full_name || '—' }}</dd>
+        <dt class="text-sm text-fg-muted">Creator</dt>
+        <dd class="mt-1 text-sm text-fg-secondary">{{ task.creator?.full_name || '—' }}</dd>
       </div>
       <div>
-        <dt class="text-sm text-slate-500">Due date</dt>
+        <dt class="text-sm text-fg-muted">Due date</dt>
         <dd
           class="mt-1 text-sm"
-          :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-800'"
+          :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-fg-secondary'"
           data-test="task-detail-due-date"
         >
           {{ taskDueDateLabel(task.due_date, task.is_overdue, 'medium') }}
         </dd>
       </div>
       <div>
-        <dt class="text-sm text-slate-500">Priority</dt>
+        <dt class="text-sm text-fg-muted">Priority</dt>
         <dd class="mt-1">
           <StatusBadge :status="String(task.priority)" kind="priority" />
         </dd>
       </div>
       <div>
-        <dt class="text-sm text-slate-500">Created</dt>
-        <dd class="mt-1 text-sm text-slate-800">{{ formatDateTime(task.created_at) }}</dd>
+        <dt class="text-sm text-fg-muted">Created</dt>
+        <dd class="mt-1 text-sm text-fg-secondary">{{ formatDateTime(task.created_at) }}</dd>
       </div>
     </dl>
 
-    <section v-if="canChangeStatus" class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-      <h3 class="text-sm font-semibold text-slate-900">Status</h3>
+    <section v-if="canChangeStatus" class="rounded-lg border border-border bg-muted p-4">
+      <h3 class="text-sm font-semibold text-fg">Status</h3>
       <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
         <AppSelect
           id="task_detail_status"
@@ -197,8 +197,8 @@ async function saveAssignment(): Promise<void> {
       </div>
     </section>
 
-    <section v-if="canAssign" class="rounded-lg border border-slate-200 bg-slate-50 p-4">
-      <h3 class="text-sm font-semibold text-slate-900">Assignment</h3>
+    <section v-if="canAssign" class="rounded-lg border border-border bg-muted p-4">
+      <h3 class="text-sm font-semibold text-fg">Assignment</h3>
       <div class="mt-3 flex flex-col gap-3 sm:flex-row sm:items-end">
         <AppSelect
           id="task_detail_assignee"

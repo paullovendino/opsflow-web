@@ -166,10 +166,10 @@ function onSubmit(): void {
 
 <template>
   <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
-    <p v-if="lookupsError" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+    <p v-if="lookupsError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700">
       {{ lookupsError }}
     </p>
-    <p v-if="formError" class="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+    <p v-if="formError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700" role="alert">
       {{ formError }}
     </p>
 

@@ -35,14 +35,14 @@ const emit = defineEmits<{
     <AppDetailSkeleton v-if="loading" compact />
     <div
       v-else-if="errorMessage"
-      class="rounded-lg border border-red-200 bg-red-50 px-4 py-3"
+      class="rounded-lg border border-danger-border bg-danger-soft px-4 py-3"
       role="alert"
     >
-      <p class="text-sm font-medium text-red-900">Couldn't load task</p>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <p class="text-sm font-medium text-danger-fg">Couldn't load task</p>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <button
         type="button"
-        class="mt-3 text-sm font-medium text-red-900 underline"
+        class="mt-3 text-sm font-medium text-danger-fg underline"
         @click="emit('retry')"
       >
         Try again

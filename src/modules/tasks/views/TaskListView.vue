@@ -432,11 +432,11 @@ onMounted(async () => {
 
     <div
       v-else-if="errorMessage"
-      class="rounded-xl border border-red-200 bg-red-50 px-5 py-6"
+      class="rounded-xl border border-danger-border bg-danger-soft px-5 py-6"
       role="alert"
     >
-      <h2 class="text-base font-semibold text-red-900">Couldn't load tasks</h2>
-      <p class="mt-1 text-sm text-red-800">{{ errorMessage }}</p>
+      <h2 class="text-base font-semibold text-danger-fg">Couldn't load tasks</h2>
+      <p class="mt-1 text-sm text-danger-fg">{{ errorMessage }}</p>
       <div class="mt-4">
         <AppButton type="button" variant="secondary" :loading="isLoading" @click="retry">
           Try again
@@ -479,24 +479,24 @@ onMounted(async () => {
                 <th scope="col" class="px-4 py-3"><span class="sr-only">Actions</span></th>
               </tr>
             </template>
-            <tr v-for="task in tasks" :key="task.id" class="hover:bg-slate-50">
-              <td class="px-4 py-3 font-medium text-slate-900">{{ task.title }}</td>
-              <td class="px-4 py-3 text-slate-600">{{ task.project?.name || '—' }}</td>
+            <tr v-for="task in tasks" :key="task.id" class="hover:bg-surface-hover">
+              <td class="px-4 py-3 font-medium text-fg">{{ task.title }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ task.project?.name || '—' }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(task.status)" kind="task" />
               </td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(task.priority)" kind="priority" />
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ task.assignee?.full_name || 'Unassigned' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ task.assignee?.full_name || 'Unassigned' }}</td>
               <td
                 class="px-4 py-3"
-                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-600'"
+                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-fg-subtle'"
                 data-test="task-due-date"
               >
                 {{ taskDueDateLabel(task.due_date, task.is_overdue) }}
               </td>
-              <td class="px-4 py-3 text-slate-600">{{ formatDateTime(task.created_at) }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ formatDateTime(task.created_at) }}</td>
               <td class="px-4 py-3 text-right">
                 <TaskActionsMenu
                   :task="task"
@@ -523,23 +523,23 @@ onMounted(async () => {
           <li
             v-for="task in tasks"
             :key="`card-${task.id}`"
-            class="rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+            class="rounded-xl border border-border bg-surface p-4 shadow-sm"
           >
             <div class="flex items-start justify-between gap-3">
               <div class="min-w-0">
-                <p class="truncate font-medium text-slate-900">{{ task.title }}</p>
-                <p class="truncate text-sm text-slate-600">{{ task.project?.name || '—' }}</p>
+                <p class="truncate font-medium text-fg">{{ task.title }}</p>
+                <p class="truncate text-sm text-fg-subtle">{{ task.project?.name || '—' }}</p>
               </div>
               <StatusBadge :status="String(task.status)" kind="task" />
             </div>
             <div class="mt-2 flex flex-wrap gap-2">
               <StatusBadge :status="String(task.priority)" kind="priority" />
-              <span class="text-sm text-slate-600">
+              <span class="text-sm text-fg-subtle">
                 {{ task.assignee?.full_name || 'Unassigned' }}
               </span>
               <span
                 class="text-sm"
-                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-slate-600'"
+                :class="task.is_overdue ? 'font-medium text-rose-800' : 'text-fg-subtle'"
               >
                 {{ taskDueDateLabel(task.due_date, task.is_overdue) }}
               </span>
