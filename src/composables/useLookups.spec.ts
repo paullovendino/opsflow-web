@@ -7,6 +7,7 @@ vi.mock('@/services/lookupService', () => ({
   listRoles: vi.fn(),
   listDepartments: vi.fn(),
   listJobTitles: vi.fn(),
+  listJobTitlesForDepartment: vi.fn(),
 }))
 
 import * as lookupService from '@/services/lookupService'

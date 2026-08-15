@@ -27,6 +27,11 @@ import type { Task, TaskPriority, TaskStatus } from '@/types/task'
 import { TASK_PRIORITIES, TASK_STATUSES } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
 import { formatDateTime, humanizeKey } from '@/utils/format'
+import {
+  matchesTextQuery,
+  reconcileDeletedItem,
+  reconcileUpsertItem,
+} from '@/utils/listReconcile'
 import { taskDueDateLabel } from '@/utils/taskDueDate'
 
 const route = useRoute()
@@ -89,6 +94,8 @@ const statusDialog = reactive({
   loading: false,
   task: null as Task | null,
   status: 'todo' as TaskStatus,
+  phase: 'mutate' as 'mutate' | 'refresh',
+  pending: null as Task | null,
 })
 
 const assignDialog = reactive({
@@ -100,6 +107,8 @@ const confirmDelete = reactive({
   open: false,
   loading: false,
   task: null as Task | null,
+  phase: 'mutate' as 'mutate' | 'refresh',
+  deletedId: null as number | null,
 })
 
 function canChangeStatus(task: Task): boolean {
@@ -159,17 +168,93 @@ function closeDetailDialog(): void {
   detailDialog.errorMessage = null
 }
 
-async function onSaved(task: Task): Promise<void> {
+async function afterFormSave(task: Task): Promise<void> {
+  const message = formDialog.mode === 'create' ? 'Task created.' : 'Task updated.'
+  applyTaskUpsert(task)
   formDialog.open = false
   formDialog.task = null
   await syncRouteToIndex()
-  await load()
+  toast.success(message)
   await openView(task)
+}
+
+function matchesTaskFilters(task: Task): boolean {
+  if (filters.status && task.status !== filters.status) {
+    return false
+  }
+  if (filters.priority && task.priority !== filters.priority) {
+    return false
+  }
+  if (filters.overdue && !task.is_overdue) {
+    return false
+  }
+  if (filters.project_id != null && task.project?.id !== filters.project_id) {
+    return false
+  }
+  if (filters.assigned_to != null && task.assignee?.id !== filters.assigned_to) {
+    return false
+  }
+  if (filters.created_by != null && task.creator?.id !== filters.created_by) {
+    return false
+  }
+  if (filters.due_after && (!task.due_date || task.due_date < filters.due_after)) {
+    return false
+  }
+  if (filters.due_before && (!task.due_date || task.due_date > filters.due_before)) {
+    return false
+  }
+
+  return matchesTextQuery(filters.search, task.title, task.description, task.project?.name)
+}
+
+function sortKeyForTask(task: Task): string {
+  switch (filters.sort) {
+    case 'title':
+      return task.title
+    case 'status':
+      return String(task.status)
+    case 'priority':
+      return String(task.priority)
+    case 'due_date':
+      return task.due_date ?? ''
+    default:
+      return String(task.id)
+  }
+}
+
+function applyTaskUpsert(task: Task): void {
+  const result = reconcileUpsertItem({
+    items: tasks.value,
+    item: task,
+    matches: matchesTaskFilters,
+    meta: meta.value,
+    page: filters.page,
+    sortKey: filters.sort === 'created_at' ? undefined : sortKeyForTask,
+    sortDirection: filters.direction,
+  })
+  tasks.value = result.items
+  meta.value = result.meta
+}
+
+async function applyTaskDelete(id: number): Promise<void> {
+  const result = reconcileDeletedItem({
+    items: tasks.value,
+    id,
+    meta: meta.value,
+  })
+  tasks.value = result.items
+  meta.value = result.meta
+
+  if (result.needsPageRecovery) {
+    filters.page = Math.max(1, filters.page - 1)
+    await syncQuery()
+    await load()
+  }
 }
 
 function onDetailUpdated(task: Task): void {
   detailDialog.task = task
-  void load()
+  applyTaskUpsert(task)
 }
 
 function askDelete(task: Task): void {
@@ -182,20 +267,32 @@ function closeDelete(): void {
   if (confirmDelete.loading) return
   confirmDelete.open = false
   confirmDelete.task = null
+  confirmDelete.phase = 'mutate'
+  confirmDelete.deletedId = null
 }
 
 async function runDelete(): Promise<void> {
-  if (!confirmDelete.task) return
+  if (!confirmDelete.task && confirmDelete.phase === 'mutate') return
   confirmDelete.loading = true
   try {
-    await taskService.deleteTask(confirmDelete.task.id)
-    toast.success('Task deleted.')
+    if (confirmDelete.phase !== 'refresh') {
+      confirmDelete.deletedId = confirmDelete.task!.id
+      await taskService.deleteTask(confirmDelete.deletedId)
+      confirmDelete.phase = 'refresh'
+    }
+    await applyTaskDelete(confirmDelete.deletedId!)
     confirmDelete.open = false
     confirmDelete.task = null
-    await load()
+    confirmDelete.phase = 'mutate'
+    confirmDelete.deletedId = null
+    toast.success('Task deleted.')
   } catch (error) {
     const apiError = toApiClientError(error)
-    toast.error(apiError.message || 'Unable to delete task.')
+    if (confirmDelete.phase === 'refresh') {
+      toast.error('Task was deleted, but the list could not be updated. Please try again.')
+    } else {
+      toast.error(apiError.message || 'Unable to delete task.')
+    }
   } finally {
     confirmDelete.loading = false
   }
@@ -219,30 +316,44 @@ function closeAssign(): void {
   assignDialog.task = null
 }
 
-async function onAssigned(): Promise<void> {
+async function afterAssigned(task: Task): Promise<void> {
+  applyTaskUpsert(task)
   assignDialog.open = false
   assignDialog.task = null
-  await load()
+  toast.success('Task assignment updated.')
 }
 
 function closeStatus(): void {
   if (statusDialog.loading) return
   statusDialog.open = false
   statusDialog.task = null
+  statusDialog.phase = 'mutate'
+  statusDialog.pending = null
 }
 
 async function saveStatus(): Promise<void> {
-  if (!statusDialog.task) return
+  if (!statusDialog.task && statusDialog.phase === 'mutate') return
   statusDialog.loading = true
   try {
-    await taskService.updateTaskStatus(statusDialog.task.id, { status: statusDialog.status })
-    toast.success('Task status updated.')
+    if (statusDialog.phase === 'mutate') {
+      statusDialog.pending = await taskService.updateTaskStatus(statusDialog.task!.id, {
+        status: statusDialog.status,
+      })
+      statusDialog.phase = 'refresh'
+    }
+    applyTaskUpsert(statusDialog.pending!)
     statusDialog.open = false
     statusDialog.task = null
-    await load()
+    statusDialog.phase = 'mutate'
+    statusDialog.pending = null
+    toast.success('Task status updated.')
   } catch (error) {
     const apiError = toApiClientError(error)
-    toast.error(apiError.message || 'Unable to update status.')
+    if (statusDialog.phase === 'refresh') {
+      toast.error('Status was updated, but the list could not be updated. Please try again.')
+    } else {
+      toast.error(apiError.message || 'Unable to update status.')
+    }
   } finally {
     statusDialog.loading = false
   }
@@ -575,8 +686,8 @@ onMounted(async () => {
       :mode="formDialog.mode"
       :task="formDialog.task"
       :available-projects="projectOptions"
+      :after-save="afterFormSave"
       @close="closeFormDialog"
-      @saved="onSaved"
     />
 
     <TaskDetailDialog
@@ -602,7 +713,7 @@ onMounted(async () => {
           ? `Soft-delete ${confirmDelete.task.title}? This removes it from the directory.`
           : undefined
       "
-      confirm-label="Delete"
+      :confirm-label="confirmDelete.phase === 'refresh' ? 'Retry update' : 'Delete'"
       variant="danger"
       :loading="confirmDelete.loading"
       @confirm="runDelete"
@@ -612,8 +723,8 @@ onMounted(async () => {
     <TaskAssignmentDialog
       :open="assignDialog.open"
       :task="assignDialog.task"
+      :after-save="afterAssigned"
       @close="closeAssign"
-      @saved="onAssigned"
     />
 
     <AppModal
@@ -642,7 +753,9 @@ onMounted(async () => {
           <AppButton variant="secondary" :disabled="statusDialog.loading" @click="closeStatus">
             Cancel
           </AppButton>
-          <AppButton :loading="statusDialog.loading" @click="saveStatus">Save status</AppButton>
+          <AppButton :loading="statusDialog.loading" @click="saveStatus">
+            {{ statusDialog.phase === 'refresh' ? 'Retry update' : 'Save status' }}
+          </AppButton>
         </div>
       </template>
     </AppModal>

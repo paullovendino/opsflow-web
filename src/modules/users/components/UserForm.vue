@@ -1,12 +1,15 @@
 <script setup lang="ts">
-import { computed, reactive, watch } from 'vue'
+import { computed, reactive, ref, watch } from 'vue'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppFormActions from '@/components/ui/AppFormActions.vue'
 import AppFormSection from '@/components/ui/AppFormSection.vue'
 import AppInput from '@/components/ui/AppInput.vue'
 import AppSelect from '@/components/ui/AppSelect.vue'
 import { useLookups } from '@/composables/useLookups'
+import * as lookupService from '@/services/lookupService'
+import type { LookupItem } from '@/types/lookup'
 import type { User, UserStatus, UserWritePayload } from '@/types/user'
+import { toApiClientError } from '@/utils/errors'
 
 const props = withDefaults(
   defineProps<{
@@ -15,12 +18,14 @@ const props = withDefaults(
     submitting?: boolean
     serverErrors?: Record<string, string[]> | null
     formError?: string | null
+    submitLabel?: string | null
   }>(),
   {
     initial: null,
     submitting: false,
     serverErrors: null,
     formError: null,
+    submitLabel: null,
   },
 )
 
@@ -29,8 +34,14 @@ const emit = defineEmits<{
   cancel: []
 }>()
 
-const { roleOptions, departmentOptions, jobTitleOptions, isLoading: lookupsLoading, errorMessage: lookupsError } =
+const { roleOptions, departmentOptions, isLoading: lookupsLoading, errorMessage: lookupsError } =
   useLookups()
+
+const scopedJobTitles = ref<LookupItem[]>([])
+const jobTitlesLoading = ref(false)
+const jobTitlesError = ref<string | null>(null)
+/** Skip clearing job_title_id while hydrating from props.initial. */
+const isHydrating = ref(false)
 
 const form = reactive({
   first_name: '',
@@ -61,11 +72,61 @@ const statusOptions = [
   { value: 'inactive', label: 'Inactive' },
 ]
 
+const jobTitleOptions = computed(() =>
+  scopedJobTitles.value.map((item) => ({
+    value: item.id,
+    label: item.name,
+  })),
+)
+
+const jobTitleDisabled = computed(
+  () => form.department_id == null || lookupsLoading.value || jobTitlesLoading.value,
+)
+
+const jobTitlePlaceholder = computed(() => {
+  if (form.department_id == null) {
+    return 'Not Assigned'
+  }
+  if (jobTitlesLoading.value) {
+    return 'Loading…'
+  }
+  return 'Not Assigned'
+})
+
 function fieldError(key: string): string | null {
   return props.serverErrors?.[key]?.[0] ?? localErrors[key] ?? null
 }
 
+async function loadJobTitlesForDepartment(
+  departmentId: number | null,
+  includeId?: number | null,
+): Promise<void> {
+  if (departmentId == null) {
+    scopedJobTitles.value = []
+    jobTitlesError.value = null
+    return
+  }
+
+  jobTitlesLoading.value = true
+  jobTitlesError.value = null
+
+  try {
+    scopedJobTitles.value = await lookupService.listJobTitlesForDepartment(
+      departmentId,
+      includeId ?? null,
+    )
+  } catch (error) {
+    const apiError = toApiClientError(error)
+    jobTitlesError.value = apiError.message || 'Unable to load job titles.'
+    scopedJobTitles.value = []
+  } finally {
+    jobTitlesLoading.value = false
+  }
+}
+
 function hydrateFromUser(user: User | null | undefined): void {
+  isHydrating.value = true
+
   if (!user) {
     form.first_name = ''
     form.middle_name = ''
@@ -76,6 +137,8 @@ function hydrateFromUser(user: User | null | undefined): void {
     form.department_id = null
     form.job_title_id = null
     form.status = 'active'
+    scopedJobTitles.value = []
+    isHydrating.value = false
     return
   }
 
@@ -88,6 +151,10 @@ function hydrateFromUser(user: User | null | undefined): void {
   form.department_id = user.department?.id ?? null
   form.job_title_id = user.job_title?.id ?? null
   form.status = (user.status === 'inactive' ? 'inactive' : 'active') as UserStatus
+
+  void loadJobTitlesForDepartment(form.department_id, form.job_title_id).finally(() => {
+    isHydrating.value = false
+  })
 }
 
 watch(
@@ -96,6 +163,21 @@ watch(
     hydrateFromUser(value)
   },
   { immediate: true },
+)
+
+watch(
+  () => form.department_id,
+  (departmentId, previousId) => {
+    if (isHydrating.value) {
+      return
+    }
+    if (departmentId === previousId) {
+      return
+    }
+
+    form.job_title_id = null
+    void loadJobTitlesForDepartment(departmentId)
+  },
 )
 
 function resetLocalErrors(): void {
@@ -165,9 +247,15 @@ function onSubmit(): void {
 </script>
 
 <template>
-  <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
+  <form class="flex flex-col gap-4" data-test="user-form" @submit.prevent="onSubmit">
     <p v-if="lookupsError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg">
       {{ lookupsError }}
+    </p>
+    <p
+      v-if="jobTitlesError"
+      class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
+    >
+      {{ jobTitlesError }}
     </p>
     <p v-if="formError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg" role="alert">
       {{ formError }}
@@ -242,7 +330,7 @@ function onSubmit(): void {
           :options="departmentOptions"
           :disabled="lookupsLoading"
           optional
-          :placeholder="lookupsLoading ? 'Loading…' : 'No department'"
+          :placeholder="lookupsLoading ? 'Loading…' : 'Not Assigned'"
           :error="fieldError('department_id')"
           @update:model-value="
             (value) => {
@@ -255,9 +343,9 @@ function onSubmit(): void {
           :model-value="form.job_title_id"
           label="Job title"
           :options="jobTitleOptions"
-          :disabled="lookupsLoading"
+          :disabled="jobTitleDisabled"
           optional
-          :placeholder="lookupsLoading ? 'Loading…' : 'No job title'"
+          :placeholder="jobTitlePlaceholder"
           :error="fieldError('job_title_id')"
           @update:model-value="
             (value) => {
@@ -283,7 +371,7 @@ function onSubmit(): void {
         Cancel
       </AppButton>
       <AppButton type="submit" :loading="submitting" :disabled="lookupsLoading">
-        {{ mode === 'create' ? 'Create user' : 'Save changes' }}
+        {{ submitLabel || (mode === 'create' ? 'Create user' : 'Save changes') }}
       </AppButton>
     </AppFormActions>
   </form>

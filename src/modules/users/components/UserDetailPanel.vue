@@ -46,11 +46,11 @@ defineProps<{
     </div>
     <div>
       <dt class="text-sm text-fg-muted">Department</dt>
-      <dd class="mt-1 text-fg">{{ user.department?.name || '—' }}</dd>
+      <dd class="mt-1 text-fg">{{ user.department?.name || 'Not Assigned' }}</dd>
     </div>
     <div>
       <dt class="text-sm text-fg-muted">Job title</dt>
-      <dd class="mt-1 text-fg">{{ user.job_title?.name || '—' }}</dd>
+      <dd class="mt-1 text-fg">{{ user.job_title?.name || 'Not Assigned' }}</dd>
     </div>
     <div>
       <dt class="text-sm text-fg-muted">Last login</dt>

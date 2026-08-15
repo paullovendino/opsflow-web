@@ -18,6 +18,8 @@ import EmployeeReportsListView from '@/modules/reports/views/EmployeeReportsList
 import EmployeeReportShowView from '@/modules/reports/views/EmployeeReportShowView.vue'
 import ActivityListView from '@/modules/activity/views/ActivityListView.vue'
 import NotificationListView from '@/modules/notifications/views/NotificationListView.vue'
+import DepartmentListView from '@/modules/departments/views/DepartmentListView.vue'
+import JobTitleListView from '@/modules/job-titles/views/JobTitleListView.vue'
 import { setupRouterGuards } from '@/router/guards'
 
 const router = createRouter({
@@ -104,6 +106,26 @@ const router = createRouter({
           meta: {
             requiresAuth: true,
             title: 'My profile',
+          },
+        },
+        {
+          path: 'departments',
+          name: 'departments.index',
+          component: DepartmentListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Departments',
+            roles: ['administrator'],
+          },
+        },
+        {
+          path: 'job-titles',
+          name: 'job-titles.index',
+          component: JobTitleListView,
+          meta: {
+            requiresAuth: true,
+            title: 'Job Titles',
+            roles: ['administrator'],
           },
         },
         {

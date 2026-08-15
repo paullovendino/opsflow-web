@@ -17,12 +17,15 @@ const props = withDefaults(
     description?: string
     perPage?: number
     quiet?: boolean
+    /** Bump to reload activity after sibling mutations on the same record. */
+    refreshKey?: number
   }>(),
   {
     title: 'Activity',
     description: 'Significant changes recorded for this record.',
     perPage: 10,
     quiet: true,
+    refreshKey: 0,
   },
 )
 
@@ -34,11 +37,11 @@ const { logs, meta, isLoading, errorMessage, isEmpty, load, retry, setPage } = u
 })
 
 watch(
-  () => props.source,
+  [() => props.source, () => props.refreshKey],
   () => {
     void load()
   },
-  { immediate: true },
+  { immediate: true, deep: true },
 )
 
 const showSkeleton = computed(() => isInitialListLoading(isLoading.value, logs.value.length))

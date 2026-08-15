@@ -35,6 +35,10 @@ const props = withDefaults(
 const toast = useToast()
 const { roleName } = useAuth()
 
+const emit = defineEmits<{
+  changed: []
+}>()
+
 const sourceRef = computed(() => props.source)
 const {
   remarks,
@@ -142,6 +146,7 @@ async function onCreate(payload: RemarkWritePayload): Promise<void> {
     await create(payload)
     formRef.value?.reset()
     toast.success('Remark posted.')
+    emit('changed')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to post remark.')
@@ -153,6 +158,7 @@ async function onEdit(remark: Remark, payload: RemarkWritePayload): Promise<void
   try {
     await update(remark.id, payload)
     toast.success('Remark updated.')
+    emit('changed')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to update remark.')
@@ -180,6 +186,7 @@ async function runDelete(): Promise<void> {
     toast.success('Remark deleted.')
     confirmDelete.open = false
     confirmDelete.remark = null
+    emit('changed')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to delete remark.')

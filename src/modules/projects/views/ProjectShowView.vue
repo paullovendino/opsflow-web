@@ -56,6 +56,20 @@ const statusDialog = reactive({
   status: 'planning' as ProjectStatus,
 })
 
+const activityRefreshKey = ref(0)
+
+function bumpActivity(): void {
+  activityRefreshKey.value += 1
+}
+
+async function refreshProjectHeader(): Promise<void> {
+  try {
+    project.value = await projectService.getProject(projectId(), { quietProgress: true })
+  } catch {
+    // Keep current project details; list/activity sections handle their own errors.
+  }
+}
+
 function projectId(): number {
   return Number(route.params.id)
 }
@@ -89,9 +103,11 @@ function closeForm(): void {
   formDialog.open = false
 }
 
-async function onSaved(saved: Project): Promise<void> {
-  formDialog.open = false
+async function afterFormSave(saved: Project): Promise<void> {
   project.value = saved
+  formDialog.open = false
+  toast.success('Project updated.')
+  bumpActivity()
 }
 
 function openStatus(): void {
@@ -114,14 +130,20 @@ async function saveStatus(): Promise<void> {
     project.value = await projectService.updateProjectStatus(project.value.id, {
       status: statusDialog.status,
     })
-    toast.success('Project status updated.')
+    bumpActivity()
     statusDialog.open = false
+    toast.success('Project status updated.')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to update status.')
   } finally {
     statusDialog.loading = false
   }
+}
+
+async function onNestedChanged(): Promise<void> {
+  bumpActivity()
+  await refreshProjectHeader()
 }
 
 function askDelete(): void {
@@ -261,19 +283,25 @@ onMounted(async () => {
         </dl>
       </section>
 
-      <ProjectMembersPanel :project-id="project.id" :can-manage="canMutate" />
+      <ProjectMembersPanel
+        :project-id="project.id"
+        :can-manage="canMutate"
+        @changed="onNestedChanged"
+      />
 
-      <ProjectTasksPanel :project-id="project.id" />
+      <ProjectTasksPanel :project-id="project.id" @changed="onNestedChanged" />
 
       <RemarkThread
         :source="{ type: 'project', id: project.id }"
         :project-id="project.id"
         title="Remarks"
         description="Notes and conversation on this project. Type @ to mention teammates."
+        @changed="bumpActivity"
       />
 
       <ActivityTimeline
         :source="{ type: 'project', id: project.id }"
+        :refresh-key="activityRefreshKey"
         title="Activity"
         description="Significant changes recorded for this project."
       />
@@ -297,8 +325,8 @@ onMounted(async () => {
       :open="formDialog.open"
       mode="edit"
       :project="project"
+      :after-save="afterFormSave"
       @close="closeForm"
-      @saved="onSaved"
     />
 
     <AppModal

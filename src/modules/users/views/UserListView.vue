@@ -24,11 +24,16 @@ import * as userService from '@/services/userService'
 import type { User } from '@/types/user'
 import { toApiClientError } from '@/utils/errors'
 import { formatDateTime, humanizeKey } from '@/utils/format'
+import {
+  matchesTextQuery,
+  reconcileDeletedItem,
+  reconcileUpsertItem,
+} from '@/utils/listReconcile'
 
 const route = useRoute()
 const { roleName, user: currentUser } = useAuth()
 const toast = useToast()
-const { roleOptions, departmentOptions, jobTitleOptions } = useLookups()
+const { roleOptions, departmentOptions, jobTitleOptionsForDepartment } = useLookups()
 
 const {
   users,
@@ -48,6 +53,10 @@ const {
     syncQuery,
     openModalAlias,
   } = useUserList()
+
+const filteredJobTitleOptions = computed(() =>
+  jobTitleOptionsForDepartment(filters.department_id),
+)
 
 const headingRef = ref<HTMLElement | null>(null)
 
@@ -81,8 +90,77 @@ const confirm = reactive({
   description: '',
   confirmLabel: 'Confirm',
   variant: 'primary' as 'primary' | 'danger',
-  action: null as null | (() => Promise<void>),
+  successMessage: '',
+  phase: 'mutate' as 'mutate' | 'refresh',
+  outcome: null as ConfirmOutcome | null,
+  mutate: null as null | (() => Promise<ConfirmOutcome>),
 })
+
+type ConfirmOutcome = { type: 'upsert'; user: User } | { type: 'delete'; id: number }
+
+function matchesUserFilters(user: User): boolean {
+  if (filters.status && user.status !== filters.status) {
+    return false
+  }
+  if (filters.role_id != null && user.role?.id !== filters.role_id) {
+    return false
+  }
+  if (filters.department_id != null && user.department?.id !== filters.department_id) {
+    return false
+  }
+  if (filters.job_title_id != null && user.job_title?.id !== filters.job_title_id) {
+    return false
+  }
+
+  return matchesTextQuery(filters.search, user.full_name, user.email, user.first_name, user.last_name)
+}
+
+function sortKeyForUser(user: User): string {
+  switch (filters.sort) {
+    case 'first_name':
+      return user.first_name
+    case 'last_name':
+      return user.last_name ?? ''
+    case 'email':
+      return user.email
+    case 'status':
+      return String(user.status)
+    case 'last_login_at':
+      return user.last_login_at ?? ''
+    default:
+      return String(user.id)
+  }
+}
+
+function applyUserUpsert(user: User): void {
+  const result = reconcileUpsertItem({
+    items: users.value,
+    item: user,
+    matches: matchesUserFilters,
+    meta: meta.value,
+    page: filters.page,
+    sortKey: filters.sort === 'created_at' ? undefined : sortKeyForUser,
+    sortDirection: filters.direction,
+  })
+  users.value = result.items
+  meta.value = result.meta
+}
+
+async function applyUserDelete(id: number): Promise<void> {
+  const result = reconcileDeletedItem({
+    items: users.value,
+    id,
+    meta: meta.value,
+  })
+  users.value = result.items
+  meta.value = result.meta
+
+  if (result.needsPageRecovery) {
+    filters.page = Math.max(1, filters.page - 1)
+    await syncQuery()
+    await load()
+  }
+}
 
 async function syncRouteToIndex(): Promise<void> {
   if (route.name === 'users.create' || route.name === 'users.edit') {
@@ -137,11 +215,13 @@ function closeDetailDialog(): void {
   detailDialog.errorMessage = null
 }
 
-async function onFormSaved(user: User): Promise<void> {
+async function afterFormSave(user: User): Promise<void> {
+  const message = formDialog.mode === 'create' ? 'User created.' : 'User updated.'
+  applyUserUpsert(user)
   formDialog.open = false
   formDialog.user = null
   await syncRouteToIndex()
-  await load()
+  toast.success(message)
   await openView(user)
 }
 
@@ -165,13 +245,17 @@ function openConfirm(options: {
   description: string
   confirmLabel: string
   variant?: 'primary' | 'danger'
-  action: () => Promise<void>
+  successMessage: string
+  mutate: () => Promise<ConfirmOutcome>
 }): void {
   confirm.title = options.title
   confirm.description = options.description
   confirm.confirmLabel = options.confirmLabel
   confirm.variant = options.variant ?? 'primary'
-  confirm.action = options.action
+  confirm.successMessage = options.successMessage
+  confirm.phase = 'mutate'
+  confirm.outcome = null
+  confirm.mutate = options.mutate
   confirm.open = true
 }
 
@@ -180,24 +264,50 @@ function closeConfirm(): void {
     return
   }
   confirm.open = false
-  confirm.action = null
+  confirm.mutate = null
+  confirm.outcome = null
+  confirm.phase = 'mutate'
 }
 
 async function runConfirm(): Promise<void> {
-  if (!confirm.action) {
+  if (!confirm.mutate && confirm.phase === 'mutate') {
     return
   }
 
   confirm.loading = true
   try {
-    await confirm.action()
+    if (confirm.phase === 'mutate') {
+      confirm.outcome = await confirm.mutate!()
+      confirm.phase = 'refresh'
+    }
+
+    if (!confirm.outcome) {
+      throw new Error('Missing confirm outcome.')
+    }
+
+    if (confirm.outcome.type === 'upsert') {
+      applyUserUpsert(confirm.outcome.user)
+    } else {
+      await applyUserDelete(confirm.outcome.id)
+    }
+
     confirm.open = false
-    confirm.action = null
+    confirm.mutate = null
+    const message = confirm.successMessage
+    confirm.outcome = null
+    confirm.phase = 'mutate'
     closeDetailDialog()
-    await load()
+    toast.success(message)
   } catch (error) {
     const apiError = toApiClientError(error)
-    toast.error(apiError.message || 'Action failed.')
+    if (confirm.phase === 'refresh') {
+      confirm.description =
+        'The change was saved, but the list could not be updated. Please try again.'
+      confirm.confirmLabel = 'Retry update'
+      toast.error(confirm.description)
+    } else {
+      toast.error(apiError.message || 'Action failed.')
+    }
   } finally {
     confirm.loading = false
   }
@@ -208,9 +318,10 @@ function onActivate(user: User): void {
     title: 'Activate user',
     description: `Activate ${user.full_name}? They will be able to sign in again.`,
     confirmLabel: 'Activate',
-    action: async () => {
-      await userService.updateUserStatus(user.id, { status: 'active' })
-      toast.success('User activated.')
+    successMessage: 'User activated.',
+    mutate: async () => {
+      const updated = await userService.updateUserStatus(user.id, { status: 'active' })
+      return { type: 'upsert', user: updated }
     },
   })
 }
@@ -221,9 +332,10 @@ function onDeactivate(user: User): void {
     description: `Deactivate ${user.full_name}? They will no longer be able to sign in.`,
     confirmLabel: 'Deactivate',
     variant: 'danger',
-    action: async () => {
-      await userService.updateUserStatus(user.id, { status: 'inactive' })
-      toast.success('User deactivated.')
+    successMessage: 'User deactivated.',
+    mutate: async () => {
+      const updated = await userService.updateUserStatus(user.id, { status: 'inactive' })
+      return { type: 'upsert', user: updated }
     },
   })
 }
@@ -239,9 +351,10 @@ function onRemove(user: User): void {
     description: `Soft-delete ${user.full_name}? This removes them from the directory.`,
     confirmLabel: 'Delete',
     variant: 'danger',
-    action: async () => {
+    successMessage: 'User deleted.',
+    mutate: async () => {
       await userService.deleteUser(user.id)
-      toast.success('User deleted.')
+      return { type: 'delete', id: user.id }
     },
   })
 }
@@ -321,6 +434,7 @@ onMounted(async () => {
           @update:model-value="
             (value) => {
               filters.department_id = typeof value === 'number' ? value : null
+              filters.job_title_id = null
               onFilterChange()
             }
           "
@@ -330,7 +444,7 @@ onMounted(async () => {
           :model-value="filters.job_title_id"
           class="min-w-[10rem] flex-1"
           label="Job title"
-          :options="jobTitleOptions"
+          :options="filteredJobTitleOptions"
           optional
           placeholder="Any job title"
           @update:model-value="
@@ -432,8 +546,8 @@ onMounted(async () => {
                 />
                 <span v-else class="text-fg-muted">—</span>
               </td>
-              <td class="px-4 py-3 text-fg-subtle">{{ user.department?.name || '—' }}</td>
-              <td class="px-4 py-3 text-fg-subtle">{{ user.job_title?.name || '—' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ user.department?.name || 'Not Assigned' }}</td>
+              <td class="px-4 py-3 text-fg-subtle">{{ user.job_title?.name || 'Not Assigned' }}</td>
               <td class="px-4 py-3">
                 <StatusBadge :status="String(user.status)" kind="user" />
               </td>
@@ -484,11 +598,11 @@ onMounted(async () => {
               </div>
               <div>
                 <dt class="text-fg-muted">Department</dt>
-                <dd class="text-fg-secondary">{{ user.department?.name || '—' }}</dd>
+                <dd class="text-fg-secondary">{{ user.department?.name || 'Not Assigned' }}</dd>
               </div>
               <div>
                 <dt class="text-fg-muted">Job title</dt>
-                <dd class="text-fg-secondary">{{ user.job_title?.name || '—' }}</dd>
+                <dd class="text-fg-secondary">{{ user.job_title?.name || 'Not Assigned' }}</dd>
               </div>
               <div>
                 <dt class="text-fg-muted">Last login</dt>
@@ -527,8 +641,8 @@ onMounted(async () => {
       :open="formDialog.open"
       :mode="formDialog.mode"
       :user="formDialog.user"
+      :after-save="afterFormSave"
       @close="closeFormDialog"
-      @saved="onFormSaved"
     />
 
     <UserDetailDialog

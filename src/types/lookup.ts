@@ -3,6 +3,8 @@ export interface LookupItem {
   name: string
   code?: string
   description?: string | null
+  status?: string
+  department_id?: number | null
 }
 
 export interface RoleLookupItem {

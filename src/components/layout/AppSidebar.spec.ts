@@ -9,6 +9,8 @@ import type { AuthUser } from '@/types/auth'
 const routes = [
   { path: '/dashboard', name: 'dashboard', component: { template: '<div />' } },
   { path: '/users', name: 'users.index', component: { template: '<div />' } },
+  { path: '/departments', name: 'departments.index', component: { template: '<div />' } },
+  { path: '/job-titles', name: 'job-titles.index', component: { template: '<div />' } },
   { path: '/projects', name: 'projects.index', component: { template: '<div />' } },
   { path: '/tasks', name: 'tasks.index', component: { template: '<div />' } },
   { path: '/activity', name: 'activity.index', component: { template: '<div />' } },
@@ -66,41 +68,43 @@ describe('AppSidebar', () => {
     vi.stubEnv('VITE_APP_NAME', 'OpsFlow')
   })
 
-  it('shows Users, Activity, and Employee reports for administrators', async () => {
+  it('shows Administration with Users, Departments, and Job Titles for administrators', async () => {
     const { wrapper } = await mountSidebar('administrator')
     const text = wrapper.text()
+    expect(text).toContain('Administration')
     expect(text).toContain('Users')
+    expect(text).toContain('Departments')
+    expect(text).toContain('Job Titles')
     expect(text).toContain('Activity')
     expect(text).toContain('Employee reports')
     expect(text).toContain('Dashboard')
-    expect(text).toContain('Projects')
-    expect(text).toContain('Tasks')
-    expect(text).toContain('Reports')
+    expect(wrapper.find('[data-test="nav-departments"]').exists()).toBe(true)
+    expect(wrapper.find('[data-test="nav-job-titles"]').exists()).toBe(true)
     expect(text).not.toContain('My report')
     expect(text).not.toContain('Notifications')
     expect(text).not.toContain('Profile')
   })
 
-  it('shows Users, Activity, and Employee reports for project managers', async () => {
+  it('shows Users under Administration for project managers but hides Departments and Job Titles', async () => {
     const { wrapper } = await mountSidebar('project_manager')
+    expect(wrapper.text()).toContain('Administration')
     expect(wrapper.text()).toContain('Users')
     expect(wrapper.text()).toContain('Activity')
     expect(wrapper.text()).toContain('Employee reports')
-    expect(wrapper.text()).not.toContain('Notifications')
-    expect(wrapper.text()).not.toContain('Profile')
+    expect(wrapper.find('[data-test="nav-departments"]').exists()).toBe(false)
+    expect(wrapper.find('[data-test="nav-job-titles"]').exists()).toBe(false)
   })
 
-  it('hides Users, Activity, and Employee reports for employees and shows My report', async () => {
+  it('hides Administration for employees and shows My report', async () => {
     const { wrapper } = await mountSidebar('employee')
+    expect(wrapper.text()).not.toContain('Administration')
     expect(wrapper.text()).not.toContain('Users')
+    expect(wrapper.text()).not.toContain('Departments')
+    expect(wrapper.text()).not.toContain('Job Titles')
     expect(wrapper.text()).not.toContain('Activity')
     expect(wrapper.text()).not.toContain('Employee reports')
     expect(wrapper.text()).toContain('My report')
     expect(wrapper.text()).toContain('Projects')
-    expect(wrapper.text()).toContain('Tasks')
-    expect(wrapper.text()).toContain('Reports')
-    expect(wrapper.text()).not.toContain('Profile')
-    expect(wrapper.text()).not.toContain('Notifications')
   })
 
   it('does not mark a primary item active on profile or notifications routes', async () => {

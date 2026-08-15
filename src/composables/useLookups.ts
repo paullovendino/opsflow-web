@@ -7,6 +7,8 @@ import { humanizeKey } from '@/utils/format'
 /**
  * Module-level shared lookup cache for the SPA session.
  * Survives component remounts; cleared on full page reload only.
+ * Job titles here are the global active list (for filters). Forms should
+ * prefer department-scoped fetches via lookupService.listJobTitlesForDepartment.
  */
 const roles = ref<RoleLookupItem[]>([])
 const departments = ref<LookupItem[]>([])
@@ -93,6 +95,19 @@ export function useLookups() {
     })),
   )
 
+  /** Filter global job titles by department when a department filter is set. */
+  function jobTitleOptionsForDepartment(departmentId: number | null | undefined) {
+    const source =
+      departmentId == null
+        ? jobTitles.value
+        : jobTitles.value.filter((item) => item.department_id === departmentId)
+
+    return source.map((item) => ({
+      value: item.id,
+      label: item.name,
+    }))
+  }
+
   onMounted(() => {
     void ensureLookups()
   })
@@ -104,6 +119,7 @@ export function useLookups() {
     roleOptions,
     departmentOptions,
     jobTitleOptions,
+    jobTitleOptionsForDepartment,
     isLoading,
     errorMessage,
     hasLoaded,

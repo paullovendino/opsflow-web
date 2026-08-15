@@ -176,9 +176,10 @@ function closeForm(): void {
   formDialog.open = false
 }
 
-function onSaved(saved: User): void {
-  formDialog.open = false
+async function afterFormSave(saved: User): Promise<void> {
   user.value = saved
+  formDialog.open = false
+  toast.success('User updated.')
 }
 
 watch(
@@ -277,8 +278,8 @@ onMounted(async () => {
       :open="formDialog.open"
       mode="edit"
       :user="user"
+      :after-save="afterFormSave"
       @close="closeForm"
-      @saved="onSaved"
     />
   </div>
 </template>

@@ -54,24 +54,27 @@ describe('useRemarkThread', () => {
     expect(thread.isEmpty.value).toBe(false)
   })
 
-  it('creates a remark and reloads without requiring a parent refetch callback', async () => {
+  it('creates a remark and appends it locally on the last page', async () => {
+    vi.mocked(remarkService.listProjectRemarks).mockResolvedValue({
+      remarks: [sampleRemark],
+      meta,
+      message: 'ok',
+    })
     vi.mocked(remarkService.createProjectRemark).mockResolvedValue({
       ...sampleRemark,
       id: 2,
       body: 'Second',
     })
-    vi.mocked(remarkService.listProjectRemarks).mockResolvedValue({
-      remarks: [sampleRemark, { ...sampleRemark, id: 2, body: 'Second' }],
-      meta: { ...meta, total: 2, to: 2 },
-      message: 'ok',
-    })
 
     const thread = useRemarkThread({ type: 'project', id: 3 })
+    await thread.load()
+    vi.mocked(remarkService.listProjectRemarks).mockClear()
     await thread.create({ body: 'Second', mentioned_user_ids: [] })
 
     expect(remarkService.createProjectRemark).toHaveBeenCalled()
-    expect(remarkService.listProjectRemarks).toHaveBeenCalled()
+    expect(remarkService.listProjectRemarks).not.toHaveBeenCalled()
     expect(thread.remarks.value).toHaveLength(2)
+    expect(thread.remarks.value[1]?.body).toBe('Second')
   })
 
   it('updates a remark in place', async () => {

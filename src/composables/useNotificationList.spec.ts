@@ -86,4 +86,42 @@ describe('useNotificationList', () => {
 
     expect(list.notifications.value[0]?.read_at).toBe('2026-08-08T03:00:00.000000Z')
   })
+
+  it('removes a notification from the unread-only list after mark read', async () => {
+    vi.mocked(notificationService.listNotifications).mockResolvedValue({
+      notifications: [sample],
+      meta: { ...meta, last_page: 1, total: 1, to: 1 },
+      message: 'ok',
+    })
+    vi.mocked(notificationService.markNotificationRead).mockResolvedValue({
+      ...sample,
+      read_at: '2026-08-08T03:00:00.000000Z',
+    })
+
+    const list = useNotificationList()
+    await list.setUnreadOnly(true)
+    vi.mocked(notificationService.listNotifications).mockClear()
+    await list.markRead(3)
+
+    expect(list.notifications.value).toEqual([])
+    expect(notificationService.listNotifications).not.toHaveBeenCalled()
+  })
+
+  it('clears the unread-only list after mark all read without refetch', async () => {
+    vi.mocked(notificationService.listNotifications).mockResolvedValue({
+      notifications: [sample],
+      meta: { ...meta, last_page: 1, total: 1, to: 1 },
+      message: 'ok',
+    })
+    vi.mocked(notificationService.markAllNotificationsRead).mockResolvedValue()
+
+    const list = useNotificationList()
+    await list.setUnreadOnly(true)
+    vi.mocked(notificationService.listNotifications).mockClear()
+    await list.markAllRead()
+
+    expect(list.notifications.value).toEqual([])
+    expect(list.meta.value?.total).toBe(0)
+    expect(notificationService.listNotifications).not.toHaveBeenCalled()
+  })
 })

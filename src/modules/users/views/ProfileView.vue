@@ -152,8 +152,8 @@ function onAvatarUpdated(next: ProfileUser): void {
 const managedFields = computed(() => [
   { label: 'Email', value: user.value?.email ?? '—' },
   { label: 'Role', value: user.value?.role ? humanizeKey(user.value.role.name) : '—' },
-  { label: 'Department', value: user.value?.department?.name ?? '—' },
-  { label: 'Job title', value: user.value?.job_title?.name ?? '—' },
+  { label: 'Department', value: user.value?.department?.name ?? 'Not Assigned' },
+  { label: 'Job title', value: user.value?.job_title?.name ?? 'Not Assigned' },
   { label: 'Status', value: user.value?.status ?? '—' },
 ])
 

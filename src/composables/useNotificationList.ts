@@ -67,7 +67,22 @@ export function useNotificationList(options: { perPage?: number } = {}) {
     isMutating.value = true
     try {
       const updated = await notificationService.markNotificationRead(id, { quietProgress: true })
-      notifications.value = notifications.value.map((item) => (item.id === id ? updated : item))
+      if (filters.unreadOnly) {
+        notifications.value = notifications.value.filter((item) => item.id !== id)
+        if (meta.value) {
+          meta.value = {
+            ...meta.value,
+            total: Math.max(0, meta.value.total - 1),
+            to: meta.value.to != null ? Math.max((meta.value.from ?? 1) - 1, meta.value.to - 1) : null,
+          }
+        }
+        if (notifications.value.length === 0 && (meta.value?.total ?? 0) > 0) {
+          filters.page = Math.max(1, filters.page - 1)
+          await load()
+        }
+      } else {
+        notifications.value = notifications.value.map((item) => (item.id === id ? updated : item))
+      }
     } finally {
       isMutating.value = false
     }
@@ -77,7 +92,24 @@ export function useNotificationList(options: { perPage?: number } = {}) {
     isMutating.value = true
     try {
       await notificationService.markAllNotificationsRead({ quietProgress: true })
-      await load()
+      if (filters.unreadOnly) {
+        notifications.value = []
+        meta.value = {
+          current_page: 1,
+          last_page: 1,
+          per_page: filters.per_page,
+          total: 0,
+          from: null,
+          to: null,
+        }
+        filters.page = 1
+      } else {
+        const now = new Date().toISOString()
+        notifications.value = notifications.value.map((item) => ({
+          ...item,
+          read_at: item.read_at ?? now,
+        }))
+      }
     } finally {
       isMutating.value = false
     }

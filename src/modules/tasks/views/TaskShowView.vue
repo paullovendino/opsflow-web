@@ -38,6 +38,12 @@ const confirmDelete = reactive({
   loading: false,
 })
 
+const activityRefreshKey = ref(0)
+
+function bumpActivity(): void {
+  activityRefreshKey.value += 1
+}
+
 function taskId(): number {
   return Number(route.params.id)
 }
@@ -71,10 +77,16 @@ function closeForm(): void {
   formDialog.open = false
 }
 
-async function onSaved(saved: Task): Promise<void> {
-  formDialog.open = false
+async function afterFormSave(saved: Task): Promise<void> {
   task.value = saved
+  formDialog.open = false
   toast.success('Task updated.')
+  bumpActivity()
+}
+
+function onTaskUpdated(value: Task): void {
+  task.value = value
+  bumpActivity()
 }
 
 function askDelete(): void {
@@ -158,7 +170,7 @@ onMounted(async () => {
           :can-delete="canMutate"
           @edit="openEdit"
           @remove="askDelete"
-          @updated="(value) => (task = value)"
+          @updated="onTaskUpdated"
         />
       </div>
 
@@ -167,10 +179,12 @@ onMounted(async () => {
         :project-id="task.project?.id ?? null"
         title="Remarks"
         description="Notes and conversation on this task. Type @ to mention teammates."
+        @changed="bumpActivity"
       />
 
       <ActivityTimeline
         :source="{ type: 'task', id: task.id }"
+        :refresh-key="activityRefreshKey"
         title="Activity"
         description="Significant changes recorded for this task."
       />
@@ -180,8 +194,8 @@ onMounted(async () => {
       :open="formDialog.open"
       mode="edit"
       :task="task"
+      :after-save="afterFormSave"
       @close="closeForm"
-      @saved="onSaved"
     />
 
     <AppConfirmDialog

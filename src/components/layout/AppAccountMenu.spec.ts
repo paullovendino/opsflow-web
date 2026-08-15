@@ -27,7 +27,7 @@ const user: AuthUser = {
   job_title: null,
 }
 
-async function mountMenu() {
+async function mountMenu(role: 'administrator' | 'employee' = 'administrator') {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -41,7 +41,13 @@ async function mountMenu() {
 
   const pinia = createPinia()
   setActivePinia(pinia)
-  useAuthStore().setUser(user)
+  useAuthStore().setUser({
+    ...user,
+    role:
+      role === 'administrator'
+        ? { id: 1, name: 'administrator', description: null }
+        : { id: 3, name: 'employee', description: null },
+  })
 
   const wrapper = mount(AppAccountMenu, {
     global: { plugins: [pinia, router] },
@@ -66,6 +72,16 @@ describe('AppAccountMenu', () => {
     await flushPromises()
 
     expect(router.currentRoute.value.name).toBe('profile')
+    wrapper.unmount()
+  })
+
+  it('does not expose organization settings in the account menu', async () => {
+    const { wrapper } = await mountMenu('administrator')
+
+    await wrapper.get('[data-test="account-menu"]').trigger('click')
+    await flushPromises()
+
+    expect(document.body.querySelector('[data-test="account-organization"]')).toBeNull()
     wrapper.unmount()
   })
 

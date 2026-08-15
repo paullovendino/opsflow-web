@@ -12,11 +12,11 @@ import { toApiClientError } from '@/utils/errors'
 const props = defineProps<{
   open: boolean
   task: Task | null
+  afterSave: (task: Task) => Promise<void>
 }>()
 
 const emit = defineEmits<{
   close: []
-  saved: [task: Task]
 }>()
 
 const toast = useToast()
@@ -25,6 +25,8 @@ const selectedAssignee = ref<number | null>(null)
 const assigneeOptions = ref<Array<{ value: number; label: string }>>([])
 const assigneesLoading = ref(false)
 const formError = ref<string | null>(null)
+const refreshPending = ref(false)
+const lastSaved = ref<Task | null>(null)
 
 async function loadAssignees(projectId: number | null): Promise<void> {
   if (projectId == null) {
@@ -64,6 +66,8 @@ watch(
   (isOpen) => {
     if (!isOpen || !props.task) return
     formError.value = null
+    refreshPending.value = false
+    lastSaved.value = null
     selectedAssignee.value = props.task.assignee?.id ?? null
     void loadAssignees(props.task.project?.id ?? null)
   },
@@ -74,18 +78,33 @@ async function save(): Promise<void> {
   saving.value = true
   formError.value = null
   try {
-    const updated = await taskService.updateTaskAssignment(props.task.id, {
-      assigned_to: selectedAssignee.value,
-    })
-    toast.success('Task assignment updated.')
-    emit('saved', updated)
+    if (!refreshPending.value) {
+      lastSaved.value = await taskService.updateTaskAssignment(props.task.id, {
+        assigned_to: selectedAssignee.value,
+      })
+      refreshPending.value = true
+    }
+    await props.afterSave(lastSaved.value!)
+    refreshPending.value = false
+    lastSaved.value = null
   } catch (error) {
+    if (refreshPending.value) {
+      formError.value =
+        'Assignment was updated, but the list could not be updated. Please try again.'
+      toast.error(formError.value)
+      return
+    }
     const apiError = toApiClientError(error)
     formError.value = apiError.message || 'Unable to update assignment.'
     toast.error(formError.value)
   } finally {
     saving.value = false
   }
+}
+
+function onClose(): void {
+  if (saving.value) return
+  emit('close')
 }
 
 onMounted(() => {
@@ -103,20 +122,17 @@ onMounted(() => {
     description="Assign an active project owner or member, or clear the assignee."
     size="md"
     :busy="saving"
-    @close="emit('close')"
+    @close="onClose"
   >
     <p
       v-if="formError"
-      class="mb-3 rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
+      class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
       role="alert"
     >
       {{ formError }}
     </p>
-    <p v-if="task" class="mb-3 text-sm text-fg-subtle">
-      Task: <span class="font-medium text-fg">{{ task.title }}</span>
-    </p>
     <AppSelect
-      id="task_assign_dialog"
+      id="task_assignee"
       :model-value="selectedAssignee"
       label="Assignee"
       :options="assigneeOptions"
@@ -131,9 +147,9 @@ onMounted(() => {
     />
     <template #footer>
       <div class="flex justify-end gap-2">
-        <AppButton variant="secondary" :disabled="saving" @click="emit('close')">Cancel</AppButton>
-        <AppButton :loading="saving" :disabled="assigneesLoading" @click="save">
-          Save assignment
+        <AppButton variant="secondary" :disabled="saving" @click="onClose">Cancel</AppButton>
+        <AppButton :loading="saving" @click="save">
+          {{ refreshPending ? 'Retry update' : 'Save assignment' }}
         </AppButton>
       </div>
     </template>

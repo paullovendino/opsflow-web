@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import { createMutationAfterSaveController } from '@/composables/useMutationAfterSave'
 import { useToast } from '@/composables/useToast'
 import ProjectForm from '@/modules/projects/components/ProjectForm.vue'
 import * as projectService from '@/services/projectService'
 import type { Project, ProjectWritePayload } from '@/types/project'
-import { toApiClientError } from '@/utils/errors'
 
 const props = withDefaults(
   defineProps<{
     open: boolean
     mode: 'create' | 'edit'
     project?: Project | null
+    afterSave: (project: Project) => Promise<void>
   }>(),
   {
     project: null,
@@ -20,55 +21,43 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   close: []
-  saved: [project: Project]
 }>()
 
 const toast = useToast()
-const submitting = ref(false)
-const formError = ref<string | null>(null)
-const serverErrors = ref<Record<string, string[]> | null>(null)
+const { submitting, formError, serverErrors, refreshPending, reset, run } =
+  createMutationAfterSaveController()
 
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
-      formError.value = null
-      serverErrors.value = null
-      submitting.value = false
+      reset()
     }
   },
 )
 
 async function onSubmit(payload: ProjectWritePayload): Promise<void> {
-  submitting.value = true
-  formError.value = null
-  serverErrors.value = null
-
-  try {
-    const saved =
+  await run({
+    mode: props.mode,
+    mutate: () =>
       props.mode === 'create'
-        ? await projectService.createProject(payload)
-        : await projectService.updateProject(props.project!.id, payload)
+        ? projectService.createProject(payload)
+        : projectService.updateProject(props.project!.id, payload),
+    afterSave: props.afterSave,
+    refreshFailureMessage:
+      props.mode === 'create'
+        ? 'Project was created, but the list could not be updated. Please try again.'
+        : 'Project was updated, but the list could not be updated. Please try again.',
+    onForbiddenToast: (message) => toast.error(message),
+    fallbackErrorMessage: 'Unable to save project.',
+  })
+}
 
-    toast.success(props.mode === 'create' ? 'Project created.' : 'Project updated.')
-    emit('saved', saved)
-  } catch (error) {
-    const apiError = toApiClientError(error)
-    if (apiError.status === 422) {
-      serverErrors.value = apiError.errors
-      formError.value = apiError.message
-      return
-    }
-    if (apiError.status === 403) {
-      formError.value = apiError.message || 'You are not allowed to perform this action.'
-      toast.error(formError.value)
-      return
-    }
-    formError.value = apiError.message || 'Unable to save project.'
-    toast.error(formError.value)
-  } finally {
-    submitting.value = false
+function onClose(): void {
+  if (submitting.value) {
+    return
   }
+  emit('close')
 }
 </script>
 
@@ -83,7 +72,7 @@ async function onSubmit(payload: ProjectWritePayload): Promise<void> {
     "
     size="xl"
     :busy="submitting"
-    @close="emit('close')"
+    @close="onClose"
   >
     <ProjectForm
       :mode="mode"
@@ -91,8 +80,9 @@ async function onSubmit(payload: ProjectWritePayload): Promise<void> {
       :submitting="submitting"
       :server-errors="serverErrors"
       :form-error="formError"
+      :submit-label="refreshPending ? 'Retry update' : undefined"
       @submit="onSubmit"
-      @cancel="emit('close')"
+      @cancel="onClose"
     />
   </AppModal>
 </template>

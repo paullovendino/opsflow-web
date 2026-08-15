@@ -10,6 +10,8 @@ const ui = useUiStore()
 const { isSidebarOpen } = storeToRefs(ui)
 const { roleName, user } = useAuth()
 
+const isAdministrator = computed(() => roleName.value === 'administrator')
+
 const showUsers = computed(
   () => roleName.value === 'administrator' || roleName.value === 'project_manager',
 )
@@ -44,7 +46,7 @@ const activeClass = 'bg-inverse text-on-inverse hover:bg-inverse'
       <p class="text-xs text-fg-muted">Operations workspace</p>
     </div>
 
-    <nav class="flex flex-1 flex-col gap-1 p-3" aria-label="Main">
+    <nav class="flex flex-1 flex-col gap-1 overflow-y-auto p-3" aria-label="Main">
       <RouterLink
         :to="{ name: 'dashboard' }"
         :class="linkClass"
@@ -52,16 +54,6 @@ const activeClass = 'bg-inverse text-on-inverse hover:bg-inverse'
         @click="ui.closeSidebar()"
       >
         Dashboard
-      </RouterLink>
-
-      <RouterLink
-        v-if="showUsers"
-        :to="{ name: 'users.index' }"
-        :class="linkClass"
-        :active-class="activeClass"
-        @click="ui.closeSidebar()"
-      >
-        Users
       </RouterLink>
 
       <RouterLink
@@ -120,6 +112,46 @@ const activeClass = 'bg-inverse text-on-inverse hover:bg-inverse'
       >
         Activity
       </RouterLink>
+
+      <template v-if="showUsers">
+        <p
+          class="mt-4 px-3 pb-1 text-xs font-semibold uppercase tracking-wide text-fg-muted"
+          data-test="nav-administration-label"
+        >
+          Administration
+        </p>
+
+        <RouterLink
+          :to="{ name: 'users.index' }"
+          :class="linkClass"
+          :active-class="activeClass"
+          @click="ui.closeSidebar()"
+        >
+          Users
+        </RouterLink>
+
+        <RouterLink
+          v-if="isAdministrator"
+          :to="{ name: 'departments.index' }"
+          :class="linkClass"
+          :active-class="activeClass"
+          data-test="nav-departments"
+          @click="ui.closeSidebar()"
+        >
+          Departments
+        </RouterLink>
+
+        <RouterLink
+          v-if="isAdministrator"
+          :to="{ name: 'job-titles.index' }"
+          :class="linkClass"
+          :active-class="activeClass"
+          data-test="nav-job-titles"
+          @click="ui.closeSidebar()"
+        >
+          Job Titles
+        </RouterLink>
+      </template>
     </nav>
   </aside>
 </template>

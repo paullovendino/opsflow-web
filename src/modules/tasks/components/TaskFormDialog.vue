@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import { createMutationAfterSaveController } from '@/composables/useMutationAfterSave'
 import { useToast } from '@/composables/useToast'
 import TaskForm from '@/modules/tasks/components/TaskForm.vue'
 import * as projectService from '@/services/projectService'
@@ -15,6 +16,7 @@ const props = withDefaults(
     task?: Task | null
     lockedProjectId?: number | null
     availableProjects?: Array<{ value: number; label: string }>
+    afterSave: (task: Task) => Promise<void>
   }>(),
   {
     task: null,
@@ -25,13 +27,11 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   close: []
-  saved: [task: Task]
 }>()
 
 const toast = useToast()
-const submitting = ref(false)
-const formError = ref<string | null>(null)
-const serverErrors = ref<Record<string, string[]> | null>(null)
+const { submitting, formError, serverErrors, refreshPending, reset, run } =
+  createMutationAfterSaveController()
 const projectOptions = ref<Array<{ value: number; label: string }>>([])
 const assigneeOptions = ref<Array<{ value: number; label: string }>>([])
 const projectsLoading = ref(false)
@@ -110,9 +110,7 @@ watch(
   () => props.open,
   (isOpen) => {
     if (!isOpen) return
-    formError.value = null
-    serverErrors.value = null
-    submitting.value = false
+    reset()
     void loadProjects()
     const projectId = props.lockedProjectId ?? props.task?.project?.id ?? null
     void loadAssignees(projectId)
@@ -120,35 +118,27 @@ watch(
 )
 
 async function onSubmit(payload: TaskCreatePayload | TaskUpdatePayload): Promise<void> {
-  submitting.value = true
-  formError.value = null
-  serverErrors.value = null
-
-  try {
-    const saved =
+  await run({
+    mode: props.mode,
+    mutate: () =>
       props.mode === 'create'
-        ? await taskService.createTask(payload as TaskCreatePayload)
-        : await taskService.updateTask(props.task!.id, payload as TaskUpdatePayload)
+        ? taskService.createTask(payload as TaskCreatePayload)
+        : taskService.updateTask(props.task!.id, payload as TaskUpdatePayload),
+    afterSave: props.afterSave,
+    refreshFailureMessage:
+      props.mode === 'create'
+        ? 'Task was created, but the list could not be updated. Please try again.'
+        : 'Task was updated, but the list could not be updated. Please try again.',
+    onForbiddenToast: (message) => toast.error(message),
+    fallbackErrorMessage: 'Unable to save task.',
+  })
+}
 
-    toast.success(props.mode === 'create' ? 'Task created.' : 'Task updated.')
-    emit('saved', saved)
-  } catch (error) {
-    const apiError = toApiClientError(error)
-    if (apiError.status === 422) {
-      serverErrors.value = apiError.errors
-      formError.value = apiError.message
-      return
-    }
-    if (apiError.status === 403) {
-      formError.value = apiError.message || 'You are not allowed to perform this action.'
-      toast.error(formError.value)
-      return
-    }
-    formError.value = apiError.message || 'Unable to save task.'
-    toast.error(formError.value)
-  } finally {
-    submitting.value = false
+function onClose(): void {
+  if (submitting.value) {
+    return
   }
+  emit('close')
 }
 </script>
 
@@ -163,7 +153,7 @@ async function onSubmit(payload: TaskCreatePayload | TaskUpdatePayload): Promise
     "
     size="xl"
     :busy="submitting"
-    @close="emit('close')"
+    @close="onClose"
   >
     <TaskForm
       :mode="mode"
@@ -176,8 +166,9 @@ async function onSubmit(payload: TaskCreatePayload | TaskUpdatePayload): Promise
       :submitting="submitting"
       :server-errors="serverErrors"
       :form-error="formError"
+      :submit-label="refreshPending ? 'Retry update' : undefined"
       @submit="onSubmit"
-      @cancel="emit('close')"
+      @cancel="onClose"
       @project-change="loadAssignees"
     />
   </AppModal>

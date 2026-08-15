@@ -25,6 +25,11 @@ import type { Project, ProjectStatus } from '@/types/project'
 import { PROJECT_STATUSES } from '@/types/project'
 import { toApiClientError } from '@/utils/errors'
 import { formatDate, formatDateTime, humanizeKey } from '@/utils/format'
+import {
+  matchesTextQuery,
+  reconcileDeletedItem,
+  reconcileUpsertItem,
+} from '@/utils/listReconcile'
 
 const route = useRoute()
 const toast = useToast()
@@ -77,6 +82,8 @@ const confirmDelete = reactive({
   open: false,
   loading: false,
   project: null as Project | null,
+  phase: 'mutate' as 'mutate' | 'refresh',
+  deletedId: null as number | null,
 })
 
 const statusDialog = reactive({
@@ -84,6 +91,8 @@ const statusDialog = reactive({
   loading: false,
   project: null as Project | null,
   status: 'planning' as ProjectStatus,
+  phase: 'mutate' as 'mutate' | 'refresh',
+  pending: null as Project | null,
 })
 
 async function syncRouteToIndex(): Promise<void> {
@@ -138,12 +147,70 @@ function closeDetailDialog(): void {
   detailDialog.errorMessage = null
 }
 
-async function onSaved(project: Project): Promise<void> {
+async function afterFormSave(project: Project): Promise<void> {
+  const message = formDialog.mode === 'create' ? 'Project created.' : 'Project updated.'
+  applyProjectUpsert(project)
   formDialog.open = false
   formDialog.project = null
   await syncRouteToIndex()
-  await load()
+  toast.success(message)
   await openView(project)
+}
+
+function matchesProjectFilters(project: Project): boolean {
+  if (filters.status && project.status !== filters.status) {
+    return false
+  }
+  if (filters.created_by != null && project.owner?.id !== filters.created_by) {
+    return false
+  }
+
+  return matchesTextQuery(filters.search, project.name, project.description)
+}
+
+function sortKeyForProject(project: Project): string {
+  switch (filters.sort) {
+    case 'name':
+      return project.name
+    case 'status':
+      return String(project.status)
+    case 'start_date':
+      return project.start_date ?? ''
+    case 'due_date':
+      return project.due_date ?? ''
+    default:
+      return String(project.id)
+  }
+}
+
+function applyProjectUpsert(project: Project): void {
+  const result = reconcileUpsertItem({
+    items: projects.value,
+    item: project,
+    matches: matchesProjectFilters,
+    meta: meta.value,
+    page: filters.page,
+    sortKey: filters.sort === 'created_at' ? undefined : sortKeyForProject,
+    sortDirection: filters.direction,
+  })
+  projects.value = result.items
+  meta.value = result.meta
+}
+
+async function applyProjectDelete(id: number): Promise<void> {
+  const result = reconcileDeletedItem({
+    items: projects.value,
+    id,
+    meta: meta.value,
+  })
+  projects.value = result.items
+  meta.value = result.meta
+
+  if (result.needsPageRecovery) {
+    filters.page = Math.max(1, filters.page - 1)
+    await syncQuery()
+    await load()
+  }
 }
 
 function askDelete(project: Project): void {
@@ -156,20 +223,32 @@ function closeDelete(): void {
   if (confirmDelete.loading) return
   confirmDelete.open = false
   confirmDelete.project = null
+  confirmDelete.phase = 'mutate'
+  confirmDelete.deletedId = null
 }
 
 async function runDelete(): Promise<void> {
   if (!confirmDelete.project) return
   confirmDelete.loading = true
   try {
-    await projectService.deleteProject(confirmDelete.project.id)
-    toast.success('Project deleted.')
+    if (confirmDelete.phase !== 'refresh') {
+      confirmDelete.deletedId = confirmDelete.project.id
+      await projectService.deleteProject(confirmDelete.deletedId)
+      confirmDelete.phase = 'refresh'
+    }
+    await applyProjectDelete(confirmDelete.deletedId!)
     confirmDelete.open = false
     confirmDelete.project = null
-    await load()
+    confirmDelete.phase = 'mutate'
+    confirmDelete.deletedId = null
+    toast.success('Project deleted.')
   } catch (error) {
     const apiError = toApiClientError(error)
-    toast.error(apiError.message || 'Unable to delete project.')
+    if (confirmDelete.phase === 'refresh') {
+      toast.error('Project was deleted, but the list could not be updated. Please try again.')
+    } else {
+      toast.error(apiError.message || 'Unable to delete project.')
+    }
   } finally {
     confirmDelete.loading = false
   }
@@ -187,22 +266,33 @@ function closeStatus(): void {
   if (statusDialog.loading) return
   statusDialog.open = false
   statusDialog.project = null
+  statusDialog.phase = 'mutate'
+  statusDialog.pending = null
 }
 
 async function saveStatus(): Promise<void> {
-  if (!statusDialog.project) return
+  if (!statusDialog.project && statusDialog.phase === 'mutate') return
   statusDialog.loading = true
   try {
-    await projectService.updateProjectStatus(statusDialog.project.id, {
-      status: statusDialog.status,
-    })
-    toast.success('Project status updated.')
+    if (statusDialog.phase === 'mutate') {
+      statusDialog.pending = await projectService.updateProjectStatus(statusDialog.project!.id, {
+        status: statusDialog.status,
+      })
+      statusDialog.phase = 'refresh'
+    }
+    applyProjectUpsert(statusDialog.pending!)
     statusDialog.open = false
     statusDialog.project = null
-    await load()
+    statusDialog.phase = 'mutate'
+    statusDialog.pending = null
+    toast.success('Project status updated.')
   } catch (error) {
     const apiError = toApiClientError(error)
-    toast.error(apiError.message || 'Unable to update status.')
+    if (statusDialog.phase === 'refresh') {
+      toast.error('Status was updated, but the list could not be updated. Please try again.')
+    } else {
+      toast.error(apiError.message || 'Unable to update status.')
+    }
   } finally {
     statusDialog.loading = false
   }
@@ -452,8 +542,8 @@ onMounted(async () => {
       :open="formDialog.open"
       :mode="formDialog.mode"
       :project="formDialog.project"
+      :after-save="afterFormSave"
       @close="closeFormDialog"
-      @saved="onSaved"
     />
 
     <ProjectDetailDialog
@@ -475,7 +565,7 @@ onMounted(async () => {
           ? `Soft-delete ${confirmDelete.project.name}? This removes it from the directory.`
           : undefined
       "
-      confirm-label="Delete"
+      :confirm-label="confirmDelete.phase === 'refresh' ? 'Retry update' : 'Delete'"
       variant="danger"
       :loading="confirmDelete.loading"
       @confirm="runDelete"
@@ -508,7 +598,9 @@ onMounted(async () => {
           <AppButton variant="secondary" :disabled="statusDialog.loading" @click="closeStatus">
             Cancel
           </AppButton>
-          <AppButton :loading="statusDialog.loading" @click="saveStatus">Save status</AppButton>
+          <AppButton :loading="statusDialog.loading" @click="saveStatus">
+            {{ statusDialog.phase === 'refresh' ? 'Retry update' : 'Save status' }}
+          </AppButton>
         </div>
       </template>
     </AppModal>

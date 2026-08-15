@@ -14,12 +14,14 @@ const props = withDefaults(
     submitting?: boolean
     serverErrors?: Record<string, string[]> | null
     formError?: string | null
+    submitLabel?: string | null
   }>(),
   {
     initial: null,
     submitting: false,
     serverErrors: null,
     formError: null,
+    submitLabel: null,
   },
 )
 
@@ -159,7 +161,7 @@ function onSubmit(): void {
         Cancel
       </AppButton>
       <AppButton type="submit" :loading="submitting">
-        {{ mode === 'create' ? 'Create project' : 'Save changes' }}
+        {{ submitLabel || (mode === 'create' ? 'Create project' : 'Save changes') }}
       </AppButton>
     </AppFormActions>
   </form>

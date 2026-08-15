@@ -100,10 +100,67 @@ export function useRemarkThread(
           ? await remarkService.createProjectRemark(current.id, payload)
           : await remarkService.createTaskRemark(current.id, payload)
 
-      if (meta.value && filters.page !== meta.value.last_page) {
-        filters.page = meta.value.last_page
+      const onLastPage = !meta.value || filters.page === meta.value.last_page
+      const perPage = filters.per_page
+
+      if (filters.direction === 'asc' && onLastPage) {
+        remarks.value = [...remarks.value, remark]
+        if (remarks.value.length > perPage) {
+          filters.page += 1
+          remarks.value = [remark]
+        }
+        if (meta.value) {
+          const total = meta.value.total + 1
+          meta.value = {
+            ...meta.value,
+            total,
+            last_page: Math.max(1, Math.ceil(total / perPage)),
+            current_page: filters.page,
+            from: filters.page === 1 ? 1 : (filters.page - 1) * perPage + 1,
+            to: Math.min(total, filters.page * perPage),
+          }
+        } else {
+          meta.value = {
+            current_page: 1,
+            last_page: 1,
+            per_page: perPage,
+            total: 1,
+            from: 1,
+            to: 1,
+          }
+        }
+        return remark
       }
 
+      if (filters.direction === 'desc' && filters.page === 1) {
+        remarks.value = [remark, ...remarks.value].slice(0, perPage)
+        if (meta.value) {
+          const total = meta.value.total + 1
+          meta.value = {
+            ...meta.value,
+            total,
+            last_page: Math.max(1, Math.ceil(total / perPage)),
+            to: Math.min(perPage, total),
+            from: total === 0 ? null : 1,
+          }
+        } else {
+          meta.value = {
+            current_page: 1,
+            last_page: 1,
+            per_page: perPage,
+            total: 1,
+            from: 1,
+            to: 1,
+          }
+        }
+        return remark
+      }
+
+      if (meta.value && filters.direction === 'asc') {
+        filters.page = Math.max(1, Math.ceil((meta.value.total + 1) / perPage))
+      } else {
+        filters.page = 1
+      }
       await load()
       return remark
     } finally {

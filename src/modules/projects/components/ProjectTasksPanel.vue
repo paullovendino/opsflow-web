@@ -12,10 +12,15 @@ import TaskFormDialog from '@/modules/tasks/components/TaskFormDialog.vue'
 import * as taskService from '@/services/taskService'
 import type { Task } from '@/types/task'
 import { toApiClientError } from '@/utils/errors'
+import { upsertById, removeById } from '@/utils/listReconcile'
 import { taskDueDateLabel } from '@/utils/taskDueDate'
 
 const props = defineProps<{
   projectId: number
+}>()
+
+const emit = defineEmits<{
+  changed: []
 }>()
 
 const toast = useToast()
@@ -99,10 +104,19 @@ async function openView(task: Task): Promise<void> {
   }
 }
 
-async function onSaved(): Promise<void> {
+async function afterFormSave(task: Task): Promise<void> {
+  const message = formDialog.mode === 'create' ? 'Task created.' : 'Task updated.'
+  tasks.value = upsertById(tasks.value, task)
   formDialog.open = false
   formDialog.task = null
-  await load()
+  toast.success(message)
+  emit('changed')
+}
+
+function onDetailUpdated(task: Task): void {
+  detailDialog.task = task
+  tasks.value = upsertById(tasks.value, task)
+  emit('changed')
 }
 
 function askDelete(task: Task): void {
@@ -115,11 +129,13 @@ async function runDelete(): Promise<void> {
   if (!confirmDelete.task) return
   confirmDelete.loading = true
   try {
-    await taskService.deleteTask(confirmDelete.task.id)
-    toast.success('Task deleted.')
+    const id = confirmDelete.task.id
+    await taskService.deleteTask(id)
+    tasks.value = removeById(tasks.value, id)
     confirmDelete.open = false
     confirmDelete.task = null
-    await load()
+    toast.success('Task deleted.')
+    emit('changed')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to delete task.')
@@ -215,8 +231,8 @@ onMounted(() => {
       :mode="formDialog.mode"
       :task="formDialog.task"
       :locked-project-id="projectId"
+      :after-save="afterFormSave"
       @close="formDialog.open = false"
-      @saved="onSaved"
     />
 
     <TaskDetailDialog
@@ -230,12 +246,7 @@ onMounted(() => {
       @close="detailDialog.open = false"
       @edit="openEdit"
       @remove="askDelete"
-      @updated="
-        (value) => {
-          detailDialog.task = value
-          void load()
-        }
-      "
+      @updated="onDetailUpdated"
       @retry="detailDialog.task ? openView(detailDialog.task) : undefined"
     />
 

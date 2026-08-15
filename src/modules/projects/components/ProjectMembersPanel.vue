@@ -17,6 +17,10 @@ const props = defineProps<{
   canManage: boolean
 }>()
 
+const emit = defineEmits<{
+  changed: []
+}>()
+
 const toast = useToast()
 
 const members = ref<ProjectMember[]>([])
@@ -101,11 +105,14 @@ async function onAddMember(): Promise<void> {
   addError.value = null
 
   try {
-    await projectService.addProjectMember(props.projectId, { user_id: selectedUserId.value })
-    toast.success('Member added.')
+    const member = await projectService.addProjectMember(props.projectId, {
+      user_id: selectedUserId.value,
+    })
     selectedUserId.value = null
-    await loadMembers()
-    await loadCandidates()
+    members.value = [...members.value, member]
+    candidateOptions.value = candidateOptions.value.filter((option) => option.value !== member.id)
+    emit('changed')
+    toast.success('Member added.')
   } catch (error) {
     const apiError = toApiClientError(error)
     if (apiError.status === 409) {
@@ -149,11 +156,20 @@ async function confirmRemove(): Promise<void> {
   removeConfirm.value.loading = true
   try {
     await projectService.removeProjectMember(props.projectId, member.id)
-    toast.success('Member removed.')
+    members.value = members.value.filter((item) => item.id !== member.id)
+    if (props.canManage) {
+      candidateOptions.value = [
+        ...candidateOptions.value,
+        {
+          value: member.id,
+          label: `${member.full_name} (${member.email})`,
+        },
+      ].sort((a, b) => a.label.localeCompare(b.label, undefined, { sensitivity: 'base' }))
+    }
     removeConfirm.value.open = false
     removeConfirm.value.member = null
-    await loadMembers()
-    await loadCandidates()
+    emit('changed')
+    toast.success('Member removed.')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to remove member.')

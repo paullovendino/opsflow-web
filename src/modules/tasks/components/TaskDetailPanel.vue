@@ -96,8 +96,8 @@ async function saveStatus(): Promise<void> {
     const updated = await taskService.updateTaskStatus(props.task.id, {
       status: selectedStatus.value,
     })
-    toast.success('Task status updated.')
     emit('updated', updated)
+    toast.success('Task status updated.')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to update status.')
@@ -112,8 +112,8 @@ async function saveAssignment(): Promise<void> {
     const updated = await taskService.updateTaskAssignment(props.task.id, {
       assigned_to: selectedAssignee.value,
     })
-    toast.success('Task assignment updated.')
     emit('updated', updated)
+    toast.success('Task assignment updated.')
   } catch (error) {
     const apiError = toApiClientError(error)
     toast.error(apiError.message || 'Unable to update assignment.')

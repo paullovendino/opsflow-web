@@ -1,17 +1,18 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { watch } from 'vue'
 import AppModal from '@/components/ui/AppModal.vue'
+import { createMutationAfterSaveController } from '@/composables/useMutationAfterSave'
 import { useToast } from '@/composables/useToast'
 import UserForm from '@/modules/users/components/UserForm.vue'
 import * as userService from '@/services/userService'
 import type { User, UserWritePayload } from '@/types/user'
-import { toApiClientError } from '@/utils/errors'
 
 const props = withDefaults(
   defineProps<{
     open: boolean
     mode: 'create' | 'edit'
     user?: User | null
+    afterSave: (user: User) => Promise<void>
   }>(),
   {
     user: null,
@@ -20,54 +21,43 @@ const props = withDefaults(
 
 const emit = defineEmits<{
   close: []
-  saved: [user: User]
 }>()
 
 const toast = useToast()
-const submitting = ref(false)
-const formError = ref<string | null>(null)
-const serverErrors = ref<Record<string, string[]> | null>(null)
+const { submitting, formError, serverErrors, refreshPending, reset, run } =
+  createMutationAfterSaveController()
 
 watch(
   () => props.open,
   (isOpen) => {
     if (isOpen) {
-      formError.value = null
-      serverErrors.value = null
-      submitting.value = false
+      reset()
     }
   },
 )
 
 async function onSubmit(payload: UserWritePayload): Promise<void> {
-  submitting.value = true
-  formError.value = null
-  serverErrors.value = null
-
-  try {
-    const saved =
+  await run({
+    mode: props.mode,
+    mutate: () =>
       props.mode === 'create'
-        ? await userService.createUser(payload)
-        : await userService.updateUser(props.user!.id, payload)
+        ? userService.createUser(payload)
+        : userService.updateUser(props.user!.id, payload),
+    afterSave: props.afterSave,
+    refreshFailureMessage:
+      props.mode === 'create'
+        ? 'User was created, but the list could not be updated. Please try again.'
+        : 'User was updated, but the list could not be updated. Please try again.',
+    onForbiddenToast: (message) => toast.error(message),
+    fallbackErrorMessage: 'Unable to save user.',
+  })
+}
 
-    toast.success(props.mode === 'create' ? 'User created.' : 'User updated.')
-    emit('saved', saved)
-  } catch (error) {
-    const apiError = toApiClientError(error)
-    if (apiError.status === 422) {
-      serverErrors.value = apiError.errors
-      formError.value = apiError.message
-      return
-    }
-    if (apiError.status === 403) {
-      formError.value = apiError.message || 'You are not allowed to perform this action.'
-      toast.error(formError.value)
-      return
-    }
-    formError.value = apiError.message || 'Unable to save user.'
-  } finally {
-    submitting.value = false
+function onClose(): void {
+  if (submitting.value) {
+    return
   }
+  emit('close')
 }
 </script>
 
@@ -82,7 +72,7 @@ async function onSubmit(payload: UserWritePayload): Promise<void> {
     "
     size="xl"
     :busy="submitting"
-    @close="emit('close')"
+    @close="onClose"
   >
     <UserForm
       :mode="mode"
@@ -90,8 +80,9 @@ async function onSubmit(payload: UserWritePayload): Promise<void> {
       :submitting="submitting"
       :server-errors="serverErrors"
       :form-error="formError"
+      :submit-label="refreshPending ? 'Retry update' : undefined"
       @submit="onSubmit"
-      @cancel="emit('close')"
+      @cancel="onClose"
     />
   </AppModal>
 </template>
