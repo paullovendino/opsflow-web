@@ -27,7 +27,7 @@ const emit = defineEmits<{
   <AppModal
     :open="open"
     title="Project details"
-    description="Summary from the project API. Open the workspace for members and tasks."
+    description="Project summary. Open the workspace for members and tasks."
     size="lg"
     :busy="loading"
     @close="emit('close')"

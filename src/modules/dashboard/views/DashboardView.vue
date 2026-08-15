@@ -3,6 +3,7 @@ import { computed, onMounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import AppButton from '@/components/ui/AppButton.vue'
 import AppEmptyState from '@/components/ui/AppEmptyState.vue'
+import AppPageHeader from '@/components/ui/AppPageHeader.vue'
 import { useAuth } from '@/composables/useAuth'
 import { useDashboard } from '@/composables/useDashboard'
 import DashboardAverageProgress from '@/modules/dashboard/components/DashboardAverageProgress.vue'
@@ -39,6 +40,13 @@ const taskPriorityItems = computed(() =>
   summary.value ? entriesFromRecord(summary.value.tasks.by_priority) : [],
 )
 
+const welcomeDescription = computed(() => {
+  if (fullName.value) {
+    return `Welcome, ${fullName.value}. Overview of projects, tasks, and activity.`
+  }
+  return 'Overview of projects, tasks, and activity.'
+})
+
 onMounted(() => {
   void load()
 })
@@ -46,12 +54,7 @@ onMounted(() => {
 
 <template>
   <div class="flex flex-col gap-8">
-    <header class="flex flex-col gap-1">
-      <h1 class="text-2xl font-semibold tracking-tight text-fg">Dashboard</h1>
-      <p class="text-sm text-fg-subtle">
-        Welcome{{ fullName ? `, ${fullName}` : '' }}. Here's a snapshot of your scoped work.
-      </p>
-    </header>
+    <AppPageHeader title="Dashboard" :description="welcomeDescription" />
 
     <DashboardSkeleton v-if="isLoading && !summary" />
 

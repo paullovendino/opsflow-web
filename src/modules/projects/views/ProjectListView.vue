@@ -252,7 +252,7 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-6">
     <div ref="headingRef" tabindex="-1" class="outline-none">
-      <AppPageHeader title="Projects" description="Search, filter, and manage projects.">
+      <AppPageHeader title="Projects" description="Manage projects and team members.">
         <template #actions>
           <AppButton v-if="canMutate" @click="openCreate">Create project</AppButton>
         </template>
@@ -485,7 +485,7 @@ onMounted(async () => {
     <AppModal
       :open="statusDialog.open"
       title="Change project status"
-      description="Updates status only via the existing status endpoint."
+      description="Choose a new status for this project."
       size="md"
       :busy="statusDialog.loading"
       @close="closeStatus"

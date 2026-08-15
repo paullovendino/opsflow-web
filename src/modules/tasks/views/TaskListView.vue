@@ -309,7 +309,7 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-6">
     <div ref="headingRef" tabindex="-1" class="outline-none">
-      <AppPageHeader title="Tasks" description="Search, filter, and manage tasks across projects.">
+      <AppPageHeader title="Tasks" description="Track and manage assigned work.">
         <template #actions>
           <AppButton v-if="canMutate" @click="openCreate">Create task</AppButton>
         </template>
@@ -619,7 +619,7 @@ onMounted(async () => {
     <AppModal
       :open="statusDialog.open"
       title="Change task status"
-      description="Any status is allowed; there is no transition graph."
+      description="Choose a new status for this task."
       size="md"
       :busy="statusDialog.loading"
       @close="closeStatus"

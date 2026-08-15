@@ -168,7 +168,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         :title="project?.name || 'Project'"
-        description="Project workspace — details, members, and room for future modules."
+        description="Project details, members, and related work."
       >
         <template #actions>
           <div class="flex flex-wrap gap-2">
@@ -209,7 +209,7 @@ onMounted(async () => {
         <header class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 class="text-base font-semibold text-fg">Project information</h2>
-            <p class="mt-1 text-sm text-fg-subtle">Core details from the project API.</p>
+            <p class="mt-1 text-sm text-fg-subtle">Core project details and progress.</p>
           </div>
           <StatusBadge :status="String(project.status)" kind="project" />
         </header>
@@ -304,7 +304,7 @@ onMounted(async () => {
     <AppModal
       :open="statusDialog.open"
       title="Change project status"
-      description="Updates status only via the existing status endpoint."
+      description="Choose a new status for this project."
       size="md"
       :busy="statusDialog.loading"
       @close="closeStatus"

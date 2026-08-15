@@ -119,7 +119,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         title="Activity"
-        description="Read-only audit trail of significant project, task, and user changes."
+        description="Review system activity and changes."
       />
     </div>
 

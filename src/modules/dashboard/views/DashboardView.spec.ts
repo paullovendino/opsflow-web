@@ -134,6 +134,8 @@ describe('DashboardView', () => {
     await flushPromises()
 
     expect(wrapper.text()).toContain('Total Projects')
+    expect(wrapper.text()).toContain('Welcome, Ada Admin')
+    expect(wrapper.text()).toContain('Overview of projects, tasks, and activity.')
     expect(wrapper.text()).toContain('Due Soon')
     expect(wrapper.text()).toContain('Unread Notifications')
     expect(wrapper.text()).toContain('Average project progress')

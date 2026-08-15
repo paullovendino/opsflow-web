@@ -120,7 +120,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         :title="task?.title || 'Task'"
-        description="Task workspace — details, status, and assignment."
+        description="View details, status, and assignment."
       >
         <template #actions>
           <AppButton type="button" variant="secondary" @click="goBack">Back to list</AppButton>

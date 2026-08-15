@@ -23,7 +23,7 @@ defineEmits<{
       :value="modelValue"
       :autocomplete="autocomplete"
       :placeholder="placeholder"
-      class="w-full rounded-md border border-border-strong bg-input px-3 py-2 text-sm text-fg outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40"
+      class="h-10 w-full rounded-md border border-border-strong bg-input px-3 py-0 text-sm leading-normal text-fg placeholder:text-fg-muted outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40"
       :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-100': Boolean(error) }"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />

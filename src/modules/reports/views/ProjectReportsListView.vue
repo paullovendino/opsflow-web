@@ -169,7 +169,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         title="Project reports"
-        description="Task aggregates per project. Date filters apply to task created dates."
+        description="Review project and team performance."
       >
         <template #actions>
           <RouterLink

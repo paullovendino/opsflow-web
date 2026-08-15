@@ -169,7 +169,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         title="My profile"
-        description="Update your personal details and preferences. Organization fields are managed by an administrator."
+        description="Manage your personal settings."
       />
     </div>
 

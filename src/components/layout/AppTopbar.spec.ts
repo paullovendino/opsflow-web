@@ -73,6 +73,8 @@ describe('AppTopbar', () => {
     expect(wrapper.find('[data-test="account-menu"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="global-search"]').exists()).toBe(true)
     expect(wrapper.find('[data-test="theme-toggle"]').exists()).toBe(true)
+    expect(wrapper.text()).not.toContain('Authenticated shell')
+    expect(wrapper.get('h1').text()).toBe('Dashboard')
     expect(
       wrapper.findAll('button').some((button) => button.text().trim() === 'Logout'),
     ).toBe(false)

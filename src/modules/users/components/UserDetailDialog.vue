@@ -24,7 +24,7 @@ const emit = defineEmits<{
   <AppModal
     :open="open"
     title="User details"
-    description="Profile information returned by the API."
+    description="View user profile and account details."
     size="lg"
     @close="emit('close')"
   >

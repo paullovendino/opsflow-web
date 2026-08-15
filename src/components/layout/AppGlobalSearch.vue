@@ -213,12 +213,19 @@ onBeforeUnmount(() => {
   <div ref="rootRef" class="relative min-w-0 w-full max-w-md" data-test="global-search">
     <label class="sr-only" for="opsflow-global-search">Search projects, tasks, and users</label>
     <div class="relative">
-      <span
-        class="pointer-events-none absolute inset-y-0 left-2.5 flex items-center text-slate-400"
+      <svg
+        class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-muted"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.75"
+        stroke-linecap="round"
+        stroke-linejoin="round"
         aria-hidden="true"
       >
-        ⌕
-      </span>
+        <circle cx="11" cy="11" r="7" />
+        <path d="m20 20-3.5-3.5" />
+      </svg>
       <input
         id="opsflow-global-search"
         ref="inputRef"
@@ -228,7 +235,7 @@ onBeforeUnmount(() => {
         autocomplete="off"
         spellcheck="false"
         placeholder="Search…"
-        class="h-9 w-full rounded-md border border-border-strong bg-surface py-1.5 pl-8 pr-16 text-sm text-fg placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
+        class="h-10 w-full rounded-md border border-border-strong bg-input py-0 pl-10 pr-20 text-sm leading-normal text-fg placeholder:text-fg-muted outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40"
         role="combobox"
         aria-autocomplete="list"
         aria-controls="opsflow-global-search-results"
@@ -240,17 +247,17 @@ onBeforeUnmount(() => {
         @focus="open"
         @keydown="onInputKeydown"
       />
-      <div class="absolute inset-y-0 right-1.5 flex items-center gap-1">
+      <div class="absolute inset-y-0 right-2 flex items-center gap-1">
         <span
           v-if="isLoading"
-          class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-slate-400 border-r-transparent"
+          class="inline-block h-4 w-4 animate-spin rounded-full border-2 border-fg-muted border-r-transparent"
           aria-hidden="true"
           data-test="global-search-spinner"
         />
         <button
           v-if="query.length > 0"
           type="button"
-          class="rounded px-1.5 py-0.5 text-xs font-medium text-fg-muted hover:bg-surface-hover hover:text-fg-secondary"
+          class="rounded px-1.5 py-0.5 text-xs font-medium text-fg-muted hover:bg-surface-hover hover:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           data-test="global-search-clear"
           @click="onClear"
         >

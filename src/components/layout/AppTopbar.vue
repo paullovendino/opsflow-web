@@ -28,8 +28,7 @@ const title = computed(() => {
         <span class="text-lg leading-none">☰</span>
       </button>
       <div class="min-w-0">
-        <h1 class="truncate text-base font-semibold text-fg">{{ title }}</h1>
-        <p class="hidden text-xs text-fg-muted sm:block">Authenticated shell</p>
+        <h1 class="truncate text-base font-semibold leading-tight text-fg">{{ title }}</h1>
       </div>
     </div>
 

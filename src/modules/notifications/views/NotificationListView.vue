@@ -74,7 +74,7 @@ onMounted(async () => {
 <template>
   <div class="mx-auto flex w-full max-w-3xl flex-col gap-6">
     <div ref="headingRef" tabindex="-1" class="outline-none">
-      <AppPageHeader title="Notifications" description="In-app alerts for assignments, membership, remarks, and mentions.">
+      <AppPageHeader title="Notifications" description="View your notifications and updates.">
         <template #actions>
           <div class="flex flex-wrap gap-2">
             <AppButton

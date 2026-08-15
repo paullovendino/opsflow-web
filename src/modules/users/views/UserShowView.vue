@@ -200,7 +200,7 @@ onMounted(async () => {
     <div ref="headingRef" tabindex="-1" class="outline-none">
       <AppPageHeader
         :title="profileMode ? 'My profile' : 'User details'"
-        :description="profileMode ? 'Your account information.' : 'Full profile returned by the API.'"
+        :description="profileMode ? 'Manage your personal settings.' : 'View user profile and account details.'"
       >
         <template #actions>
           <AppButton

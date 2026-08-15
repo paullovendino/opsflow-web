@@ -280,7 +280,7 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col gap-6">
     <div ref="headingRef" tabindex="-1" class="outline-none">
-      <AppPageHeader title="Users" description="Search, filter, and manage organization users.">
+      <AppPageHeader title="Users" description="Manage users and their access.">
         <template #actions>
           <AppButton v-if="canCreate" @click="openCreate">Create user</AppButton>
         </template>
