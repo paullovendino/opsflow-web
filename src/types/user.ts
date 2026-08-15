@@ -54,7 +54,6 @@ export interface UserWritePayload {
   department_id: number | null
   job_title_id: number | null
   status: UserStatus
-  avatar?: string | null
 }
 
 export interface UserStatusPayload {

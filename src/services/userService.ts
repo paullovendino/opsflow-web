@@ -101,7 +101,6 @@ export async function updateUser(id: number, payload: UserWritePayload): Promise
     department_id: payload.department_id,
     job_title_id: payload.job_title_id,
     status: payload.status,
-    avatar: payload.avatar ?? null,
   }
 
   if (payload.password) {

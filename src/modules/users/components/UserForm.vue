@@ -235,7 +235,6 @@ function onSubmit(): void {
     department_id: form.department_id,
     job_title_id: form.job_title_id,
     status: form.status,
-    avatar: props.initial?.avatar ?? null,
   }
 
   if (form.password) {
