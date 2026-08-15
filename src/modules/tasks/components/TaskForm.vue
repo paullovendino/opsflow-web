@@ -166,7 +166,7 @@ function onSubmit(): void {
   <form class="flex flex-col gap-4" @submit.prevent="onSubmit">
     <p
       v-if="formError"
-      class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700"
+      class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
       role="alert"
     >
       {{ formError }}

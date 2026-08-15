@@ -59,7 +59,7 @@ function onChange(event: Event): void {
         :id="id"
         :name="name"
         class="h-10 w-full appearance-none rounded-md border border-border-strong bg-input py-0 pl-3 pr-10 text-sm leading-normal text-fg outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:bg-muted disabled:text-fg-subtle"
-        :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-100': Boolean(error) }"
+        :class="{ 'border-red-500 focus:border-red-500 focus:ring-danger-border/60': Boolean(error) }"
         :value="modelValue ?? ''"
         :disabled="disabled"
         :required="required"

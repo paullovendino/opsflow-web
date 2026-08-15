@@ -230,7 +230,7 @@ watch(
     <template v-else>
       <p
         v-if="errorMessage"
-        class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+        class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
         role="status"
       >
         Couldn't refresh remarks.
@@ -265,7 +265,7 @@ watch(
       </div>
 
       <div class="border-t border-border pt-4">
-        <p v-if="candidatesError" class="mb-2 text-xs text-amber-700">
+        <p v-if="candidatesError" class="mb-2 text-xs text-fg-subtle">
           Mention suggestions may be limited: {{ candidatesError }}
         </p>
         <RemarkForm

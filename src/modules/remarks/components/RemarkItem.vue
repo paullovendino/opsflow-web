@@ -27,7 +27,7 @@ const showActions = computed(() => props.remark.can_edit || props.remark.can_del
 const itemClass =
   'block w-full px-3 py-2 text-left text-sm text-fg-secondary outline-none hover:bg-surface-hover focus:bg-muted focus-visible:bg-canvas'
 const dangerClass =
-  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-red-100'
+  'block w-full px-3 py-2 text-left text-sm text-danger-fg outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-danger-soft'
 
 function toggleMenu(): void {
   menuOpen.value = !menuOpen.value
@@ -83,7 +83,7 @@ defineExpose({
         <template #trigger>
           <button
             type="button"
-            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-slate-200/70 hover:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
+            class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-fg-muted hover:bg-surface-hover hover:text-fg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page"
             :aria-expanded="menuOpen"
             :aria-haspopup="true"
             aria-label="Remark actions"

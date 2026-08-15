@@ -27,7 +27,7 @@ withDefaults(
       <div
         v-for="row in rows"
         :key="`r-${row}`"
-        class="grid gap-3 border-b border-slate-50 px-4 py-3 last:border-b-0"
+        class="grid gap-3 border-b border-border px-4 py-3 last:border-b-0"
         :style="{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }"
       >
         <AppSkeleton

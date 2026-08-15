@@ -30,7 +30,7 @@ function subjectRoute(log: ActivityLog) {
       class="relative border-l border-border pl-4"
       data-test="dashboard-activity-item"
     >
-      <span class="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-slate-400" />
+      <span class="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-surface bg-fg-muted" />
       <div class="flex flex-wrap items-center gap-2">
         <p class="text-sm font-medium text-fg">{{ activityHeadline(log) }}</p>
         <span class="rounded-md bg-canvas px-1.5 py-0.5 text-[11px] font-medium text-fg-subtle">
@@ -47,7 +47,7 @@ function subjectRoute(log: ActivityLog) {
           {{ activitySubjectLabel(log) }}
         </RouterLink>
         <span v-else class="font-medium text-fg-secondary">{{ activitySubjectLabel(log) }}</span>
-        <span class="text-slate-400"> · </span>
+        <span class="text-fg-muted"> · </span>
         {{ formatDateTime(log.created_at) }}
       </p>
     </li>

@@ -277,7 +277,7 @@ onBeforeUnmount(() => {
       <div
         v-if="showStatusOnly"
         class="px-3 py-3 text-sm"
-        :class="errorMessage ? 'text-red-700' : 'text-fg-subtle'"
+        :class="errorMessage ? 'text-danger-fg' : 'text-fg-subtle'"
         role="status"
         data-test="global-search-status"
       >
@@ -331,7 +331,7 @@ onBeforeUnmount(() => {
                   <p class="truncate text-sm font-medium text-fg">{{ hit.item.title }}</p>
                   <p class="truncate text-xs text-fg-muted">
                     {{ hit.item.project?.name || 'Task' }}
-                    <span v-if="hit.item.is_overdue" class="font-medium text-red-700"> · Overdue</span>
+                    <span v-if="hit.item.is_overdue" class="font-medium text-danger-fg"> · Overdue</span>
                   </p>
                 </div>
                 <StatusBadge :status="String(hit.item.status)" kind="task" />

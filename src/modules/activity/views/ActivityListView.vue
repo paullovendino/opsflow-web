@@ -210,7 +210,7 @@ onMounted(async () => {
     <div v-else class="flex flex-col gap-4 transition-opacity" :class="{ 'opacity-60': softRefresh }" :aria-busy="isLoading">
       <p
         v-if="errorMessage"
-        class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900"
+        class="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
         role="status"
       >
         Couldn't refresh activity. Showing the last loaded snapshot.

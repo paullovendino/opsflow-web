@@ -134,7 +134,7 @@ function viewAll(): void {
           />
         </span>
         <span class="line-clamp-2 text-xs text-fg-subtle">{{ notificationMessage(item) }}</span>
-        <span class="text-[11px] text-slate-400">{{ formatRelativeTime(item.created_at) }}</span>
+        <span class="text-[11px] text-fg-muted">{{ formatRelativeTime(item.created_at) }}</span>
       </button>
     </div>
 

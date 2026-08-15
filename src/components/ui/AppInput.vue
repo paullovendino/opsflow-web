@@ -24,7 +24,7 @@ defineEmits<{
       :autocomplete="autocomplete"
       :placeholder="placeholder"
       class="h-10 w-full rounded-md border border-border-strong bg-input px-3 py-0 text-sm leading-normal text-fg placeholder:text-fg-muted outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40"
-      :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-100': Boolean(error) }"
+      :class="{ 'border-red-500 focus:border-red-500 focus:ring-danger-border/60': Boolean(error) }"
       @input="$emit('update:modelValue', ($event.target as HTMLInputElement).value)"
     />
     <p v-if="error" class="text-sm text-danger-fg">{{ error }}</p>

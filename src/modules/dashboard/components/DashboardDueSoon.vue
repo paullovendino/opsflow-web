@@ -30,7 +30,7 @@ defineProps<{
           </div>
           <p class="mt-1 text-xs text-fg-muted">
             <span class="font-medium text-fg-subtle">{{ item.project?.name ?? 'No project' }}</span>
-            <span class="text-slate-400"> · </span>
+            <span class="text-fg-muted"> · </span>
             <span :class="item.is_overdue ? 'font-medium text-rose-800' : 'text-fg-muted'">
               {{ taskDueDateLabel(item.due_date, item.is_overdue) }}
             </span>

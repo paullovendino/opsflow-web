@@ -28,7 +28,7 @@ defineOptions({
       :placeholder="placeholder"
       :disabled="disabled"
       class="w-full rounded-md border border-border-strong bg-input px-3 py-2 text-sm text-fg placeholder:text-fg-muted outline-none focus:border-border-strong focus:ring-2 focus:ring-ring/40 disabled:cursor-not-allowed disabled:bg-muted"
-      :class="{ 'border-red-500 focus:border-red-500 focus:ring-red-100': Boolean(error) }"
+      :class="{ 'border-red-500 focus:border-red-500 focus:ring-danger-border/60': Boolean(error) }"
       v-bind="$attrs"
       @input="$emit('update:modelValue', ($event.target as HTMLTextAreaElement).value)"
     />

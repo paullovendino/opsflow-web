@@ -135,7 +135,7 @@ onMounted(async () => {
           <div class="min-w-0">
             <p class="text-sm font-semibold text-fg">{{ notificationTitle(item) }}</p>
             <p class="mt-1 text-sm text-fg-subtle">{{ notificationMessage(item) }}</p>
-            <p class="mt-2 text-xs text-slate-400">{{ formatRelativeTime(item.created_at) }}</p>
+            <p class="mt-2 text-xs text-fg-muted">{{ formatRelativeTime(item.created_at) }}</p>
           </div>
           <span
             v-if="!item.read_at"

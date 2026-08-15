@@ -127,7 +127,7 @@ async function onSubmit(): Promise<void> {
         :error="fieldErrors.password"
       />
 
-      <p v-if="formError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700">
+      <p v-if="formError" class="rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg">
         {{ formError }}
       </p>
 

@@ -19,4 +19,9 @@ describe('AppButton', () => {
     expect(wrapper.attributes('disabled')).toBeDefined()
     expect(wrapper.text()).toContain('Saving…')
   })
+
+  it('matches shared control height', () => {
+    const wrapper = mount(AppButton, { slots: { default: 'Save' } })
+    expect(wrapper.classes()).toContain('h-10')
+  })
 })

@@ -23,7 +23,7 @@ const open = ref(false)
 const itemClass =
   'block w-full px-3 py-2 text-left text-sm text-fg-secondary outline-none hover:bg-surface-hover focus:bg-muted focus-visible:bg-canvas'
 const dangerClass =
-  'block w-full px-3 py-2 text-left text-sm text-red-700 outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-red-100'
+  'block w-full px-3 py-2 text-left text-sm text-danger-fg outline-none hover:bg-danger-soft focus:bg-danger-soft focus-visible:bg-danger-soft'
 
 function toggle(): void {
   open.value = !open.value

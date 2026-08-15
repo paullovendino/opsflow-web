@@ -25,7 +25,7 @@ const variantClass: Record<string, string> = {
 <template>
   <button
     :type="type"
-    class="relative inline-flex min-w-[6.5rem] items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page disabled:cursor-not-allowed disabled:opacity-60"
+    class="relative inline-flex h-10 min-w-[6.5rem] items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-page disabled:cursor-not-allowed disabled:opacity-60"
     :class="variantClass[variant]"
     :disabled="disabled || loading"
     :aria-busy="loading"

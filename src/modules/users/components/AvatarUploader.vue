@@ -182,6 +182,7 @@ async function onRemove(): Promise<void> {
       type="file"
       class="hidden"
       :accept="AVATAR_ACCEPT"
+      aria-label="Choose profile photo"
       data-test="avatar-file-input"
       @change="onFileChange"
     />

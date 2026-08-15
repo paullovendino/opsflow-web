@@ -19,7 +19,7 @@ withDefaults(
     aria-live="polite"
   >
     <span
-      class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-slate-400 border-r-transparent"
+      class="inline-block h-6 w-6 animate-spin rounded-full border-2 border-fg-muted border-r-transparent"
       aria-hidden="true"
     />
     <span class="text-sm">{{ label }}</span>

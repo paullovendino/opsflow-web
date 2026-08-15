@@ -430,7 +430,7 @@ onMounted(async () => {
                   tone="sky"
                   :label="humanizeKey(user.role.name)"
                 />
-                <span v-else class="text-slate-400">—</span>
+                <span v-else class="text-fg-muted">—</span>
               </td>
               <td class="px-4 py-3 text-fg-subtle">{{ user.department?.name || '—' }}</td>
               <td class="px-4 py-3 text-fg-subtle">{{ user.job_title?.name || '—' }}</td>

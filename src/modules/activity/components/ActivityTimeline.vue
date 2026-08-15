@@ -85,7 +85,7 @@ const softRefresh = computed(() => isSoftListRefresh(isLoading.value, logs.value
     <div v-else class="transition-opacity" :class="{ 'opacity-60': softRefresh }" :aria-busy="isLoading">
       <p
         v-if="errorMessage"
-        class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900"
+        class="mb-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-950/40 dark:text-amber-100"
         role="status"
       >
         Couldn't refresh activity.
@@ -99,14 +99,14 @@ const softRefresh = computed(() => isSoftListRefresh(isLoading.value, logs.value
           class="relative border-l border-border pl-4"
           data-test="activity-item"
         >
-          <span class="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-white bg-slate-400" />
+          <span class="absolute -left-1.5 top-1.5 h-3 w-3 rounded-full border-2 border-surface bg-fg-muted" />
           <div class="flex flex-wrap items-center gap-2">
             <p class="text-sm font-medium text-fg">{{ activityHeadline(log) }}</p>
             <AppBadge :label="humanizeAction(String(log.action))" tone="slate" />
           </div>
           <p class="mt-1 text-sm text-fg-subtle">
             {{ activitySubjectLabel(log) }}
-            <span class="text-slate-400">·</span>
+            <span class="text-fg-muted">·</span>
             {{ formatDateTime(log.created_at) }}
           </p>
           <p v-if="activityChangeSummary(log)" class="mt-1 text-xs text-fg-muted">

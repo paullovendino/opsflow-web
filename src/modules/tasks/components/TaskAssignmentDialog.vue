@@ -107,7 +107,7 @@ onMounted(() => {
   >
     <p
       v-if="formError"
-      class="mb-3 rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-red-700"
+      class="mb-3 rounded-md border border-danger-border bg-danger-soft px-3 py-2 text-sm text-danger-fg"
       role="alert"
     >
       {{ formError }}
