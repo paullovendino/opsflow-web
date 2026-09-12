@@ -52,20 +52,20 @@ Set these for **Production** and **Preview** (not only Development):
 
 | Name | Value |
 | ---- | ----- |
-| `VITE_API_BASE_URL` | Public **origin** of the Laravel API, e.g. `https://opsflow-api.vercel.app` |
+| `VITE_API_BASE_URL` | The **SPA origin** in production, e.g. `https://myopsflow.vercel.app` |
 | `VITE_APP_NAME` | `OpsFlow` |
 
-Do **not** append `/api`. Axios already requests `/api/v1/...` and `/sanctum/csrf-cookie`.
+Do **not** append `/api`. Do **not** use the Render URL here. `vercel.json` proxies `/api`, `/sanctum`, and `/storage` to Render so Sanctum cookies stay first-party.
 
 Copy `.env.production.example` locally if you run `npm run build` on your machine. Do not commit `.env.production`.
 
 ### Redeploy (existing project)
 
 1. Push the latest `opsflow-web` commit (including `vercel.json`) to the branch Vercel is connected to.
-2. In Vercel → the **opsflow-web** project → **Settings → Environment Variables**, set `VITE_API_BASE_URL` to the live API origin (no `/api`).
+2. In Vercel → the **opsflow-web** project → **Settings → Environment Variables**, set `VITE_API_BASE_URL` to `https://myopsflow.vercel.app`.
 3. **Settings → General → Node.js Version** → `22.x`.
 4. Open **Deployments** → ⋮ on the latest deployment → **Redeploy**. Uncheck “Use existing Build Cache” so Vite picks up the new env vars.
-5. After the deploy, open the SPA URL, then hard-refresh. Confirm in DevTools → Network that calls go to `https://<api-host>/api/v1/health` (or `/api/v1/auth/login`), not `/api/api/v1/...`.
+5. After the deploy, open the SPA URL, then hard-refresh. Confirm in DevTools → Network that login goes to `https://myopsflow.vercel.app/api/v1/auth/login` (same origin as the SPA), not `onrender.com`.
 
 ### Redeploy from CLI
 
@@ -78,4 +78,4 @@ CLI deploys still need `VITE_API_BASE_URL` set in the Vercel project (or passed 
 
 ### Login cookies
 
-The SPA and API are different origins on `*.vercel.app`. Sanctum cookies will not work with default `SameSite=lax` until you put both apps on one parent domain (or proxy `/api` and `/sanctum` through this Vercel project). Routing and the API URL can be verified before that; login may still fail until cookies are configured on the API.
+Production login uses a same-origin proxy (`vercel.json` → Render). Keep `VITE_API_BASE_URL` on the Vercel SPA host so Axios can read the `XSRF-TOKEN` cookie. Local `npm run dev` still uses `http://localhost:8000`.

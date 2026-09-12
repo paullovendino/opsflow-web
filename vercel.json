@@ -6,6 +6,18 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/sanctum/:path*",
+      "destination": "https://opsflow-api-zuhj.onrender.com/sanctum/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://opsflow-api-zuhj.onrender.com/api/:path*"
+    },
+    {
+      "source": "/storage/:path*",
+      "destination": "https://opsflow-api-zuhj.onrender.com/storage/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
