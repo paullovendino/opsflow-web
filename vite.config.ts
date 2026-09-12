@@ -5,8 +5,8 @@ import vue from '@vitejs/plugin-vue'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import tailwindcss from '@tailwindcss/vite'
 
-export default defineConfig({
-  plugins: [tailwindcss(), vue(), vueDevTools()],
+export default defineConfig(({ command }) => ({
+  plugins: [tailwindcss(), vue(), ...(command === 'serve' ? [vueDevTools()] : [])],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
@@ -18,4 +18,4 @@ export default defineConfig({
     include: ['src/**/*.spec.ts'],
     setupFiles: ['src/test/setup.ts'],
   },
-})
+}))
