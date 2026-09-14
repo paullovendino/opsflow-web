@@ -1,0 +1,20 @@
+{
+  "rewrites": [
+    {
+      "source": "/sanctum/:path*",
+      "destination": "https://opsflow-api-1.onrender.com/sanctum/:path*"
+    },
+    {
+      "source": "/api/:path*",
+      "destination": "https://opsflow-api-1.onrender.com/api/:path*"
+    },
+    {
+      "source": "/storage/:path*",
+      "destination": "https://opsflow-api-1.onrender.com/storage/:path*"
+    },
+    {
+      "source": "/((?!api/|sanctum/|storage/).*)",
+      "destination": "/index.html"
+    }
+  ]
+}

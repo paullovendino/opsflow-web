@@ -3,7 +3,7 @@ import type { ApiEnvelope } from '@/types/api'
 import { useUiStore } from '@/stores/ui'
 import { shouldTrackHttpProgress } from '@/utils/httpProgress'
 
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL
+const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').trim() || undefined
 
 export const http = axios.create({
   baseURL: apiBaseUrl,
