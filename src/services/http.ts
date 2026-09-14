@@ -7,7 +7,8 @@ const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL ?? '').trim() || undefined
 
 export const http = axios.create({
   baseURL: apiBaseUrl,
-  timeout: 15000,
+  // Render cold starts + remote Postgres often exceed 15s on first parallel requests.
+  timeout: 45000,
   withCredentials: true,
   withXSRFToken: true,
   xsrfCookieName: 'XSRF-TOKEN',
