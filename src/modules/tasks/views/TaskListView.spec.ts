@@ -77,7 +77,17 @@ const meta = {
   to: 1,
 }
 
-async function mountPage(path = '/tasks') {
+const employee: AuthUser = {
+  ...admin,
+  id: 3,
+  first_name: 'Eli',
+  last_name: 'Employee',
+  full_name: 'Eli Employee',
+  email: 'eli@opsflow.test',
+  role: { id: 3, name: 'employee', description: null },
+}
+
+async function mountPage(path = '/tasks', user: AuthUser = admin) {
   const router = createRouter({
     history: createMemoryHistory(),
     routes: [
@@ -91,7 +101,7 @@ async function mountPage(path = '/tasks') {
 
   const pinia = createPinia()
   setActivePinia(pinia)
-  useAuthStore().setUser(admin)
+  useAuthStore().setUser(user)
 
   const wrapper = mount(TaskListView, {
     global: { plugins: [pinia, router] },
@@ -168,6 +178,15 @@ describe('TaskListView', () => {
     const empty = await mountPage()
     expect(empty.wrapper.text()).toContain('No tasks yet')
     empty.wrapper.unmount()
+
+    vi.mocked(taskService.listTasks).mockResolvedValueOnce({
+      tasks: [],
+      meta: { ...meta, total: 0, from: null, to: null },
+      message: 'ok',
+    })
+    const employeeEmpty = await mountPage('/tasks', employee)
+    expect(employeeEmpty.wrapper.text()).toContain('No tasks assigned to you')
+    employeeEmpty.wrapper.unmount()
 
     vi.mocked(taskService.listTasks).mockRejectedValueOnce({
       response: {

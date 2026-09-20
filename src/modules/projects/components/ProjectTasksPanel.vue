@@ -33,6 +33,7 @@ const errorMessage = ref<string | null>(null)
 const canMutate = computed(
   () => roleName.value === 'administrator' || roleName.value === 'project_manager',
 )
+const isEmployee = computed(() => roleName.value === 'employee')
 
 const formDialog = reactive({
   open: false,
@@ -186,8 +187,12 @@ onMounted(() => {
 
     <AppEmptyState
       v-else-if="tasks.length === 0"
-      title="No tasks yet"
-      description="Add tasks to track work on this project."
+      :title="isEmployee ? 'No tasks assigned to you' : 'No tasks yet'"
+      :description="
+        isEmployee
+          ? 'Assigned tasks on this project will appear here.'
+          : 'Add tasks to track work on this project.'
+      "
     >
       <template v-if="canMutate" #action>
         <AppButton @click="openCreate">Add task</AppButton>

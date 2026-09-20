@@ -63,6 +63,17 @@ const projectOptions = ref<Array<{ value: number; label: string }>>([])
 const canMutate = computed(
   () => roleName.value === 'administrator' || roleName.value === 'project_manager',
 )
+const isEmployee = computed(() => roleName.value === 'employee')
+const emptyTitle = computed(() => {
+  if (hasActiveFilters.value) return 'No tasks match your filters'
+  return isEmployee.value ? 'No tasks assigned to you' : 'No tasks yet'
+})
+const emptyDescription = computed(() => {
+  if (hasActiveFilters.value) return 'Try adjusting search or filters.'
+  return isEmployee.value
+    ? 'Tasks assigned to you will appear here.'
+    : 'Create a task to get started.'
+})
 
 const statusOptions = TASK_STATUSES.map((status) => ({
   value: status,
@@ -558,10 +569,8 @@ onMounted(async () => {
     <template v-else>
       <AppEmptyState
         v-if="isEmpty"
-        :title="hasActiveFilters ? 'No tasks match your filters' : 'No tasks yet'"
-        :description="
-          hasActiveFilters ? 'Try adjusting search or filters.' : 'Create a task to get started.'
-        "
+        :title="emptyTitle"
+        :description="emptyDescription"
       >
         <template v-if="canMutate && !hasActiveFilters" #action>
           <AppButton @click="openCreate">Create task</AppButton>
